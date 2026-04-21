@@ -1,0 +1,90 @@
+class NotificationService {
+//   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+//       FlutterLocalNotificationsPlugin();
+
+//   AudioPlayer player = AudioPlayer();
+
+//   Future<void> _whistle(String sound) async {
+//     await player.setSource(AssetSource(sound)).then((value) {
+//       player.play(AssetSource(sound));
+//     });
+//     player.onPlayerStateChanged.listen((PlayerState s) async {
+//       if (s == PlayerState.completed) {
+//         await player.pause();
+//       }
+//     });
+//   }
+
+//   Future<void> init() async {
+//     const AndroidInitializationSettings initializationSettingsAndroid =
+//         AndroidInitializationSettings('@mipmap/launcher_icon');
+//     const DarwinInitializationSettings initializationSettingsIOS =
+//         DarwinInitializationSettings();
+//     const InitializationSettings initializationSettings =
+//         InitializationSettings(
+//           android: initializationSettingsAndroid,
+//           iOS: initializationSettingsIOS,
+//         );
+//     await flutterLocalNotificationsPlugin.initialize(
+//       settings: initializationSettings,
+//     );
+//     await FirebaseMessaging.instance
+//         .setForegroundNotificationPresentationOptions(
+//           alert: true,
+//           badge: true,
+//           sound: true,
+//         );
+//   }
+
+//   void showRemoteNotificationAndroid(RemoteMessage message) async {
+//     RemoteNotification? notification = message.notification;
+//     AndroidNotification? android = message.notification?.android;
+//     AppleNotification? apple = message.notification?.apple;
+//     if (notification != null) {
+//       NotificationDetails notificationDetails = NotificationDetails(
+//         android: android != null
+//             ? const AndroidNotificationDetails(
+//                 "task_reminder",
+//                 "OnTrip Reminder",
+//                 ticker: 'ticker',
+//                 showWhen: true,
+//                 playSound: true,
+//                 enableLights: true,
+//                 enableVibration: true,
+//                 priority: Priority.high,
+//                 importance: Importance.max,
+//                 visibility: NotificationVisibility.public,
+//                 channelDescription:
+//                     "The OnTrip reminder system for task to manage managed",
+//               )
+//             : null,
+//         iOS: apple != null
+//             ? const DarwinNotificationDetails(
+//                 presentAlert: true,
+//                 presentBadge: true,
+//                 presentSound: true,
+//               )
+//             : null,
+//       );
+//       _whistle("slow_spring_board.mp3");
+//       await flutterLocalNotificationsPlugin.show(
+//         id: notification.hashCode,
+//         title: notification.title,
+//         body: notification.body,
+//         notificationDetails: notificationDetails,
+//       );
+//     }
+//   }
+
+//   Future<String?> getToken() async {
+//     try {
+//       await FirebaseMessaging.instance.deleteToken();
+//       String? fcmToken = await FirebaseMessaging.instance.getToken();
+//       return fcmToken;
+//     } catch (err) {
+//       return null;
+//     }
+//   }
+}
+
+NotificationService notificationService = NotificationService();
