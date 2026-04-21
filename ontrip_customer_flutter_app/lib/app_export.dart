@@ -90,24 +90,10 @@ export 'src/helper/app_url.dart';
 export 'src/helper/app_validator.dart';
 
 //! MODELS
+export 'src/models/booking_model.dart';
 export 'src/models/bank_info_model.dart';
-export 'src/models/business_card_model.dart';
-export 'src/models/business_document_model.dart';
-export 'src/models/business_subscription_model.dart';
-export 'src/models/group_model.dart';
-export 'src/models/message_model.dart';
-export 'src/models/my_product_model.dart';
-export 'src/models/paginate_scan_card_model.dart';
 export 'src/models/profile_image_model.dart';
-export 'src/models/scan_card_model.dart';
-export 'src/models/service_model.dart';
-export 'src/models/share_history_model.dart';
 export 'src/models/sign_up_model.dart';
-export 'src/models/single_share_card_model.dart';
-export 'src/models/social_media_link_model.dart';
-export 'src/models/subscription_user_model.dart';
-export 'src/models/task_model.dart';
-export 'src/models/profile_visitor_model.dart';
 
 //! UTILS
 export 'src/utils/util.dart';
@@ -125,12 +111,21 @@ export 'src/services/storage_service.dart';
 //! SCREENS
 
 export 'src/screens/auth/sign_in/sign_in.dart';
+
 export 'src/screens/splash/splash.dart';
 
 export 'src/screens/dashboard/pages/home/home.dart';
 export 'src/common/custom_bottom_nav_bar.dart';
 
 export 'src/screens/dashboard/dashboard.dart';
+
+export 'src/screens/auth/verify_otp/verify_otp.dart';
+export 'src/screens/auth/verify_otp/verify_otp_ctrl.dart';
+
+export 'src/screens/settings/settings.dart';
+export 'src/screens/settings/settings_ctrl.dart';
+export 'src/screens/edit_profile/edit_profile.dart';
+export 'src/screens/booking_details/booking_details.dart';
 
 //! ROUTE
 export 'src/routes/route_methods.dart';

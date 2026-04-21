@@ -53,22 +53,33 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
   Widget build(BuildContext context) {
     return GetBuilder<SignInCtrl>(
       builder: (ctrl) {
-        return PopScope(
-          canPop: false,
-          child: Scaffold(
-            backgroundColor: const Color(0xFFF8FAFC),
-            body: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [const Color(0xFFF8FAFC), Colors.blue.shade50.withValues(alpha: 0.5), Colors.blue.shade50.withValues(alpha: 0.2)],
-                  stops: const [0.0, 0.5, 1.0],
+        return GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
+          child: PopScope(
+            canPop: false,
+            child: Scaffold(
+              backgroundColor: const Color(0xFFF8FAFC),
+              body: Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [const Color(0xFFF8FAFC), Colors.blue.shade50.withValues(alpha: 0.5), Colors.blue.shade50.withValues(alpha: 0.2)],
+                    stops: const [0.0, 0.5, 1.0],
+                  ),
                 ),
-              ),
-              child: SafeArea(
-                child: Center(
-                  child: ListView(shrinkWrap: true, physics: ClampingScrollPhysics(), children: [_buildSignInFormCard(ctrl), _buildFooterSection()]),
+                child: SafeArea(
+                  child: Center(
+                    child: ListView(
+                      shrinkWrap: true,
+                      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                      physics: ClampingScrollPhysics(),
+                      children: [_buildSignInFormCard(ctrl), _buildFooterSection()],
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -97,17 +108,7 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              _buildWelcomeSection(),
-              const SizedBox(height: 28),
-              _buildCredentialField(ctrl),
-              const SizedBox(height: 20),
-              _buildPasswordField(ctrl),
-              const SizedBox(height: 28),
-              _buildSignInButton(ctrl),
-              const SizedBox(height: 20),
-              _buildCreateAccountOption(ctrl),
-            ],
+            children: [_buildWelcomeSection(), const SizedBox(height: 28), _buildCredentialField(ctrl), const SizedBox(height: 28), _buildSignInButton(ctrl)],
           ),
         ),
       ),
@@ -115,24 +116,25 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
   }
 
   Widget _buildWelcomeSection() {
-    return Row(
-      spacing: 10.0,
+    return Column(
       children: [
         Container(
           padding: const EdgeInsets.all(3),
           decoration: BoxDecoration(
-            shape: BoxShape.circle,
+            shape: BoxShape.rectangle,
+            borderRadius: BorderRadius.circular(16),
             gradient: LinearGradient(colors: [decoration.colorScheme.primary, decoration.colorScheme.primary.withValues(alpha: 0.7)]),
             boxShadow: [BoxShadow(color: decoration.colorScheme.primary.withValues(alpha: 0.2), blurRadius: 25, spreadRadius: 2)],
           ),
           child: Container(
             padding: const EdgeInsets.all(3),
-            decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(14), shape: BoxShape.rectangle, color: Colors.white),
             child: Container(
-              height: 72,
-              width: 72,
+              height: 75,
+              width: 75,
               decoration: BoxDecoration(
-                shape: BoxShape.circle,
+                borderRadius: BorderRadius.circular(12),
+                shape: BoxShape.rectangle,
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -143,21 +145,14 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
             ),
           ),
         ),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Welcome Back",
-                style: TextStyle(fontSize: 22, color: Colors.grey.shade900, fontWeight: FontWeight.w800, letterSpacing: -0.2),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                "Sign in to access your professional dashboard",
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade600, fontWeight: FontWeight.w400),
-              ),
-            ],
-          ),
+        Text(
+          "Welcome Back",
+          style: TextStyle(fontSize: 22, color: Colors.grey.shade900, fontWeight: FontWeight.w800, letterSpacing: -0.2),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          "Sign in to access your professional dashboard",
+          style: TextStyle(fontSize: 13, color: Colors.grey.shade600, fontWeight: FontWeight.w400),
         ),
       ],
     );
@@ -178,9 +173,8 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
             boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2))],
           ),
           child: TextFormField(
-            controller: ctrl.txtEmailId,
-            keyboardType: TextInputType.emailAddress,
-            textInputAction: TextInputAction.next,
+            controller: ctrl.txtPhoneNumber,
+            keyboardType: TextInputType.phone,
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.grey.shade800),
             decoration: InputDecoration(
               hintText: "Enter Phone number",
@@ -206,76 +200,7 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
             ),
             onChanged: (value) => ctrl.update(),
-            onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildPasswordField(SignInCtrl ctrl) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Password",
-          style: TextStyle(fontSize: 13, color: Colors.grey.shade800, fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 8),
-        Obx(
-          () => Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2))],
-            ),
-            child: TextFormField(
-              controller: ctrl.edtPassword,
-              obscureText: ctrl.isPasswordHidden.value,
-              textInputAction: TextInputAction.done,
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.grey.shade800),
-              decoration: InputDecoration(
-                hintText: "Enter your password",
-                hintStyle: TextStyle(fontSize: 14, color: Colors.grey.shade500),
-                prefixIcon: Container(
-                  margin: const EdgeInsets.all(10),
-                  child: Icon(Icons.lock_outline, size: 20, color: Colors.grey.shade600),
-                ),
-                suffixIcon: Container(
-                  margin: const EdgeInsets.only(right: 4),
-                  child: IconButton(
-                    icon: Icon(ctrl.isPasswordHidden.value ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: Colors.grey.shade600, size: 20),
-                    onPressed: () {
-                      ctrl.isPasswordHidden.value = !ctrl.isPasswordHidden.value;
-                    },
-                  ),
-                ),
-                filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(14),
-                  borderSide: BorderSide(color: decoration.colorScheme.primary, width: 2),
-                ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return "Please enter your password";
-                }
-                if (value.length < 6) {
-                  return "Password must be at least 6 characters";
-                }
-                return null;
-              },
-              onFieldSubmitted: (_) => ctrl.signIn(),
-            ),
+            // onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
           ),
         ),
       ],
@@ -323,70 +248,6 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget _buildCreateAccountOption(SignInCtrl ctrl) {
-    return Obx(
-      () => AnimatedSwitcher(
-        duration: const Duration(milliseconds: 400),
-        transitionBuilder: (child, animation) {
-          return FadeTransition(
-            opacity: animation,
-            child: SizeTransition(sizeFactor: animation, axisAlignment: -1, child: child),
-          );
-        },
-        child: ctrl.selectedRole.value == 'admin'
-            ? Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(child: Divider(color: Colors.grey.shade300, thickness: 1)),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Text(
-                          "New to OnTrip?",
-                          style: TextStyle(fontSize: 13, color: Colors.grey.shade600, fontWeight: FontWeight.w500),
-                        ),
-                      ),
-                      Expanded(child: Divider(color: Colors.grey.shade300, thickness: 1)),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Container(
-                    height: 52,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(color: decoration.colorScheme.primary, width: .9),
-                      color: Colors.white,
-                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 4))],
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(14),
-                        onTap: ctrl.navigateToCreateAccount,
-                        child: Container(
-                          alignment: Alignment.center,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.person_add_alt_1_rounded, color: decoration.colorScheme.primary, size: 20),
-                              const SizedBox(width: 10),
-                              Text(
-                                "CREATE NEW ACCOUNT",
-                                style: TextStyle(fontSize: 15, color: decoration.colorScheme.primary, fontWeight: FontWeight.w700, letterSpacing: 0.5),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              )
-            : const SizedBox.shrink(),
       ),
     );
   }

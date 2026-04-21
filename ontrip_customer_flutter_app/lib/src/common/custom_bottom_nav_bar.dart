@@ -24,7 +24,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> with TickerProv
     NavItem(
       iconAsset: Graphics.instance.iconDirection,
       activeIconAsset: Graphics.instance.iconDirectionFill,
-      label: 'Share',
+      label: 'My Bookings',
       activeColor: Constant.instance.primary,
       iconType: NavIconType.icon,
     ),

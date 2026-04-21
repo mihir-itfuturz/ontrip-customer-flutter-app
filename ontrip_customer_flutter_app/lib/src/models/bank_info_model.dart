@@ -5,27 +5,21 @@ class BankInfoModel {
   final String? branch;
   final String? paymentGateWayLink;
 
-  BankInfoModel({
-    this.accountHolderName,
-    this.accountNumber,
-    this.ifscCode,
-    this.branch,
-    this.paymentGateWayLink,
-  });
+  BankInfoModel({this.accountHolderName, this.accountNumber, this.ifscCode, this.branch, this.paymentGateWayLink});
 
   factory BankInfoModel.fromJson(Map<String, dynamic> json) => BankInfoModel(
-        accountHolderName: json["accountHolderName"],
-        accountNumber: json["accountNumber"],
-        ifscCode: json["ifscCode"],
-        branch: json["branch"],
-        paymentGateWayLink: json["paymentGateWayLink"],
-      );
+    accountHolderName: json["accountHolderName"],
+    accountNumber: json["accountNumber"],
+    ifscCode: json["ifscCode"],
+    branch: json["branch"],
+    paymentGateWayLink: json["paymentGateWayLink"],
+  );
 
   Map<String, dynamic> toJson() => {
-        "accountHolderName": accountHolderName,
-        "accountNumber": accountNumber,
-        "ifscCode": ifscCode,
-        "branch": branch,
-        "paymentGateWayLink": paymentGateWayLink,
-      };
+    "accountHolderName": accountHolderName,
+    "accountNumber": accountNumber,
+    "ifscCode": ifscCode,
+    "branch": branch,
+    "paymentGateWayLink": paymentGateWayLink,
+  };
 }

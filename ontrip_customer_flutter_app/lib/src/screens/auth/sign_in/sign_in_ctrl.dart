@@ -3,46 +3,40 @@ import 'package:ontrip_customer_flutter_app/src/screens/dashboard/pages/home/hom
 import '../../../../app_export.dart';
 
 class SignInCtrl extends GetxController {
-  final TextEditingController txtEmailId = TextEditingController(), edtPassword = TextEditingController();
-  final isPasswordHidden = true.obs, isLoadingForSignIn = false.obs;
-  final selectedRole = 'member'.obs;
+  final TextEditingController txtPhoneNumber = TextEditingController();
+  final isLoadingForSignIn = false.obs;
+  List<TextEditingController> otpControllers = List.generate(4, (_) => TextEditingController());
+  List<FocusNode> otpFocusNodes = List.generate(4, (_) => FocusNode());
   bool isLoadingForLogout = false;
 
   void navigateToCreateAccount() => Get.toNamed(RouteNames.createAccount);
 
+  String get otpCode => otpControllers.map((e) => e.text).join();
+
   Future signIn() async {
     try {
       isLoadingForSignIn.value = true;
-      final inputValue = txtEmailId.text.trim();
+      final inputValue = txtPhoneNumber.text.trim();
+      if (inputValue.isEmpty) {
+        warningToast("Mobile number is required");
+        return;
+      }
       String clean = inputValue.replaceAll(RegExp(r'[\s\-()]'), '');
+
+      // ✅ Validate properly (Indian numbers)
+      if (!RegExp(r'^(?:\+91)?[6-9]\d{9}$').hasMatch(clean)) {
+        warningToast("Please enter a valid 10-digit mobile number");
+        return;
+      }
+      String phone = clean.substring(clean.length - 10);
       // String fcm = await notificationService.getToken() ?? "";
-      final Map<String, dynamic> sendJson = {"password": edtPassword.text.trim(), "fcm": 'fcm'};
-      if (RegExp(r'^[\w.+-]+@[\w-]+\.[\w.-]+$').hasMatch(inputValue)) {
-        sendJson["emailId"] = inputValue;
-      } else if (RegExp(r'^(?:\+91)?[6-9]\d{9}$').hasMatch(clean)) {
-        String phone = clean.substring(clean.length - 10);
-        sendJson["mobile"] = phone;
-      }
-      if (selectedRole.value == 'admin') {
-        if (sendJson["emailId"] == null || sendJson["emailId"] == "") {
-          if (sendJson["mobile"] == null || sendJson["mobile"] == "") {
-            warningToast("Email-ID & Mobile number is required...!");
-            return;
-          }
-        }
-      } else {
-        if (sendJson["emailId"] == null || sendJson["emailId"] == "") {
-          warningToast("Email-ID is is required...!");
-          return;
-        }
-      }
-      final endpoint = BACKEND.signIn;
+      final Map<String, dynamic> sendJson = {"phone": phone};
+
+      final endpoint = BACKEND.sendOtp;
       final response = await ApiManager.instance.call(endPoint: endpoint, body: sendJson);
-      if (response.data != null) {
-        if (selectedRole.value != 'admin' && response.data["token"] != null && response.data["token"] != "") {
-          await writeStorage(AppSession.token, response.data["token"]);
-        }
-        await processAfterSignInOrSignUp(response.data!);
+      if (response.status == 1 || response.status == 200) {
+        successToast(response.message);
+        Get.toNamed(RouteNames.verifyOTP, arguments: {"phone": phone});
       } else {
         errorToast(response.message);
       }
@@ -54,26 +48,18 @@ class SignInCtrl extends GetxController {
   }
 
   Future<void> processAfterSignInOrSignUp(dynamic responseData) async {
-    String role = responseData['user']?["role"] ?? "";
-    if (selectedRole.value == 'admin' || role == "admin") {
-      if (role == "admin") {
-        responseData['tokens'] = {"token": responseData["taskUserToken"], "teamMemberToken": responseData["token"]};
-      }
-      final tokens = responseData['tokens'];
-      await writeStorage(AppSession.token, tokens["token"]);
-    } else {
-      final token = responseData['token'];
-      await writeStorage(AppSession.token, token);
+    final tokens = responseData['tokens'];
+    await writeStorage(AppSession.token, tokens["token"]);
 
-      Get.find<MasterController>().onInit();
-      if (Get.isRegistered<HomeController>()) {
-        Get.find<HomeController>().initialize();
-      }
-      pushNRemoveUntil(path: RouteNames.dashboard);
+    final token = responseData['token'];
+    await writeStorage(AppSession.token, token);
+
+    Get.find<MasterController>().onInit();
+    if (Get.isRegistered<HomeController>()) {
+      Get.find<HomeController>().initialize();
     }
+    pushNRemoveUntil(path: RouteNames.dashboard);
   }
-
-
 
   Future<bool> onLogout() async {
     isLoadingForLogout = true;
@@ -115,8 +101,7 @@ class SignInCtrl extends GetxController {
 
   @override
   void onClose() {
-    txtEmailId.dispose();
-    edtPassword.dispose();
+    txtPhoneNumber.dispose();
     super.onClose();
   }
 }

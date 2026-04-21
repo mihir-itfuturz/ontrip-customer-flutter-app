@@ -38,7 +38,7 @@ class AppUrl {
     errorMsg: errorMsg,
   );
 
-  static Future<void> call({required String mobile, String notLaunchMsg = "Unable to dial call", String errorMsg = "Failed to call"}) async => await _myUriLaunch(
+  static Future<void> call(String s, {required String mobile, String notLaunchMsg = "Unable to dial call", String errorMsg = "Failed to call"}) async => await _myUriLaunch(
     url: Uri(scheme: "tel", path: mobile).toString(),
     notLaunchMsg: notLaunchMsg,
     errorMsg: errorMsg,

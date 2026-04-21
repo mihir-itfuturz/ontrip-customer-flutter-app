@@ -85,10 +85,9 @@ class DashboardScreen extends GetView<DashboardCtrl> {
             backgroundColor: const Color(0xFFF8FAFC),
             bottomNavigationBar: Obx(() {
               if (ctrl.cardScanner.value == false) {
-                return SizedBox.shrink();
+                return const SizedBox.shrink();
               }
-              return Text('Dash Board');
-              // CustomBottomNavBar(currentIndex: ctrl.currentIndex, onTabChange: ctrl.onTapForBottomNavBar);
+              return CustomBottomNavBar(currentIndex: ctrl.currentIndex, onTabChange: ctrl.onTapForBottomNavBar);
             }),
             body: ctrl.currentScreen(),
           ),

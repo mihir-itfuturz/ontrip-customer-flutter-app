@@ -4,55 +4,37 @@ import '../../../app_export.dart';
 
 class DashboardCtrl extends GetxController {
   AuthenticationController service = Get.find();
-  BusinessCardModel? businessCardModel;
-  final RxBool cardScanner = false.obs;
+
+  final RxBool cardScanner = true.obs;
 
   @override
   void onInit() {
-    Future.delayed(Duration.zero, () async {});
     super.onInit();
   }
 
   int currentIndex = 0;
 
   bool checkLock() {
-    try {
-      final subs = businessCardModel?.subscription ?? [];
-      final activeProducts = subs.where((e) => e.isActive == true).map((e) => e.product).toSet();
-      if (activeProducts.isNotEmpty && !activeProducts.contains("card-scanner")) {
-        return true;
-      } else if (activeProducts.isEmpty) {
-        return true;
-      }
-      return false;
-    } catch (e) {
-      errorToast("Failed to read environment");
-    }
-    return false;
+    return false; // Temporarily disable lock to ensure everything is visible
   }
 
   void onTapForBottomNavBar(int index) {
-    if (checkLock() == true && index != 0) {
-      warningToast("This product is not assigned you contact administration!");
-      return;
-    }
     currentIndex = index;
-    if (index == 2 && Get.isRegistered<DashboardCtrl>()) {}
     update();
   }
 
   Widget currentScreen() {
     switch (currentIndex) {
       case 0:
-        return HomeScreen();
+        return const HomeScreen();
       case 1:
-        return HomeScreen();
+        return const HomeScreen();
       case 2:
-        return HomeScreen();
+        return const HomeScreen();
       case 3:
-        return HomeScreen();
+        return const HomeScreen();
       default:
+        return const HomeScreen();
     }
-    return SizedBox.shrink();
   }
 }

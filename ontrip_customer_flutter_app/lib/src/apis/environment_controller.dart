@@ -2,8 +2,6 @@ import 'dart:convert';
 import '../../app_export.dart';
 
 class MasterController extends GetxController {
-  BusinessCardModel? businessCardModel;
-
   @override
   void onInit() {
     _readEnvironment();

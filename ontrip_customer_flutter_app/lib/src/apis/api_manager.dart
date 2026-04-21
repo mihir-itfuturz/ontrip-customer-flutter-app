@@ -56,7 +56,13 @@ class ApiManager {
     );
   }
 
-  Future<ApiResponse> call({required String endPoint, dynamic body, ApiType type = ApiType.post, ResponseType responseType = ResponseType.json, Map<String, String>? customHeaders}) async {
+  Future<ApiResponse> call({
+    required String endPoint,
+    dynamic body,
+    ApiType type = ApiType.post,
+    ResponseType responseType = ResponseType.json,
+    Map<String, String>? customHeaders,
+  }) async {
     ApiResponse apiData = ApiResponse(status: 0, message: Constant.instance.initialErrorMdg, data: null);
     try {
       if (customHeaders != null) {
@@ -94,20 +100,47 @@ class ApiManager {
     }
   }
 
+  // ApiResponse _checkStatus(Response response, String apiName, dynamic req, ResponseType responseType) {
+  //   if (response.statusCode == 200 || response.statusCode == 201) {
+
+  //     if (responseType == ResponseType.bytes) {
+  //       return ApiResponse(status: response.statusCode ?? 200, message: 'Success', data: response.data);
+  //     } else {
+  //       return ApiResponse.fromJson(response.data);
+  //     }
+  //   } else {
+  //     return ApiResponse(
+  //       status: response.statusCode ?? 0,
+  //       message: response.data is Map ? response.data['message'] ?? 'Request failed' : 'Request failed',
+  //       data: response.data is Map ? response.data['data'] : null,
+  //     );
+  //   }
+  // }
+
   ApiResponse _checkStatus(Response response, String apiName, dynamic req, ResponseType responseType) {
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      if (responseType == ResponseType.bytes) {
-        return ApiResponse(status: response.statusCode ?? 200, message: 'Success', data: response.data);
-      } else {
-        return ApiResponse.fromJson(response.data);
-      }
-    } else {
-      return ApiResponse(
-        status: response.statusCode ?? 0,
-        message: response.data is Map ? response.data['message'] ?? 'Request failed' : 'Request failed',
-        data: response.data is Map ? response.data['data'] : null,
-      );
+    final statusCode = response.statusCode ?? 0;
+
+    // Handle binary response
+    if (responseType == ResponseType.bytes && (statusCode == 200 || statusCode == 201)) {
+      return ApiResponse(status: statusCode, message: 'Success', data: response.data);
     }
+
+    // Parse JSON safely
+    final data = response.data;
+
+    bool isSuccess = false;
+    String message = "Request failed";
+
+    if (data is Map) {
+      isSuccess = data['success'] == true;
+      message = data['message'] ?? message;
+    }
+
+    return ApiResponse(
+      status: isSuccess ? 1 : 0, // ✅ IMPORTANT CHANGE
+      message: message,
+      data: data is Map ? data['data'] : null,
+    );
   }
 
   void onSocketException(DioException e) => debugPrint("API : SocketException - ${e.toString()}");
