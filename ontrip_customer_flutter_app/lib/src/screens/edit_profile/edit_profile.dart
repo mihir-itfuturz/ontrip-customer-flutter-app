@@ -1,70 +1,10 @@
-import 'package:ontrip_customer_flutter_app/src/screens/auth/authentication_controller.dart';
-
 import '../../../../app_export.dart';
-
-class EditProfileCtrl extends GetxController {
-  final AuthenticationController authService = Get.find();
-
-  late TextEditingController nameController;
-  late TextEditingController emailController;
-
-  RxBool isLoading = false.obs;
-
-  @override
-  void onInit() {
-    super.onInit();
-    final userData = authService.userAuthData;
-    nameController = TextEditingController(text: userData['name'] ?? "");
-    emailController = TextEditingController(text: userData['email'] ?? "");
-  }
-
-  @override
-  void onClose() {
-    nameController.dispose();
-    emailController.dispose();
-    super.onClose();
-  }
-
-  void discardChanges() {
-    Get.back();
-  }
-
-  Future<void> saveChanges() async {
-    if (nameController.text.isEmpty || emailController.text.isEmpty) {
-      warningToast("Please fill all fields");
-      return;
-    }
-
-    try {
-      isLoading.value = true;
-      final body = {"name": nameController.text.trim(), "email": emailController.text.trim()};
-
-      final response = await ApiManager.instance.call(endPoint: BACKEND.profileUpdate, type: ApiType.put, body: body);
-
-      if (response.status == 200 || response.status == 1) {
-        // Update local data
-        authService.userAuthData.addAll(body);
-        successToast("Profile updated successfully");
-        Get.back();
-      } else {
-        errorToast(response.message ?? "Update failed");
-      }
-    } catch (e) {
-      errorToast("Something went wrong");
-    } finally {
-      isLoading.value = false;
-    }
-  }
-}
 
 class EditProfileScreen extends GetView<EditProfileCtrl> {
   const EditProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final userData = controller.authService.userAuthData;
-    final name = userData['name'] ?? "User";
-
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
@@ -74,22 +14,31 @@ class EditProfileScreen extends GetView<EditProfileCtrl> {
         centerTitle: true,
         leading: const CustomBackBtn(),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            // Header Image/Icon Section
-            _buildAvatarHeader(name),
-            const SizedBox(height: 30),
-            // Form Section
-            _buildEditForm(),
-            const SizedBox(height: 40),
-            // Actions Section
-            _buildActionButtons(),
-            const SizedBox(height: 40),
-          ],
-        ),
-      ),
+      body: Obx(() {
+        final userData = controller.authService.userAuthData;
+        final name = userData['name'] ?? "User";
+
+        if (controller.isLoading.value && userData.isEmpty) {
+          return const Center(child: CustomLoadingIndicator());
+        }
+
+        return SingleChildScrollView(
+          child: Column(
+            children: [
+              const SizedBox(height: 20),
+              // Header Image/Icon Section
+              _buildAvatarHeader(name),
+              const SizedBox(height: 30),
+              // Form Section
+              _buildEditForm(),
+              const SizedBox(height: 40),
+              // Actions Section
+              _buildActionButtons(),
+              const SizedBox(height: 40),
+            ],
+          ),
+        );
+      }),
     );
   }
 
@@ -198,22 +147,27 @@ class EditProfileScreen extends GetView<EditProfileCtrl> {
       child: Row(
         children: [
           Expanded(
-            child: GestureDetector(
+            child: CustomBtn(
+              bgColor: Constant.instance.white,
+              style: TextStyle(color: Constant.instance.primary, fontWeight: FontWeight.w700),
+              height: 50,
+              text: "DISCARD",
               onTap: controller.discardChanges,
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                decoration: BoxDecoration(color: Colors.grey.shade100, borderRadius: BorderRadius.circular(20)),
-                child: Center(
-                  child: Text("DISCARD", style: AppTextStyle.bold.copyWith(fontSize: 14, color: Colors.grey.shade600, letterSpacing: 1)),
-                ),
-              ),
+              // isLoading: controller.isLoading.value,
+              // prefix: Icon(Icons.save_outlined),
             ),
           ),
           const SizedBox(width: 16),
           Expanded(
             flex: 2,
             child: Obx(() {
-              return CustomBtn(text: "SAVE CHANGES", onTap: controller.saveChanges, isLoading: controller.isLoading.value, prefix: Icon(Icons.save_outlined));
+              return CustomBtn(
+                height: 50,
+                text: "SAVE CHANGES",
+                onTap: controller.saveChanges,
+                isLoading: controller.isLoading.value,
+                prefix: Icon(Icons.save_outlined),
+              );
             }),
           ),
         ],

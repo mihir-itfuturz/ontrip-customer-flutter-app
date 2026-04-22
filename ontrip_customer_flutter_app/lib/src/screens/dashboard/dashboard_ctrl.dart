@@ -1,4 +1,3 @@
-import 'package:ontrip_customer_flutter_app/src/screens/auth/authentication_controller.dart';
 
 import '../../../app_export.dart';
 
@@ -6,11 +5,6 @@ class DashboardCtrl extends GetxController {
   AuthenticationController service = Get.find();
 
   final RxBool cardScanner = true.obs;
-
-  @override
-  void onInit() {
-    super.onInit();
-  }
 
   int currentIndex = 0;
 
@@ -28,11 +22,11 @@ class DashboardCtrl extends GetxController {
       case 0:
         return const HomeScreen();
       case 1:
-        return const HomeScreen();
+        return const HistoryScreen();
       case 2:
-        return const HomeScreen();
+        return const CommunityScreen();
       case 3:
-        return const HomeScreen();
+        return const SettingsScreen();
       default:
         return const HomeScreen();
     }

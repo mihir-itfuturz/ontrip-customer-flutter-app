@@ -1,0 +1,203 @@
+class CommunityResponse {
+  final Community? community;
+  final bool? canSendMessages;
+
+  CommunityResponse({this.community, this.canSendMessages});
+
+  factory CommunityResponse.fromJson(Map<String, dynamic> json) =>
+      CommunityResponse(community: json["community"] == null ? null : Community.fromJson(json["community"]), canSendMessages: json["canSendMessages"]);
+}
+
+class Community {
+  final String? id;
+  final CommunityPackage? package;
+  final List<AgentMember>? agentMembers;
+  final List<CustomerMember>? customerMembers;
+  final bool? travelerCanSendGlobally;
+  final List<String>? travelerSendDenyList;
+  final List<String>? travelerSendAllowList;
+  final bool? isActive;
+  final DateTime? createdAt;
+
+  Community({
+    this.id,
+    this.package,
+    this.agentMembers,
+    this.customerMembers,
+    this.travelerCanSendGlobally,
+    this.travelerSendDenyList,
+    this.travelerSendAllowList,
+    this.isActive,
+    this.createdAt,
+  });
+
+  factory Community.fromJson(Map<String, dynamic> json) => Community(
+    id: json["_id"],
+    package: json["package"] == null ? null : CommunityPackage.fromJson(json["package"]),
+    agentMembers: json["agentMembers"] == null ? null : List<AgentMember>.from(json["agentMembers"].map((x) => AgentMember.fromJson(x))),
+    customerMembers: json["customerMembers"] == null ? null : List<CustomerMember>.from(json["customerMembers"].map((x) => CustomerMember.fromJson(x))),
+    travelerCanSendGlobally: json["travelerCanSendGlobally"],
+    travelerSendDenyList: json["travelerSendDenyList"] == null ? null : List<String>.from(json["travelerSendDenyList"].map((x) => x)),
+    travelerSendAllowList: json["travelerSendAllowList"] == null ? null : List<String>.from(json["travelerSendAllowList"].map((x) => x)),
+    isActive: json["isActive"],
+    createdAt: json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
+  );
+}
+
+class CommunityPackage {
+  final String? id;
+  final String? title;
+  final String? destination;
+
+  CommunityPackage({this.id, this.title, this.destination});
+
+  factory CommunityPackage.fromJson(Map<String, dynamic> json) => CommunityPackage(id: json["_id"], title: json["title"], destination: json["destination"]);
+}
+
+class AgentMember {
+  final String? id;
+  final String? name;
+  final String? email;
+  final String? role;
+  final String? phone;
+
+  AgentMember({this.id, this.name, this.email, this.role, this.phone});
+
+  factory AgentMember.fromJson(Map<String, dynamic> json) =>
+      AgentMember(id: json["_id"], name: json["name"], email: json["email"], role: json["role"], phone: json["phone"]);
+}
+
+class CustomerMember {
+  final String? id;
+  final String? phone;
+  final String? name;
+  final String? email;
+
+  CustomerMember({this.id, this.phone, this.name, this.email});
+
+  factory CustomerMember.fromJson(Map<String, dynamic> json) => CustomerMember(id: json["_id"], phone: json["phone"], name: json["name"], email: json["email"]);
+}
+
+class MessagesResponse {
+  final List<CommunityMessage>? messages;
+
+  MessagesResponse({this.messages});
+
+  factory MessagesResponse.fromJson(Map<String, dynamic> json) =>
+      MessagesResponse(messages: json["messages"] == null ? null : List<CommunityMessage>.from(json["messages"].map((x) => CommunityMessage.fromJson(x))));
+}
+
+class CommunityMessage {
+  final String? id;
+  final String? community;
+  final String? senderType;
+  final dynamic sender;
+  final String? type;
+  final String? content;
+  final String? imageUrl;
+  final DateTime? createdAt;
+
+  CommunityMessage({this.id, this.community, this.senderType, this.sender, this.type, this.content, this.imageUrl, this.createdAt});
+
+  factory CommunityMessage.fromJson(Map<String, dynamic> json) => CommunityMessage(
+    id: json["_id"],
+    community: json["community"],
+    senderType: json["senderType"],
+    sender: json["sender"],
+    type: json["type"],
+    content: json["content"],
+    imageUrl: json["imageUrl"],
+    createdAt: json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
+  );
+
+  String get senderName {
+    if (sender is Map) {
+      return sender["name"] ?? "Unknown";
+    }
+    return "Unknown";
+  }
+}
+
+class CommunityMediaResponse {
+  final List<CommunityImage>? images;
+  final CommunityPagination? pagination;
+
+  CommunityMediaResponse({this.images, this.pagination});
+
+  factory CommunityMediaResponse.fromJson(Map<String, dynamic> json) => CommunityMediaResponse(
+        images: json["images"] == null ? null : List<CommunityImage>.from(json["images"].map((x) => CommunityImage.fromJson(x))),
+        pagination: json["pagination"] == null ? null : CommunityPagination.fromJson(json["pagination"]),
+      );
+}
+
+class CommunityImage {
+  final String? id;
+  final String? community;
+  final String? package;
+  final String? uploaderType;
+  final Uploader? uploader;
+  final String? customer;
+  final String? imageUrl;
+  final String? caption;
+  final String? message;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
+  CommunityImage({
+    this.id,
+    this.community,
+    this.package,
+    this.uploaderType,
+    this.uploader,
+    this.customer,
+    this.imageUrl,
+    this.caption,
+    this.message,
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  factory CommunityImage.fromJson(Map<String, dynamic> json) => CommunityImage(
+        id: json["_id"],
+        community: json["community"],
+        package: json["package"],
+        uploaderType: json["uploaderType"],
+        uploader: json["uploader"] == null ? null : Uploader.fromJson(json["uploader"]),
+        customer: json["customer"],
+        imageUrl: json["imageUrl"],
+        caption: json["caption"],
+        message: json["message"],
+        createdAt: json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
+        updatedAt: json["updatedAt"] == null ? null : DateTime.parse(json["updatedAt"]),
+      );
+}
+
+class Uploader {
+  final String? id;
+  final String? phone;
+  final String? name;
+
+  Uploader({this.id, this.phone, this.name});
+
+  factory Uploader.fromJson(Map<String, dynamic> json) => Uploader(
+        id: json["_id"],
+        phone: json["phone"],
+        name: json["name"],
+      );
+}
+
+class CommunityPagination {
+  final int? page;
+  final int? limit;
+  final int? total;
+  final int? totalPages;
+
+  CommunityPagination({this.page, this.limit, this.total, this.totalPages});
+
+  factory CommunityPagination.fromJson(Map<String, dynamic> json) => CommunityPagination(
+        page: json["page"],
+        limit: json["limit"],
+        total: json["total"],
+        totalPages: json["totalPages"],
+      );
+}

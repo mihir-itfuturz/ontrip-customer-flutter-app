@@ -1,37 +1,41 @@
 import '../../../../app_export.dart';
-import 'settings_ctrl.dart';
 
-class SettingsScreen extends GetView<SettingsCtrl> {
+class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: AppBar(
-        title: Text("Settings", style: AppTextStyle.bold.copyWith(fontSize: 20)),
-        centerTitle: true,
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: const CustomBackBtn(),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
-            _buildProfileCard(),
-            const SizedBox(height: 30),
-            _buildMenuSection(),
-            const SizedBox(height: 40),
-            _buildFooter(),
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
+    return GetBuilder<SettingsCtrl>(
+      init: SettingsCtrl(),
+      builder: (controller) {
+        return Scaffold(
+          backgroundColor: const Color(0xFFF8FAFC),
+          appBar: AppBar(
+            title: Text("Settings", style: AppTextStyle.bold.copyWith(fontSize: 20)),
+            centerTitle: true,
+            backgroundColor: Colors.white,
+            elevation: 0,
+            leading: const CustomBackBtn(),
+          ),
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                const SizedBox(height: 20),
+                _buildProfileCard(controller),
+                const SizedBox(height: 30),
+                _buildMenuSection(controller),
+                const SizedBox(height: 40),
+                _buildFooter(),
+                const SizedBox(height: 20),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildProfileCard() {
+  Widget _buildProfileCard(SettingsCtrl controller) {
     return Obx(() {
       final userData = controller.authService.userAuthData;
       final name = userData['name'] ?? "User Name";
@@ -91,7 +95,7 @@ class SettingsScreen extends GetView<SettingsCtrl> {
     });
   }
 
-  Widget _buildMenuSection() {
+  Widget _buildMenuSection(SettingsCtrl controller) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),

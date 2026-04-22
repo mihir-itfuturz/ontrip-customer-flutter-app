@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter_offline/flutter_offline.dart';
-import 'package:ontrip_customer_flutter_app/src/screens/dashboard/pages/home/home_controller.dart';
 
 import 'app_export.dart';
 
@@ -15,28 +14,28 @@ Future<void> initializeApp() async {
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(statusBarColor: Constant.instance.primary, statusBarIconBrightness: Brightness.light));
   await GetStorage.init();
-  // FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  // FirebaseMessaging.onMessage.listen(_firebaseMessagingBackgroundHandler);
-  // terminatedNotification();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+  FirebaseMessaging.onMessage.listen(_firebaseMessagingBackgroundHandler);
+  terminatedNotification();
 }
 
 String? lastHandledMessageId;
 
-// Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-//   if (message.messageId != null && message.messageId != lastHandledMessageId) {
-//     lastHandledMessageId = message.messageId;
-//     await notificationService.init();
-//     notificationService.showRemoteNotificationAndroid(message);
-//   }
-// }
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  if (message.messageId != null && message.messageId != lastHandledMessageId) {
+    lastHandledMessageId = message.messageId;
+    await notificationService.init();
+    notificationService.showRemoteNotificationAndroid(message);
+  }
+}
 
-// void terminatedNotification() async {
-//   RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
-//   if (initialMessage != null && initialMessage.messageId != lastHandledMessageId) {
-//     lastHandledMessageId = initialMessage.messageId;
-//     notificationService.showRemoteNotificationAndroid(initialMessage);
-//   }
-// }
+void terminatedNotification() async {
+  RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+  if (initialMessage != null && initialMessage.messageId != lastHandledMessageId) {
+    lastHandledMessageId = initialMessage.messageId;
+    notificationService.showRemoteNotificationAndroid(initialMessage);
+  }
+}
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});

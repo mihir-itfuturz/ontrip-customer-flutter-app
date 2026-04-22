@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:async';
 import '../../../../../app_export.dart';
 
@@ -20,7 +19,10 @@ class HomeController extends GetxController {
       isLoading = true;
       update();
       token = getStorage(AppSession.token) ?? "";
-      await fetchBookings();
+      await Future.wait([
+        fetchBookings(),
+        Get.find<AuthenticationController>().fetchProfile(),
+      ]);
     } finally {
       isLoading = false;
       update();

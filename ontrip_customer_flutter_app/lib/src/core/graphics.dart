@@ -43,6 +43,8 @@ mixin _Icons {
   final iconProfile = '$_path/profile.svg';
   final iconService = '$_path/services.svg';
   final iconShare = '$_path/share.svg';
+  final iconCommunity = '$_path/site.svg';
+  final iconHistory = '$_path/task_note.svg';
   final iconScan = '$_path/scan.svg';
   final iconWebsite = '$_path/website.svg';
   final iconWhatsAppGreen = '$_path/what_app_green.svg';

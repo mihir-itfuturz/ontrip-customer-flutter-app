@@ -1,5 +1,4 @@
-import 'package:ontrip_customer_flutter_app/src/screens/dashboard/pages/home/home_controller.dart';
-
+import 'dart:developer';
 import '../../../../app_export.dart';
 
 class SignInCtrl extends GetxController {
@@ -29,7 +28,8 @@ class SignInCtrl extends GetxController {
         return;
       }
       String phone = clean.substring(clean.length - 10);
-      // String fcm = await notificationService.getToken() ?? "";
+      String fcm = await notificationService.getToken() ?? "";
+      log(fcm);
       final Map<String, dynamic> sendJson = {"phone": phone};
 
       final endpoint = BACKEND.sendOtp;

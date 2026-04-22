@@ -8,6 +8,7 @@ class AppDateFormat {
   factory AppDateFormat() => AppDateFormat._();
 
   static String ddMMMYyyy(DateTime date) => DateFormat('dd/MMM/yyyy').format(date);
+  static String monthDayYear(DateTime date) => DateFormat('MMM dd, yyyy').format(date);
 
   static String ddMMMMYyyy(DateTime date) => DateFormat('dd/MMMM/yyyy').format(date);
 

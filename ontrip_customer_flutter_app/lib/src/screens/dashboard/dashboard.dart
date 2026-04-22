@@ -1,4 +1,3 @@
-import 'package:ontrip_customer_flutter_app/src/screens/dashboard/dashboard_ctrl.dart';
 
 import '../../../app_export.dart';
 
@@ -89,7 +88,7 @@ class DashboardScreen extends GetView<DashboardCtrl> {
               }
               return CustomBottomNavBar(currentIndex: ctrl.currentIndex, onTabChange: ctrl.onTapForBottomNavBar);
             }),
-            body: ctrl.currentScreen(),
+            body: SafeArea(bottom: true, top: false, child: ctrl.currentScreen()),
           ),
         );
       },

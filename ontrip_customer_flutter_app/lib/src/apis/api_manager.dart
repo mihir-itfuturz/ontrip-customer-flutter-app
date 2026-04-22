@@ -8,7 +8,7 @@ import '../services/storage_service.dart';
 import 'api_response.dart';
 import 'network_config.dart';
 
-enum ApiType { get, post, put, delete }
+enum ApiType { get, post, put, patch, delete }
 
 class ApiManager {
   static final instance = ApiManager._apiManager();
@@ -76,6 +76,9 @@ class ApiManager {
           break;
         case ApiType.put:
           response = await _dio.put(endPoint, data: body, options: options);
+          break;
+        case ApiType.patch:
+          response = await _dio.patch(endPoint, data: body, options: options);
           break;
         case ApiType.delete:
           response = await _dio.delete(endPoint, data: body, options: options);

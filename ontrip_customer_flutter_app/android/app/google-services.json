@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "618650736687",
+    "project_id": "on-trip-9284c",
+    "storage_bucket": "on-trip-9284c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:618650736687:android:aa11dcc3af86c98ba78eda",
+        "android_client_info": {
+          "package_name": "com.example.ontrip_customer_flutter_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCnYd4ooCEnpzuPY2qtfa0wyzxFxthv60Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

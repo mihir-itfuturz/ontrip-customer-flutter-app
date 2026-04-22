@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 class BookingResponseData {
   final List<Booking>? bookings;
@@ -13,7 +12,7 @@ class BookingResponseData {
 
   Map<String, dynamic> toJson() => {
         "bookings": bookings == null ? null : List<dynamic>.from(bookings!.map((x) => x.toJson())),
-        "pagination": pagination == null ? null : pagination!.toJson(),
+        "pagination": pagination?.toJson(),
       };
 }
 

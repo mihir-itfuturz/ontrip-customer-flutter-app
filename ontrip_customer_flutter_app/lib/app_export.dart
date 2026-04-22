@@ -30,11 +30,12 @@ export 'package:permission_handler/permission_handler.dart';
 export 'package:file_picker/file_picker.dart';
 // export 'package:share_plus/share_plus.dart';
 export 'package:url_launcher/url_launcher.dart';
-// export 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 export 'package:flutter_launcher_icons/abs/icon_generator.dart';
-
+export 'package:flutter_local_notifications/flutter_local_notifications.dart';
+export 'package:audioplayers/audioplayers.dart';
 //!FIREBASE
-// export 'package:firebase_core/firebase_core.dart';
+export 'package:firebase_core/firebase_core.dart';
+export 'package:firebase_messaging/firebase_messaging.dart';
 
 //! APP BINDERS
 export 'src/app_binders/splash_binder.dart';
@@ -94,6 +95,8 @@ export 'src/models/booking_model.dart';
 export 'src/models/bank_info_model.dart';
 export 'src/models/profile_image_model.dart';
 export 'src/models/sign_up_model.dart';
+export 'src/models/community_model.dart';
+export 'src/models/review_model.dart';
 
 //! UTILS
 export 'src/utils/util.dart';
@@ -107,25 +110,44 @@ export 'src/apis/network_config.dart';
 export 'src/services/navigation_service.dart';
 export 'src/services/pre_binder.dart';
 export 'src/services/storage_service.dart';
+export 'src/services/notification_service.dart';
 
 //! SCREENS
 
 export 'src/screens/auth/sign_in/sign_in.dart';
+export 'package:ontrip_customer_flutter_app/src/screens/auth/authentication_controller.dart';
 
 export 'src/screens/splash/splash.dart';
 
 export 'src/screens/dashboard/pages/home/home.dart';
+export 'src/screens/dashboard/pages/home/home_controller.dart';
+
 export 'src/common/custom_bottom_nav_bar.dart';
 
 export 'src/screens/dashboard/dashboard.dart';
+export 'src/screens/dashboard/dashboard_ctrl.dart';
 
 export 'src/screens/auth/verify_otp/verify_otp.dart';
 export 'src/screens/auth/verify_otp/verify_otp_ctrl.dart';
 
 export 'src/screens/settings/settings.dart';
 export 'src/screens/settings/settings_ctrl.dart';
+export 'src/screens/history/history.dart';
+export 'src/screens/history/history_ctrl.dart';
+export 'src/screens/community/community.dart';
+export 'src/screens/community/community_ctrl.dart';
+export 'src/screens/community/community_chat.dart';
+export 'src/screens/community/community_chat_ctrl.dart';
+export '/src/screens/community/community_media_ctrl.dart';
+export 'src/screens/community/group_members.dart';
+export 'src/screens/community/group_members_ctrl.dart';
+export 'src/screens/community/community_media.dart';
+
 export 'src/screens/edit_profile/edit_profile.dart';
+export 'src/screens/edit_profile/edit_profile_controller.dart';
+
 export 'src/screens/booking_details/booking_details.dart';
+export 'src/screens/booking_details/booking_details_ctrl.dart';
 
 //! ROUTE
 export 'src/routes/route_methods.dart';

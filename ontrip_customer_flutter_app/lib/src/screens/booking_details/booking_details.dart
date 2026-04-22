@@ -1,57 +1,5 @@
 import '../../../../app_export.dart';
 
-class BookingDetailsCtrl extends GetxController {
-  final String bookingId = Get.arguments ?? "";
-
-  Rxn<Booking> booking = Rxn<Booking>();
-  RxBool isLoading = false.obs;
-  RxInt selectedDay = 0.obs;
-
-  @override
-  void onInit() {
-    super.onInit();
-    if (bookingId.isNotEmpty) {
-      fetchBookingDetails();
-    }
-  }
-
-  void onDayChange(int index) {
-    selectedDay.value = index;
-    update();
-  }
-
-  Future<void> fetchBookingDetails() async {
-    try {
-      isLoading.value = true;
-      final response = await ApiManager.instance.call(endPoint: "${BACKEND.bookingDetail}$bookingId", type: ApiType.get);
-
-      if (response.status == 200 || response.status == 1) {
-        final data = response.data;
-        if (data is Map && data.containsKey('booking')) {
-          booking.value = Booking.fromJson(data['booking']);
-        } else {
-          booking.value = Booking.fromJson(data);
-        }
-      } else {
-        errorToast(response.message ?? "Failed to load details");
-      }
-    } catch (e, stack) {
-      debugPrint("Parsing Error in fetchBookingDetails: $e");
-      debugPrint("Stack Trace: $stack");
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  void callVendor(String? phone) {
-    if (phone != null && phone.isNotEmpty) {
-      AppUrl.call("tel:$phone", mobile: phone);
-    } else {
-      warningToast("Contact number not available");
-    }
-  }
-}
-
 class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
   const BookingDetailsScreen({super.key});
 
@@ -65,6 +13,23 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
         title: Text("Trip Details", style: AppTextStyle.bold.copyWith(fontSize: 18)),
         centerTitle: true,
         leading: const CustomBackBtn(),
+        actions: [
+          _buildActionBtn(Icons.chat_bubble_outline, const Color(0xFF1E293B), () {
+            final packageId = controller.booking.value?.package?.id;
+            if (packageId != null) {
+              Get.toNamed(RouteNames.communityChat, arguments: packageId);
+            } else {
+              warningToast("Community not available for this trip");
+            }
+          }),
+          const SizedBox(width: 8),
+          // _buildActionBtn(Icons.star_border, Colors.amber, () {
+          //   controller.selectedTab.value = 4; // Switch to Feedback tab
+          // }),
+          // const SizedBox(width: 8),
+          _buildActionBtn(Icons.local_activity_outlined, Constant.instance.primary, () {}),
+          const SizedBox(width: 16),
+        ],
       ),
       body: Obx(() {
         if (controller.isLoading.value) {
@@ -76,20 +41,118 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
           return const Center(child: Text("No details found"));
         }
 
-        return SingleChildScrollView(
+        return SafeArea(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _buildHeader(booking),
-              _buildSupportCard(booking),
-              _buildInclusions(booking),
-              _buildExclusions(booking),
-              _buildItinerarySection(booking),
-              const SizedBox(height: 100),
+              // _buildItinerarySection(booking),
+              // _buildInclusions(booking),
+              // _buildExclusions(booking),
+              // _buildSupportCard(booking),
+              Expanded(child: _buildTabSection(booking)),
             ],
           ),
         );
       }),
+    );
+  }
+  // Add this method inside BookingDetailsScreen:
+
+  Widget _buildTabSection(Booking booking) {
+    final tabs = [
+      {"label": "Itinerary", "icon": Icons.map_outlined},
+      {"label": "Includes", "icon": Icons.check_circle_outline},
+      {"label": "Excludes", "icon": Icons.cancel_outlined},
+      {"label": "Support", "icon": Icons.headset_mic_outlined},
+      {"label": "Feedback", "icon": Icons.star_outline},
+    ];
+
+    final contents = [
+      _buildItinerarySection(booking),
+      _buildInclusions(booking),
+      _buildExclusions(booking),
+      _buildSupportCard(booking),
+      _buildReviewSection(booking),
+    ];
+
+    return Obx(
+      () => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 20),
+
+          // Tab Bar
+          SizedBox(
+            height: 52,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: tabs.length,
+              itemBuilder: (context, index) {
+                final isSelected = controller.selectedTab.value == index;
+                return GestureDetector(
+                  onTap: () => controller.selectedTab.value = index,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    curve: Curves.easeInOut,
+                    margin: const EdgeInsets.only(right: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    decoration: BoxDecoration(
+                      color: isSelected ? Constant.instance.primary : Colors.white,
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color: isSelected ? Constant.instance.primary.withValues(alpha: 0.28) : Colors.black.withValues(alpha: 0.04),
+                          blurRadius: isSelected ? 12 : 8,
+                          offset: Offset(0, isSelected ? 4 : 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(tabs[index]["icon"] as IconData, size: 15, color: isSelected ? Colors.white : Colors.grey.shade500),
+                        const SizedBox(width: 6),
+                        Text(
+                          tabs[index]["label"] as String,
+                          style: AppTextStyle.bold.copyWith(fontSize: 13, color: isSelected ? Colors.white : Colors.grey.shade600),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 12),
+          // IndexedStack(index: controller.selectedTab.value, children: contents),
+          Expanded(
+            child: SingleChildScrollView(
+              child: IndexedStack(index: controller.selectedTab.value, children: contents),
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionBtn(IconData icon, Color iconColor, VoidCallback onTap) {
+    return Center(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 40,
+          width: 40,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 2))],
+          ),
+          child: Icon(icon, color: iconColor, size: 20),
+        ),
+      ),
     );
   }
 
@@ -100,84 +163,168 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
     return Container(
       width: double.infinity,
       height: 280,
-      decoration: BoxDecoration(color: Colors.grey.shade200),
-      child: Stack(
-        children: [
-          Positioned.fill(child: CustomNetworkImage(imageUrl: "https://ontrip.itfuturz.in/$coverImage")),
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.transparent, Colors.black.withValues(alpha: 0.8)],
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(32), bottomRight: Radius.circular(32)),
+      ),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(32), bottomRight: Radius.circular(32)),
+        child: Stack(
+          children: [
+            Positioned.fill(child: CustomNetworkImage(imageUrl: "https://ontrip.itfuturz.in/$coverImage")),
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Colors.transparent, Colors.black.withValues(alpha: 0.8)],
+                  ),
                 ),
               ),
             ),
-          ),
-          Positioned(
-            bottom: 24,
-            left: 24,
-            right: 24,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(color: Constant.instance.primary, borderRadius: BorderRadius.circular(6)),
-                  child: Text(booking.bookingStatus?.toUpperCase() ?? "BOOKED", style: AppTextStyle.bold.copyWith(color: Colors.white, fontSize: 10)),
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  booking.whitelabelPackage?.customTitle ?? package?.title ?? "Trip Details",
-                  style: AppTextStyle.bold.copyWith(color: Colors.white, fontSize: 24),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Icon(Icons.location_on, color: Colors.white, size: 14),
-                    const SizedBox(width: 8),
-                    Text(package?.destination ?? "Exploring", style: AppTextStyle.medium.copyWith(color: Colors.white.withValues(alpha: 0.9), fontSize: 14)),
-                  ],
-                ),
-              ],
+            Positioned(
+              bottom: 24,
+              left: 24,
+              right: 24,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(color: Constant.instance.primary, borderRadius: BorderRadius.circular(6)),
+                    child: Text(booking.bookingStatus?.toUpperCase() ?? "BOOKED", style: AppTextStyle.bold.copyWith(color: Colors.white, fontSize: 10)),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    booking.whitelabelPackage?.customTitle ?? package?.title ?? "Trip Details",
+                    style: AppTextStyle.bold.copyWith(color: Colors.white, fontSize: 24),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(Icons.location_on, color: Colors.white, size: 14),
+                      const SizedBox(width: 8),
+                      Text(package?.destination ?? "Exploring", style: AppTextStyle.medium.copyWith(color: Colors.white.withValues(alpha: 0.9), fontSize: 14)),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(IconData icon, String message) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+      child: Center(
+        child: Column(
+          children: [
+            Icon(icon, size: 48, color: Colors.grey.shade300),
+            const SizedBox(height: 12),
+            Text(message, style: AppTextStyle.medium.copyWith(fontSize: 14, color: Colors.grey.shade400)),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildSupportCard(Booking booking) {
-    final agencyName = booking.agencyCustomer?.name ?? "Support Team";
+    final agencyCustomer = booking.agencyCustomer;
+    final agencyName = agencyCustomer?.name ?? "Support Team";
+    final agencyEmail = agencyCustomer?.email;
+    final agencyPhone = agencyCustomer?.phone;
+    final hasPhone = agencyPhone != null && agencyPhone.isNotEmpty;
+    final hasEmail = agencyEmail != null && agencyEmail.isNotEmpty;
+    if (agencyCustomer == null) return _buildEmptyState(Icons.headset_mic_outlined, "No support contact available");
 
     return Container(
-      margin: const EdgeInsets.all(20),
+      margin: const EdgeInsets.fromLTRB(20, 12, 20, 20),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10)],
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 16, offset: const Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("SUPPORT & ASSISTANCE", style: AppTextStyle.bold.copyWith(fontSize: 12, color: Constant.instance.primary, letterSpacing: 1.5)),
-          const SizedBox(height: 20),
+          Text("SUPPORT & ASSISTANCE", style: AppTextStyle.bold.copyWith(fontSize: 11, color: Constant.instance.primary, letterSpacing: 1.5)),
+          const SizedBox(height: 16),
           Row(
             children: [
               Container(
-                height: 60,
-                width: 60,
-                decoration: BoxDecoration(color: Constant.instance.primary.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(16)),
+                height: 52,
+                width: 52,
+                decoration: BoxDecoration(color: Constant.instance.primary.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(14)),
                 child: Center(
-                  child: Text(agencyName[0].toUpperCase(), style: AppTextStyle.bold.copyWith(color: Constant.instance.primary, fontSize: 24)),
+                  child: Text(
+                    agencyName.isNotEmpty ? agencyName[0].toUpperCase() : "S",
+                    style: AppTextStyle.bold.copyWith(color: Constant.instance.primary, fontSize: 22),
+                  ),
                 ),
               ),
-              const SizedBox(width: 16),
-              Text(agencyName.toUpperCase(), style: AppTextStyle.bold.copyWith(fontSize: 10, color: Colors.grey.shade400, letterSpacing: 1)),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(agencyName, style: AppTextStyle.bold.copyWith(fontSize: 15, color: const Color(0xFF1E293B))),
+                    const SizedBox(height: 2),
+                    Text("Your Travel Agent", style: AppTextStyle.medium.copyWith(fontSize: 12, color: const Color(0xFF94A3B8))),
+                  ],
+                ),
+              ),
             ],
           ),
+          const SizedBox(height: 20),
+          const Divider(color: Color(0xFFF1F5F9), height: 1),
+          const SizedBox(height: 16),
+          // Phone Row
+          if (hasPhone)
+            GestureDetector(
+              onTap: () => AppUrl.call("tel:$agencyPhone", mobile: agencyPhone),
+              child: Row(
+                children: [
+                  Container(
+                    height: 36,
+                    width: 36,
+                    decoration: BoxDecoration(color: const Color(0xFFEEFDF4), borderRadius: BorderRadius.circular(10)),
+                    child: const Icon(Icons.call_outlined, color: Color(0xFF16A34A), size: 18),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(agencyPhone, style: AppTextStyle.medium.copyWith(fontSize: 14, color: const Color(0xFF1E293B))),
+                  ),
+                  const Icon(Icons.chevron_right, color: Color(0xFFCBD5E1), size: 18),
+                ],
+              ),
+            ),
+          if (hasPhone && hasEmail) const SizedBox(height: 12),
+          // Email Row
+          if (hasEmail)
+            GestureDetector(
+              onTap: () => AppUrl.mail(email: agencyEmail, subject: "Trip Enquiry"),
+              child: Row(
+                children: [
+                  Container(
+                    height: 36,
+                    width: 36,
+                    decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(10)),
+                    child: const Icon(Icons.mail_outline, color: Color(0xFF3B82F6), size: 18),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(agencyEmail, style: AppTextStyle.medium.copyWith(fontSize: 14, color: const Color(0xFF1E293B))),
+                  ),
+                  const Icon(Icons.chevron_right, color: Color(0xFFCBD5E1), size: 18),
+                ],
+              ),
+            ),
+          if (!hasPhone && !hasEmail) Text("Contact details not available", style: AppTextStyle.medium.copyWith(fontSize: 13, color: const Color(0xFF94A3B8))),
         ],
       ),
     );
@@ -185,7 +332,7 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
 
   Widget _buildInclusions(Booking booking) {
     final inclusions = booking.package?.inclusions ?? [];
-    if (inclusions.isEmpty) return const SizedBox.shrink();
+    if (inclusions.isEmpty) return _buildEmptyState(Icons.check_circle_outline, "No inclusions listed for this package");
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -217,7 +364,7 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
 
   Widget _buildExclusions(Booking booking) {
     final exclusions = booking.package?.exclusions ?? [];
-    if (exclusions.isEmpty) return const SizedBox.shrink();
+    if (exclusions.isEmpty) return _buildEmptyState(Icons.cancel_outlined, "No exclusions listed for this package");
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -249,7 +396,7 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
 
   Widget _buildItinerarySection(Booking booking) {
     final itinerary = booking.package?.itinerary ?? [];
-    if (itinerary.isEmpty) return const SizedBox.shrink();
+    if (itinerary.isEmpty) return _buildEmptyState(Icons.map_outlined, "No itinerary available for this trip");
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -408,6 +555,327 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildReviewSection(Booking booking) {
+    return Obx(() {
+      final response = controller.reviewResponse.value;
+      final avgRating = response?.summary?.averageRating ?? 0.0;
+      final totalFeedback = response?.summary?.totalReviews ?? 0;
+      final reviews = response?.reviews ?? [];
+
+      return Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Guest Experience", style: AppTextStyle.bold.copyWith(fontSize: 24, color: const Color(0xFF1E293B))),
+                const SizedBox(height: 4),
+                Text(
+                  "Real feedback from travelers who experienced this package.",
+                  style: AppTextStyle.medium.copyWith(fontSize: 14, color: const Color(0xFF64748B)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(32),
+                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 16, offset: const Offset(0, 4))],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("REVIEW SUMMARY", style: AppTextStyle.bold.copyWith(fontSize: 11, color: const Color(0xFF94A3B8), letterSpacing: 1.2)),
+                  const SizedBox(height: 20),
+                  // Experience Score
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(20)),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("EXPERIENCE SCORE", style: AppTextStyle.bold.copyWith(fontSize: 10, color: const Color(0xFF94A3B8))),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  Text("$avgRating", style: AppTextStyle.bold.copyWith(fontSize: 36, color: const Color(0xFF1E293B))),
+                                  const SizedBox(width: 12),
+                                  Row(
+                                    children: List.generate(
+                                      5,
+                                      (index) => Icon(index < avgRating ? Icons.star : Icons.star_border, color: Colors.amber, size: 20),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Total Feedback
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(20)),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("TOTAL FEEDBACK", style: AppTextStyle.bold.copyWith(fontSize: 10, color: const Color(0xFF94A3B8))),
+                              const SizedBox(height: 4),
+                              Text("$totalFeedback", style: AppTextStyle.bold.copyWith(fontSize: 32, color: const Color(0xFF1E293B))),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                          child: const Icon(Icons.chat_bubble_outline, color: Color(0xFF4338CA), size: 24),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  // Write Review Card
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(color: const Color(0xFFF5F3FF), borderRadius: BorderRadius.circular(24)),
+                    child: Column(
+                      children: [
+                        Text("Share your experience", style: AppTextStyle.bold.copyWith(fontSize: 16, color: const Color(0xFF1E293B))),
+                        const SizedBox(height: 4),
+                        Text("How was the trip?", style: AppTextStyle.medium.copyWith(fontSize: 14, color: const Color(0xFF64748B))),
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          height: 40,
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () => _showReviewDialog(Get.context!),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF312E81),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              elevation: 0,
+                            ),
+                            child: Text("Write a Review", style: AppTextStyle.bold.copyWith(fontSize: 15, color: Constant.instance.white)),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 32),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("GUEST FEEDBACK", style: AppTextStyle.bold.copyWith(fontSize: 11, color: const Color(0xFF94A3B8), letterSpacing: 1.2)),
+                if (reviews.isEmpty) Text("No reviews yet", style: AppTextStyle.medium.copyWith(fontSize: 12, color: const Color(0xFF94A3B8))),
+              ],
+            ),
+            const SizedBox(height: 20),
+            if (reviews.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 40),
+                child: Center(
+                  child: Column(
+                    children: [
+                      Icon(Icons.chat_bubble_outline, size: 48, color: Colors.grey.shade200),
+                      const SizedBox(height: 16),
+                      Text("No reviews found.", style: AppTextStyle.medium.copyWith(fontSize: 14, color: Colors.grey.shade400)),
+                    ],
+                  ),
+                ),
+              )
+            else
+              ...reviews.map((review) => _buildReviewCard(review)),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildReviewCard(Review review) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                height: 40,
+                width: 40,
+                decoration: BoxDecoration(color: Constant.instance.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
+                child: Center(
+                  child: Text(
+                    review.customerName?.isNotEmpty == true ? review.customerName![0].toUpperCase() : "U",
+                    style: AppTextStyle.bold.copyWith(color: Constant.instance.primary, fontSize: 16),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(review.customerName ?? "User", style: AppTextStyle.bold.copyWith(fontSize: 14, color: const Color(0xFF1E293B))),
+                    Text(
+                      AppDateFormat.notification3(review.createdAt ?? DateTime.now()),
+                      // style: AppDateFormat.notification3(review.createdAt ?? DateTime.now()),
+                    ),
+                  ],
+                ),
+              ),
+              Row(children: List.generate(5, (index) => Icon(index < (review.rating ?? 0) ? Icons.star : Icons.star_border, color: Colors.amber, size: 14))),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(review.comment ?? "", style: AppTextStyle.medium.copyWith(fontSize: 14, color: const Color(0xFF475569), height: 1.5)),
+        ],
+      ),
+    );
+  }
+
+  void _showReviewDialog(BuildContext context) {
+    controller.userRating.value = 0;
+    controller.reviewCommentCtrl.clear();
+
+    Get.dialog(
+      Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text("Write a review", style: AppTextStyle.bold.copyWith(fontSize: 20, color: const Color(0xFF1E293B))),
+                    IconButton(
+                      onPressed: () => Get.back(),
+                      icon: const Icon(Icons.close, color: Color(0xFF94A3B8)),
+                    ),
+                  ],
+                ),
+                const Divider(height: 32),
+                const SizedBox(height: 16),
+                Center(
+                  child: Column(
+                    children: [
+                      Text("How was your experience?", style: AppTextStyle.bold.copyWith(fontSize: 15, color: const Color(0xFF1E293B))),
+                      const SizedBox(height: 16),
+                      Obx(
+                        () => Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(5, (index) {
+                            return GestureDetector(
+                              onTap: () => controller.userRating.value = index + 1.0,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 4),
+                                child: Icon(
+                                  index < controller.userRating.value ? Icons.star : Icons.star_border,
+                                  color: index < controller.userRating.value ? Colors.amber : Colors.grey.shade300,
+                                  size: 32,
+                                ),
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Text("Comments (optional)", style: AppTextStyle.bold.copyWith(fontSize: 12, color: const Color(0xFF64748B))),
+                const SizedBox(height: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8FAFC),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFE2E8F0)),
+                  ),
+                  child: TextField(
+                    controller: controller.reviewCommentCtrl,
+                    maxLines: 4,
+                    decoration: InputDecoration(
+                      hintText: "Tell us more about your experience (max 500 words)...",
+                      hintStyle: AppTextStyle.medium.copyWith(fontSize: 14, color: const Color(0xFF94A3B8)),
+                      contentPadding: const EdgeInsets.all(16),
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Get.back(),
+                        child: Text("Cancel", style: AppTextStyle.bold.copyWith(color: const Color(0xFF64748B))),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: SizedBox(
+                        height: 40,
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () => controller.submitReview(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF312E81),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            elevation: 0,
+                          ),
+                          child: Text("Submit", style: AppTextStyle.bold.copyWith(fontSize: 15, color: Constant.instance.white)),
+                        ),
+                      ),
+                    ),
+                    // Expanded(
+                    //   child: ElevatedButton(
+                    //     onPressed: () => controller.submitReview(),
+                    //     style: ElevatedButton.styleFrom(
+                    //       backgroundColor: const Color(0xFF312E81),
+                    //       foregroundColor: Colors.white,
+                    //       padding: const EdgeInsets.symmetric(vertical: 16),
+                    //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    //       elevation: 0,
+                    //     ),
+                    //     child: Text("Submit", style: AppTextStyle.bold.copyWith(fontSize: 15)),
+                    //   ),
+                    // ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

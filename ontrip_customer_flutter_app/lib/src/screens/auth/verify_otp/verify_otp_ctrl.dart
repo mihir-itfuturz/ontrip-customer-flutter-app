@@ -1,4 +1,3 @@
-import 'package:ontrip_customer_flutter_app/src/screens/dashboard/pages/home/home_controller.dart';
 import '../../../../app_export.dart';
 
 class VerifyOTPCtrl extends GetxController {

@@ -1,9 +1,13 @@
-import 'package:ontrip_customer_flutter_app/src/screens/auth/authentication_controller.dart';
-
 import '../../../../app_export.dart';
 
 class SettingsCtrl extends GetxController {
   final AuthenticationController authService = Get.find();
+
+  @override
+  void onInit() {
+    super.onInit();
+    authService.fetchProfile();
+  }
 
   void navigateToEditProfile() {
     Get.toNamed(RouteNames.editProfile);

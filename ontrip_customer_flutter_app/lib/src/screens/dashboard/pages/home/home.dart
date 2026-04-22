@@ -1,4 +1,3 @@
-import 'package:ontrip_customer_flutter_app/src/screens/dashboard/pages/home/home_controller.dart';
 import 'package:ontrip_customer_flutter_app/src/helper/decoration.dart';
 import '../../../../../app_export.dart';
 
@@ -52,19 +51,20 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         builder: (ctrl) {
           return Stack(
             children: [
-              SafeArea(
-                child: FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: RefreshIndicator(
-                    onRefresh: () async => await ctrl.initialize(),
-                    child: CustomScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      slivers: [
-                        _buildModernHeader(ctrl),
-                        _buildMyBookingsCarousel(ctrl),
-                        const SliverToBoxAdapter(child: SizedBox(height: 100)),
-                      ],
-                    ),
+              FadeTransition(
+                opacity: _fadeAnimation,
+                child: RefreshIndicator(
+                  onRefresh: () async => await ctrl.initialize(),
+                  child: CustomScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    slivers: [
+                      _buildAppBar(ctrl),
+                      // _buildTripCard(),
+                      // _buildDateSelector(),
+                      // _buildModernHeader(ctrl),
+                      _buildMyBookingsCarousel(ctrl),
+                      const SliverToBoxAdapter(child: SizedBox(height: 100)),
+                    ],
                   ),
                 ),
               ),
@@ -83,19 +83,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("My Bookings", style: AppTextStyle.bold.copyWith(fontSize: 18, color: Colors.grey.shade900)),
-                  TextButton(
-                    onPressed: () {},
-                    child: Text("View All", style: TextStyle(color: Constant.instance.primary)),
-                  ),
-                ],
-              ),
-            ),
+            SizedBox(height: 24),
             SizedBox(
               height: 240,
               child: PageView.builder(
@@ -218,83 +206,99 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget _buildModernHeader(HomeController ctrl) {
+  // Widget _buildModernHeader(HomeController ctrl) {
+  //   return SliverToBoxAdapter(
+  //     child: Container(
+  //       width: double.infinity,
+  //       padding: const EdgeInsets.only(left: 24, right: 24, top: 40, bottom: 30),
+  //       decoration: BoxDecoration(
+  //         gradient: LinearGradient(
+  //           begin: Alignment.topLeft,
+  //           end: Alignment.bottomRight,
+  //           colors: [Constant.instance.primary, Constant.instance.primary.withValues(alpha: 0.9), Constant.instance.primary.withValues(alpha: 0.7)],
+  //         ),
+  //         borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(32), bottomRight: Radius.circular(32)),
+  //         boxShadow: [BoxShadow(color: Constant.instance.primary.withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 10))],
+  //       ),
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           Row(
+  //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //             children: [
+  //               Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   Text(
+  //                     "${getGreetingText()} ${getGreetingEmoji()}",
+  //                     style: AppTextStyle.medium.copyWith(color: Colors.white.withValues(alpha: 0.9), fontSize: 16),
+  //                   ),
+  //                   const SizedBox(height: 4),
+  //                   Text("Welcome to OnTrip", style: AppTextStyle.bold.copyWith(color: Colors.white, fontSize: 24, letterSpacing: -0.5)),
+  //                 ],
+  //               ),
+  //               GestureDetector(
+  //                 onTap: () => Get.toNamed(RouteNames.settings),
+  //                 child: Container(
+  //                   padding: const EdgeInsets.all(10),
+  //                   decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), shape: BoxShape.circle),
+  //                   child: const Icon(Icons.person_outline, color: Colors.white),
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //           const SizedBox(height: 30),
+  //           _buildStatCard(ctrl),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+  Widget _buildAppBar(HomeController ctrl) {
     return SliverToBoxAdapter(
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.only(left: 24, right: 24, top: 40, bottom: 30),
+        // padding: const EdgeInsets.only(left: 24, right: 24, top: 40, bottom: 30),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [Constant.instance.primary, Constant.instance.primary.withValues(alpha: 0.9), Constant.instance.primary.withValues(alpha: 0.7)],
           ),
-          borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(32), bottomRight: Radius.circular(32)),
+          borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(40), bottomRight: Radius.circular(40)),
           boxShadow: [BoxShadow(color: Constant.instance.primary.withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 10))],
         ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: const EdgeInsets.fromLTRB(24, 50, 24, 30),
+        child: Row(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
+            Container(
+              decoration: BoxDecoration(color: Constant.instance.white.withValues(alpha: 1), borderRadius: const BorderRadius.all(Radius.circular(32))),
+              padding: const EdgeInsets.all(12),
+              child: SvgPicture.asset(Graphics.instance.iconProfile, width: 25, height: 25, colorFilter: ColorFilter.mode(Colors.black, BlendMode.srcIn)),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Obx(() {
+                final authCtrl = Get.find<AuthenticationController>();
+                final name = authCtrl.userAuthData['name'] ?? "User";
+                return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text("$name’s Trips", style: AppTextStyle.bold.copyWith(fontSize: 18)),
                     Text(
-                      "${getGreetingText()} ${getGreetingEmoji()}",
-                      style: AppTextStyle.medium.copyWith(color: Colors.white.withValues(alpha: 0.9), fontSize: 16),
+                      AppDateFormat.monthDayYear(DateTime.now()),
+                      style: AppTextStyle.medium.copyWith(color: Constant.instance.white.withValues(alpha: 0.8)),
                     ),
-                    const SizedBox(height: 4),
-                    Text("Welcome to OnTrip", style: AppTextStyle.bold.copyWith(color: Colors.white, fontSize: 24, letterSpacing: -0.5)),
                   ],
-                ),
-                GestureDetector(
-                  onTap: () => Get.toNamed(RouteNames.settings),
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), shape: BoxShape.circle),
-                    child: const Icon(Icons.person_outline, color: Colors.white),
-                  ),
-                ),
-              ],
+                );
+              }),
             ),
-            const SizedBox(height: 30),
-            _buildStatCard(ctrl),
+            IconButton(
+              onPressed: () {},
+              icon: Icon(Icons.notifications_none_rounded, color: Constant.instance.white, size: 28),
+            ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildStatCard(HomeController ctrl) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 15, offset: const Offset(0, 5))],
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(color: Constant.instance.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(15)),
-            child: Icon(Icons.rocket_launch_outlined, color: Constant.instance.primary),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Total Trips", style: AppTextStyle.medium.copyWith(color: Colors.grey.shade600, fontSize: 14)),
-                const SizedBox(height: 2),
-                Text("${ctrl.bookings.length} Active Trips", style: AppTextStyle.bold.copyWith(color: Colors.grey.shade900, fontSize: 18)),
-              ],
-            ),
-          ),
-          const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
-        ],
       ),
     );
   }
