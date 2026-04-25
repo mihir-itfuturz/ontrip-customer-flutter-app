@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../app_export.dart';
 
 class NotificationService {
@@ -20,32 +22,58 @@ class NotificationService {
     const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/launcher_icon');
     const DarwinInitializationSettings initializationSettingsIOS = DarwinInitializationSettings();
     const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
-    await flutterLocalNotificationsPlugin.initialize(settings: initializationSettings);
+
+    await flutterLocalNotificationsPlugin.initialize(
+      settings: initializationSettings,
+      onDidReceiveNotificationResponse: (NotificationResponse response) {
+        debugPrint("Notification tapped with payload: ${response.payload}");
+        if (response.payload != null && response.payload!.isNotEmpty) {
+          try {
+            final Map<String, dynamic> data = json.decode(response.payload!);
+            final String? packageId = data["community"] ?? data["packageId"];
+            if (packageId != null) {
+              // Add delay to ensure navigation is possible if app was in background
+              Future.delayed(const Duration(milliseconds: 500), () {
+                debugPrint("Navigating to Community Chat for package: $packageId");
+                Get.toNamed(RouteNames.communityChat, arguments: {"packageId": packageId, "coverImage": data["coverImage"]});
+              });
+            }
+          } catch (e) {
+            debugPrint("Error handling notification tap: $e");
+          }
+        }
+      },
+    );
+
     await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(alert: true, badge: true, sound: true);
+
+    // Request permission for Android 13+ and iOS
+    await FirebaseMessaging.instance.requestPermission(alert: true, badge: true, sound: true);
   }
 
   void showRemoteNotificationAndroid(RemoteMessage message) async {
+    bool isNotificationEnabled = GetStorage().read(StringConstants.notificationEnabled) ?? true;
+    if (!isNotificationEnabled) return;
+
+    if (Get.currentRoute.split('?').first == RouteNames.communityChat) return;
+
     RemoteNotification? notification = message.notification;
-    AndroidNotification? android = message.notification?.android;
-    AppleNotification? apple = message.notification?.apple;
     if (notification != null) {
-      NotificationDetails notificationDetails = NotificationDetails(
-        android: android != null
-            ? const AndroidNotificationDetails(
-                "task_reminder",
-                "OnTrip Reminder",
-                ticker: 'ticker',
-                showWhen: true,
-                playSound: true,
-                enableLights: true,
-                enableVibration: true,
-                priority: Priority.high,
-                importance: Importance.max,
-                visibility: NotificationVisibility.public,
-                channelDescription: "The OnTrip reminder system for task to manage managed",
-              )
-            : null,
-        iOS: apple != null ? const DarwinNotificationDetails(presentAlert: true, presentBadge: true, presentSound: true) : null,
+      NotificationDetails notificationDetails = const NotificationDetails(
+        android: AndroidNotificationDetails(
+          "task_reminder_high",
+          "OnTrip Alerts",
+          ticker: 'ticker',
+          showWhen: true,
+          playSound: true,
+          enableLights: true,
+          enableVibration: true,
+          priority: Priority.high,
+          importance: Importance.max,
+          visibility: NotificationVisibility.public,
+          channelDescription: "High priority alerts and trip reminders",
+        ),
+        iOS: DarwinNotificationDetails(presentAlert: true, presentBadge: true, presentSound: true),
       );
       _whistle("slow_spring_board.mp3");
       await flutterLocalNotificationsPlugin.show(
@@ -53,19 +81,76 @@ class NotificationService {
         title: notification.title,
         body: notification.body,
         notificationDetails: notificationDetails,
+        payload: json.encode(message.data),
       );
     }
   }
 
+  Future createNotificationOrder(String title, description, payload) async {
+    bool isNotificationEnabled = GetStorage().read(StringConstants.notificationEnabled) ?? true;
+    if (!isNotificationEnabled) return;
+
+    if (Get.currentRoute.split('?').first == RouteNames.communityChat) return;
+
+    // Use a unique channel ID for high-importance notifications
+    AndroidNotificationDetails androidPlatformChannelSpecifics = const AndroidNotificationDetails(
+      '151',
+      'Community Chat',
+      channelDescription: 'Real-time messages from trip community',
+      importance: Importance.max,
+      priority: Priority.high,
+      ticker: 'ticker',
+      playSound: true,
+      enableLights: true,
+      showWhen: true,
+      visibility: NotificationVisibility.public,
+      enableVibration: true,
+      fullScreenIntent: false,
+    );
+
+    const DarwinNotificationDetails iosPlatformChannelSpecifics = DarwinNotificationDetails(presentAlert: true, presentBadge: true, presentSound: true);
+
+    var platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics, iOS: iosPlatformChannelSpecifics);
+
+    var nPayload = json.encode(payload);
+    await flutterLocalNotificationsPlugin.show(
+      id: DateTime.now().millisecondsSinceEpoch % 1000000,
+      title: title,
+      body: description,
+      notificationDetails: platformChannelSpecifics,
+      payload: nPayload,
+    );
+  }
   Future<String?> getToken() async {
     try {
-      await FirebaseMessaging.instance.deleteToken();
-      String? fcmToken = await FirebaseMessaging.instance.getToken();
+      String? fcmToken;
+      
+      if (GetPlatform.isIOS) {
+        int retryCount = 0;
+        while (retryCount < 3) {
+          try {
+            String? apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+            if (apnsToken != null) {
+              debugPrint("APNs Token received: $apnsToken");
+              break; 
+            }
+          } catch (e) {
+            debugPrint("Waiting for APNs token (Attempt ${retryCount + 1})...");
+          }
+          await Future.delayed(const Duration(seconds: 2));
+          retryCount++;
+        }
+      }
+      
+      fcmToken = await FirebaseMessaging.instance.getToken();
+      debugPrint("FCM Token: $fcmToken");
       return fcmToken;
     } catch (err) {
+      debugPrint("Final error getting FCM token: $err");
       return null;
     }
   }
+
 }
 
 NotificationService notificationService = NotificationService();

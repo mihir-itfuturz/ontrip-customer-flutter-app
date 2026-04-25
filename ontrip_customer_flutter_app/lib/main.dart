@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter_offline/flutter_offline.dart';
+import 'package:ontrip_customer_flutter_app/firebase_options.dart';
 
 import 'app_export.dart';
 
@@ -10,10 +12,11 @@ Future<void> main() async {
 
 Future<void> initializeApp() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(statusBarColor: Constant.instance.primary, statusBarIconBrightness: Brightness.light));
   await GetStorage.init();
+  await notificationService.init();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   FirebaseMessaging.onMessage.listen(_firebaseMessagingBackgroundHandler);
   terminatedNotification();
@@ -21,7 +24,11 @@ Future<void> initializeApp() async {
 
 String? lastHandledMessageId;
 
+@pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await GetStorage.init();
+
   if (message.messageId != null && message.messageId != lastHandledMessageId) {
     lastHandledMessageId = message.messageId;
     await notificationService.init();
@@ -30,10 +37,37 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 void terminatedNotification() async {
+  // 1. Handle FCM Initial Message
   RemoteMessage? initialMessage = await FirebaseMessaging.instance.getInitialMessage();
   if (initialMessage != null && initialMessage.messageId != lastHandledMessageId) {
     lastHandledMessageId = initialMessage.messageId;
     notificationService.showRemoteNotificationAndroid(initialMessage);
+  }
+
+  // 2. Handle Local Notification Launch
+  final NotificationAppLaunchDetails? notificationAppLaunchDetails = await notificationService.flutterLocalNotificationsPlugin
+      .getNotificationAppLaunchDetails();
+
+  if (notificationAppLaunchDetails != null &&
+      notificationAppLaunchDetails.didNotificationLaunchApp &&
+      notificationAppLaunchDetails.notificationResponse?.payload != null) {
+    final String? payload = notificationAppLaunchDetails.notificationResponse?.payload;
+    if (payload != null && payload.isNotEmpty) {
+      try {
+        final Map<String, dynamic> data = json.decode(payload);
+        final String? packageId = data["community"] ?? data["packageId"];
+        if (packageId != null) {
+          // Add a longer delay to ensure Splash screen has finished navigating
+          // (SplashCtrl usually takes 3 seconds)
+          Future.delayed(const Duration(milliseconds: 4000), () {
+            debugPrint("Terminated Launch: Navigating to Chat for $packageId");
+            Get.toNamed(RouteNames.communityChat, arguments: {"packageId": packageId, "coverImage": data["coverImage"]});
+          });
+        }
+      } catch (e) {
+        debugPrint("Error handling terminated launch notification: $e");
+      }
+    }
   }
 }
 

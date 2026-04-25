@@ -1,3 +1,4 @@
+import 'dart:io';
 import '../../../../../app_export.dart';
 
 class CommunityMediaCtrl extends GetxController {
@@ -5,6 +6,13 @@ class CommunityMediaCtrl extends GetxController {
   final RxBool isLoading = false.obs;
   final RxInt currentPage = 1.obs;
   final RxInt totalPages = 1.obs;
+  
+  // Tab control
+  final RxInt selectedTabIndex = 0.obs;
+
+  // Face Matching State
+  final Rx<FaceStatus> faceStatus = FaceStatus.initial.obs;
+  final RxList<CommunityImage> matchedImages = <CommunityImage>[].obs;
   
   late String communityId;
 
@@ -63,4 +71,52 @@ class CommunityMediaCtrl extends GetxController {
       fetchImages();
     }
   }
+
+  void switchTab(int index) {
+    selectedTabIndex.value = index;
+    if (index == 1 && faceStatus.value == FaceStatus.initial) {
+      checkFaceMatches();
+    }
+  }
+
+  Future<void> checkFaceMatches() async {
+    // This is typically called API checking if faces are already matched.
+    // If not, we set it to initial or noMatches so User can capture new selfie.
+    try {
+      faceStatus.value = FaceStatus.loading;
+      // Mock API call or integrate real API if available
+      await Future.delayed(const Duration(seconds: 1));
+      
+      // Since we don't have the real endpoint, let's mock it to 'noMatches' by default
+      // to allow users to trigger the SelfieUI.
+      // If there was an endpoint:
+      // final res = await ApiManager.instance.call(endPoint: '...', type: ApiType.get);
+      
+      faceStatus.value = FaceStatus.noMatches;
+    } catch (e) {
+      faceStatus.value = FaceStatus.error;
+    }
+  }
+
+  Future<void> findMyPhotos({required File selfie}) async {
+    try {
+      faceStatus.value = FaceStatus.loading;
+      // Real API integration would upload the selfie using FormData.
+      // e.g. FormData formData = FormData.fromMap({ "selfie": await MultipartFile.fromFile(selfie.path) ... })
+      await Future.delayed(const Duration(seconds: 2));
+
+      // Mock setting some matched images (You can connect real data when API is ready)
+      // matchedImages.assignAll([...]);
+      // faceStatus.value = FaceStatus.hasMatches;
+      
+      // For now, let's just keep it to noMatches or an empty list if there's no actual API.
+      // Assuming API would return no matches in the test:
+      matchedImages.clear();
+      faceStatus.value = FaceStatus.noMatches;
+    } catch (e) {
+      faceStatus.value = FaceStatus.error;
+    }
+  }
 }
+
+enum FaceStatus { initial, loading, hasMatches, noMatches, error }

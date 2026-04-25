@@ -1,5 +1,3 @@
-
-
 import 'package:intl/intl.dart';
 
 class AppDateFormat {
@@ -7,6 +5,7 @@ class AppDateFormat {
 
   factory AppDateFormat() => AppDateFormat._();
 
+  static String hhmma(DateTime date) => DateFormat('hh:mm a').format(date);
   static String ddMMMYyyy(DateTime date) => DateFormat('dd/MMM/yyyy').format(date);
   static String monthDayYear(DateTime date) => DateFormat('MMM dd, yyyy').format(date);
 

@@ -29,9 +29,12 @@ class CommunityCtrl extends GetxController {
     }
   }
 
-  void navigateToChat(String? packageId) {
+  void navigateToChat(String? packageId, String? coverImage) {
     if (packageId != null) {
-      Get.toNamed(RouteNames.communityChat, arguments: packageId);
+      Get.toNamed(RouteNames.communityChat, arguments: {
+        "packageId": packageId,
+        "coverImage": coverImage,
+      });
     } else {
       warningToast("Booking details not complete");
     }

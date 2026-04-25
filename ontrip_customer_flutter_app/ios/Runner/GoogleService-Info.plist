@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.example.ontripCustomerFlutterApp</string>
+	<string>com.ontrip.itf</string>
 	<key>PROJECT_ID</key>
 	<string>on-trip-9284c</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:618650736687:ios:ecae5514cd317ca2a78eda</string>
+	<string>1:618650736687:ios:9ff08fd44b4861aaa78eda</string>
 </dict>
 </plist>

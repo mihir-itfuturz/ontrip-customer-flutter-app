@@ -98,9 +98,28 @@ class SettingsScreen extends StatelessWidget {
   Widget _buildMenuSection(SettingsCtrl controller) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 15, offset: const Offset(0, 5))],
+      ),
       child: Column(
         children: [
+          Obx(
+            () => _buildMenuItem(
+              icon: Icons.notifications_active_outlined,
+              title: "Notifications",
+              onTap: () {},
+              trailing: Switch(
+                value: controller.isNotificationEnabled.value,
+                onChanged: controller.toggleNotification,
+                activeThumbColor: Constant.instance.primary,
+                inactiveThumbColor: Constant.instance.grey,
+                inactiveTrackColor: Constant.instance.grey400,
+              ),
+            ),
+          ),
+          _buildDivider(),
           _buildMenuItem(icon: Icons.description_outlined, title: "Terms & Conditions", onTap: controller.openTermsAndConditions),
           _buildDivider(),
           _buildMenuItem(icon: Icons.privacy_tip_outlined, title: "Privacy Policy", onTap: controller.openPrivacyPolicy),
@@ -119,7 +138,7 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuItem({required IconData icon, required String title, required VoidCallback onTap, Color? color, bool showChevron = true}) {
+  Widget _buildMenuItem({required IconData icon, required String title, required VoidCallback onTap, Color? color, bool showChevron = true, Widget? trailing}) {
     return ListTile(
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -129,12 +148,12 @@ class SettingsScreen extends StatelessWidget {
         child: Icon(icon, color: color ?? Constant.instance.primary, size: 22),
       ),
       title: Text(title, style: AppTextStyle.medium.copyWith(fontSize: 16, color: color ?? Colors.grey.shade800)),
-      trailing: showChevron ? Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey.shade400) : null,
+      trailing: trailing ?? (showChevron ? Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey.shade400) : null),
     );
   }
 
   Widget _buildDivider() {
-    return Divider(height: 1, color: Colors.grey.shade100, indent: 60);
+    return Divider(height: 1, color: Colors.grey.shade200, indent: 60);
   }
 
   Widget _buildFooter() {

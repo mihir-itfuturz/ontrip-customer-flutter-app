@@ -1,4 +1,3 @@
-
 import '../../../app_export.dart';
 
 class DashboardCtrl extends GetxController {
@@ -10,6 +9,13 @@ class DashboardCtrl extends GetxController {
 
   bool checkLock() {
     return false; // Temporarily disable lock to ensure everything is visible
+  }
+
+  @override
+  void onInit() async {
+    super.onInit();
+
+    socketService.connectToServer();
   }
 
   void onTapForBottomNavBar(int index) {

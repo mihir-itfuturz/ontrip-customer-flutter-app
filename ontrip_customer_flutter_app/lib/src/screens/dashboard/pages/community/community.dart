@@ -73,7 +73,7 @@ class CommunityScreen extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => controller.navigateToChat(package?.id),
+          onTap: () => controller.navigateToChat(package?.id, coverImage),
           borderRadius: BorderRadius.circular(20),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

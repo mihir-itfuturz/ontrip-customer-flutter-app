@@ -16,18 +16,15 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
         actions: [
           _buildActionBtn(Icons.chat_bubble_outline, const Color(0xFF1E293B), () {
             final packageId = controller.booking.value?.package?.id;
+            final coverImage = controller.booking.value?.package?.coverImage;
             if (packageId != null) {
-              Get.toNamed(RouteNames.communityChat, arguments: packageId);
+              Get.toNamed(RouteNames.communityChat, arguments: {"packageId": packageId, "coverImage": coverImage});
             } else {
               warningToast("Community not available for this trip");
             }
           }),
-          const SizedBox(width: 8),
-          // _buildActionBtn(Icons.star_border, Colors.amber, () {
-          //   controller.selectedTab.value = 4; // Switch to Feedback tab
-          // }),
           // const SizedBox(width: 8),
-          _buildActionBtn(Icons.local_activity_outlined, Constant.instance.primary, () {}),
+          // _buildActionBtn(Icons.local_activity_outlined, Constant.instance.primary, () {}),
           const SizedBox(width: 16),
         ],
       ),
@@ -73,7 +70,7 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
       _buildInclusions(booking),
       _buildExclusions(booking),
       _buildSupportCard(booking),
-      _buildReviewSection(booking),
+      _buildReviewSection(booking, controller),
     ];
 
     return Obx(
@@ -81,8 +78,6 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 20),
-
-          // Tab Bar
           SizedBox(
             height: 52,
             child: ListView.builder(
@@ -559,158 +554,224 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
     );
   }
 
-  Widget _buildReviewSection(Booking booking) {
+  Widget _buildReviewSection(Booking booking, BookingDetailsCtrl ctrl) {
     return Obx(() {
-      final response = controller.reviewResponse.value;
-      final avgRating = response?.summary?.averageRating ?? 0.0;
-      final totalFeedback = response?.summary?.totalReviews ?? 0;
-      final reviews = response?.reviews ?? [];
+      final reviews = ctrl.reviewResponse.value?.reviews ?? [];
+      final avgPackage = ctrl.reviewResponse.value?.avgPackageRating ?? "0.0";
+      final avgOverall = ctrl.reviewResponse.value?.avgOverallRating ?? "0.0";
+      final total = ctrl.reviewResponse.value?.total ?? 0;
 
       return Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Guest Experience", style: AppTextStyle.bold.copyWith(fontSize: 24, color: const Color(0xFF1E293B))),
-                const SizedBox(height: 4),
-                Text(
-                  "Real feedback from travelers who experienced this package.",
-                  style: AppTextStyle.medium.copyWith(fontSize: 14, color: const Color(0xFF64748B)),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(32),
-                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 16, offset: const Offset(0, 4))],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("REVIEW SUMMARY", style: AppTextStyle.bold.copyWith(fontSize: 11, color: const Color(0xFF94A3B8), letterSpacing: 1.2)),
-                  const SizedBox(height: 20),
-                  // Experience Score
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(20)),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("EXPERIENCE SCORE", style: AppTextStyle.bold.copyWith(fontSize: 10, color: const Color(0xFF94A3B8))),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  Text("$avgRating", style: AppTextStyle.bold.copyWith(fontSize: 36, color: const Color(0xFF1E293B))),
-                                  const SizedBox(width: 12),
-                                  Row(
-                                    children: List.generate(
-                                      5,
-                                      (index) => Icon(index < avgRating ? Icons.star : Icons.star_border, color: Colors.amber, size: 20),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Total Feedback
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(20)),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text("TOTAL FEEDBACK", style: AppTextStyle.bold.copyWith(fontSize: 10, color: const Color(0xFF94A3B8))),
-                              const SizedBox(height: 4),
-                              Text("$totalFeedback", style: AppTextStyle.bold.copyWith(fontSize: 32, color: const Color(0xFF1E293B))),
-                            ],
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
-                          child: const Icon(Icons.chat_bubble_outline, color: Color(0xFF4338CA), size: 24),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  // Write Review Card
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(color: const Color(0xFFF5F3FF), borderRadius: BorderRadius.circular(24)),
-                    child: Column(
-                      children: [
-                        Text("Share your experience", style: AppTextStyle.bold.copyWith(fontSize: 16, color: const Color(0xFF1E293B))),
-                        const SizedBox(height: 4),
-                        Text("How was the trip?", style: AppTextStyle.medium.copyWith(fontSize: 14, color: const Color(0xFF64748B))),
-                        const SizedBox(height: 20),
-                        SizedBox(
-                          height: 40,
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () => _showReviewDialog(Get.context!),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF312E81),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                              elevation: 0,
-                            ),
-                            child: Text("Write a Review", style: AppTextStyle.bold.copyWith(fontSize: 15, color: Constant.instance.white)),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            Text("YOUR EXPERIENCE", style: AppTextStyle.bold.copyWith(fontSize: 14, color: Colors.grey.shade400, letterSpacing: 1.2)),
+            const SizedBox(height: 16),
+            _buildManageUserReview(ctrl),
             const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text("GUEST FEEDBACK", style: AppTextStyle.bold.copyWith(fontSize: 11, color: const Color(0xFF94A3B8), letterSpacing: 1.2)),
-                if (reviews.isEmpty) Text("No reviews yet", style: AppTextStyle.medium.copyWith(fontSize: 12, color: const Color(0xFF94A3B8))),
-              ],
-            ),
-            const SizedBox(height: 20),
-            if (reviews.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 40),
-                child: Center(
-                  child: Column(
-                    children: [
-                      Icon(Icons.chat_bubble_outline, size: 48, color: Colors.grey.shade200),
-                      const SizedBox(height: 16),
-                      Text("No reviews found.", style: AppTextStyle.medium.copyWith(fontSize: 14, color: Colors.grey.shade400)),
-                    ],
-                  ),
+            Text("GUEST FEEDBACK", style: AppTextStyle.bold.copyWith(fontSize: 14, color: Colors.grey.shade400, letterSpacing: 1.2)),
+            const SizedBox(height: 16),
+            if (reviews.isNotEmpty)
+              Container(
+                padding: const EdgeInsets.all(20),
+                margin: const EdgeInsets.only(bottom: 24),
+                decoration: BoxDecoration(
+                  color: Constant.instance.primary.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: Constant.instance.primary.withValues(alpha: 0.1)),
                 ),
-              )
-            else
-              ...reviews.map((review) => _buildReviewCard(review)),
+                child: Row(
+                  children: [
+                    _buildRatingSummaryItem("Package", avgPackage),
+                    Container(height: 40, width: 1, color: Colors.grey.shade300, margin: const EdgeInsets.symmetric(horizontal: 20)),
+                    _buildRatingSummaryItem("Overall", avgOverall),
+                    const Spacer(),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text("$total", style: AppTextStyle.bold.copyWith(fontSize: 18, color: Constant.instance.primary)),
+                        Text("Reviews", style: AppTextStyle.medium.copyWith(fontSize: 12, color: Colors.grey.shade500)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            if (reviews.isEmpty) _buildTripEmptyState(Icons.star_outline, "No reviews yet") else ...reviews.map((r) => _buildTripReviewCard(r)),
           ],
         ),
       );
     });
+  }
+
+  Widget _buildManageUserReview(BookingDetailsCtrl ctrl) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, 10))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(ctrl.userReview.value == null ? "How was your trip?" : "Your Review", style: AppTextStyle.bold.copyWith(fontSize: 16)),
+              if (ctrl.userReview.value != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+                  child: Text("SUBMITTED", style: AppTextStyle.bold.copyWith(color: Colors.green, fontSize: 10)),
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: List.generate(5, (index) {
+                return GestureDetector(
+                  onTap: () => ctrl.userReview.value == null ? ctrl.userRating.value = index + 1.0 : null,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                    child: Icon(Icons.star_rounded, size: 36, color: index < ctrl.userRating.value ? Colors.amber : Colors.grey.shade300),
+                  ),
+                );
+              }),
+            ),
+          ),
+          const SizedBox(height: 20),
+          TextField(
+            controller: ctrl.reviewCommentCtrl,
+            maxLines: 3,
+            readOnly: ctrl.userReview.value != null,
+            decoration: InputDecoration(
+              hintText: "Share your experience with others...",
+              hintStyle: AppTextStyle.medium.copyWith(fontSize: 14, color: Colors.grey.shade400),
+              filled: true,
+              fillColor: Colors.grey.shade300,
+              contentPadding: const EdgeInsets.all(16),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+            ),
+          ),
+          if (ctrl.userReview.value == null) ...[
+            const SizedBox(height: 20),
+
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                onPressed: ctrl.isReviewLoading.value ? null : () => ctrl.submitReview(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Constant.instance.primary,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  elevation: 0,
+                ),
+                child: ctrl.isReviewLoading.value
+                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                    : Text(ctrl.userReview.value == null ? "Submit Review" : "Update Review", style: AppTextStyle.bold.copyWith(fontSize: 16)),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRatingSummaryItem(String label, String rating) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: AppTextStyle.medium.copyWith(fontSize: 12, color: Colors.grey.shade500)),
+        const SizedBox(height: 4),
+        Row(
+          children: [
+            Text(rating, style: AppTextStyle.bold.copyWith(fontSize: 20)),
+            const SizedBox(width: 4),
+            const Icon(Icons.star_rounded, color: Colors.amber, size: 20),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTripReviewCard(Review review) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(color: Constant.instance.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
+                alignment: Alignment.center,
+                child: Text(review.customerName?[0].toUpperCase() ?? "U", style: AppTextStyle.bold.copyWith(color: Constant.instance.primary, fontSize: 16)),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(review.customerName ?? "Guest User", style: AppTextStyle.bold.copyWith(fontSize: 15)),
+                    if (review.createdAt != null)
+                      Text(AppDateFormat.monthDayYear(review.createdAt!), style: AppTextStyle.medium.copyWith(fontSize: 11, color: Colors.grey.shade400)),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(color: Colors.amber.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+                child: Row(
+                  children: [
+                    const Icon(Icons.star_rounded, color: Colors.amber, size: 16),
+                    const SizedBox(width: 4),
+                    Text(
+                      "${(review.packageRating ?? review.overallRating ?? 0.0).toInt()}",
+                      style: AppTextStyle.bold.copyWith(fontSize: 13, color: Colors.amber.shade800),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (review.comment?.isNotEmpty == true) ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(16)),
+              child: Text(review.comment!, style: AppTextStyle.medium.copyWith(fontSize: 13, color: Colors.grey.shade700, height: 1.5)),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTripEmptyState(IconData icon, String msg) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(40),
+        child: Column(
+          children: [
+            Icon(icon, size: 40, color: Colors.grey.shade300),
+            const SizedBox(height: 12),
+            Text(msg, style: TextStyle(color: Colors.grey)),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildReviewCard(Review review) {
@@ -747,7 +808,12 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
                   ],
                 ),
               ),
-              Row(children: List.generate(5, (index) => Icon(index < (review.rating ?? 0) ? Icons.star : Icons.star_border, color: Colors.amber, size: 14))),
+              Row(
+                children: List.generate(
+                  5,
+                  (index) => Icon(index < (review.overallRating ?? 0) ? Icons.star : Icons.star_border, color: Colors.amber, size: 14),
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 12),

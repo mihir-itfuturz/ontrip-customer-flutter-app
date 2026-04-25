@@ -11,7 +11,8 @@ class BACKEND {
   static const String communityInfo = 'community/package/';
   static const String communityMessages = 'community/';
   static const String communityMessaging = '/traveler-messaging';
+  static String communityNotificationPreference(String id) => 'community/$id/notification-preference';
   static String communityImages(String id) => 'community/$id/images';
-  static String packageReviews(String id) => 'package/$id/reviews';
+  static String packageReviews(String id) => 'customer/packages/$id/reviews';
   static String bookingReview(String id) => 'customer/bookings/$id/review';
 }

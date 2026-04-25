@@ -28,6 +28,7 @@ class CommunityChatScreen extends StatelessWidget {
                   }
                   return ListView.builder(
                     controller: controller.scrollController,
+                    reverse: true,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                     itemCount: controller.messages.length,
                     itemBuilder: (context, index) {
@@ -47,30 +48,80 @@ class CommunityChatScreen extends StatelessWidget {
 
   PreferredSizeWidget _buildAppBar(CommunityChatCtrl controller) {
     return AppBar(
+      titleSpacing: 0,
       backgroundColor: Colors.white,
       elevation: 0,
-      leadingWidth: 70,
-      leading: Padding(
-        padding: const EdgeInsets.only(left: 20),
-        child: Container(
-          decoration: BoxDecoration(color: const Color(0xFF4338CA), borderRadius: BorderRadius.circular(12)),
-          child: const Icon(Icons.forum_outlined, color: Colors.white, size: 24),
-        ),
+      leadingWidth: 100,
+
+      leading: Row(
+        children: [
+          IconButton(
+            onPressed: () => Get.back(),
+            icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Color(0xFF1E293B)),
+          ),
+          // const SizedBox(width: 5),
+          Container(
+            height: 40,
+            width: 40,
+            decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)),
+            child: Obx(() {
+              final img = controller.coverImage.value;
+              return ClipRRect(
+                borderRadius: BorderRadius.circular(50),
+                child: img != null && img.isNotEmpty
+                    ? CustomNetworkImage(imageUrl: "https://ontrip.itfuturz.in/$img", height: 45, width: 45, fit: BoxFit.cover)
+                    : const Icon(Icons.forum_outlined, color: Color(0xFF4338CA), size: 24),
+              );
+            }),
+          ),
+        ],
       ),
       title: Obx(() {
         final title = controller.community.value?.package?.title ?? "Community";
         final participants = (controller.community.value?.agentMembers?.length ?? 0) + (controller.community.value?.customerMembers?.length ?? 0);
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        return Row(
           children: [
-            Text(title, style: AppTextStyle.bold.copyWith(fontSize: 16, color: const Color(0xFF1E293B))),
-            Text("$participants participants", style: AppTextStyle.medium.copyWith(fontSize: 12, color: const Color(0xFF64748B))),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: AppTextStyle.bold.copyWith(fontSize: 16, color: const Color(0xFF1E293B))),
+                  Text("$participants participants", style: AppTextStyle.medium.copyWith(fontSize: 12, color: const Color(0xFF64748B))),
+                ],
+              ),
+            ),
           ],
         );
       }),
       actions: [
-        IconButton(
-          onPressed: () {
+        Obx(
+          () => GestureDetector(
+            onTap: () {
+              if (controller.community.value != null) {
+                controller.toggleNotificationPreference();
+              } else {
+                warningToast("Community not loaded yet");
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: controller.notificationEnabled.value
+                    ? (Constant.instance.primary).withValues(alpha: 0.2)
+                    : Constant.instance.grey.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(
+                controller.notificationEnabled.value ? Icons.notifications_active_outlined : Icons.notifications_off_outlined,
+                color: controller.notificationEnabled.value ? Constant.instance.primary : Constant.instance.grey,
+                size: 20,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 6),
+        GestureDetector(
+          onTap: () {
             final community = controller.community.value;
             if (community != null) {
               Get.toNamed(RouteNames.groupMembers, arguments: community);
@@ -78,10 +129,15 @@ class CommunityChatScreen extends StatelessWidget {
               warningToast("Community not loaded yet");
             }
           },
-          icon: const Icon(Icons.group_outlined, color: Color(0xFF64748B)),
+          child: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(color: (Constant.instance.orange).withValues(alpha: 0.2), borderRadius: BorderRadius.circular(10)),
+            child: Icon(Icons.group_outlined, color: Constant.instance.orange, size: 20),
+          ),
         ),
-        IconButton(
-          onPressed: () {
+        const SizedBox(width: 6),
+        GestureDetector(
+          onTap: () {
             final community = controller.community.value;
             if (community != null) {
               Get.toNamed(RouteNames.communityMedia, arguments: community.id);
@@ -89,8 +145,13 @@ class CommunityChatScreen extends StatelessWidget {
               warningToast("Community not loaded yet");
             }
           },
-          icon: const Icon(Icons.image_outlined, color: Color(0xFF64748B)),
+          child: Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(color: (Constant.instance.apple).withValues(alpha: 0.2), borderRadius: BorderRadius.circular(10)),
+            child: Icon(Icons.image_outlined, color: Constant.instance.apple, size: 20),
+          ),
         ),
+
         const SizedBox(width: 10),
       ],
     );
@@ -99,77 +160,56 @@ class CommunityChatScreen extends StatelessWidget {
   Widget _buildMessageBubble(CommunityMessage message) {
     final authCtrl = Get.find<AuthenticationController>();
     final isMe = message.sender is Map && message.sender["_id"] == authCtrl.userAuthData["_id"];
-    final time = message.createdAt != null ? "${message.createdAt!.hour}:${message.createdAt!.minute.toString().padLeft(2, '0')}" : "";
+    final time = message.createdAt != null ? AppDateFormat.hhmma(message.createdAt!) : "";
 
-    if (isMe) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(message.senderName, style: AppTextStyle.bold.copyWith(fontSize: 12, color: const Color(0xFF1E293B))),
-                const SizedBox(width: 4),
-                Text("• Traveler", style: AppTextStyle.medium.copyWith(fontSize: 10, color: const Color(0xFF94A3B8))),
-                const SizedBox(width: 8),
-                _buildAvatar(message.senderName, isMe: true),
-              ],
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          if (!isMe)
+            Padding(
+              padding: const EdgeInsets.only(left: 4, bottom: 4),
+              child: Text(message.senderName, style: AppTextStyle.bold.copyWith(fontSize: 11, color: const Color(0xFF64748B))),
             ),
-            const SizedBox(height: 4),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: const BoxDecoration(
-                color: Color(0xFF4338CA),
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(20), bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
+          Row(
+            mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              if (!isMe) ...[_buildAvatar(message.senderName, isMe: false), const SizedBox(width: 8)],
+              Flexible(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: isMe ? const Color(0xFF4338CA) : Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(16),
+                      topRight: const Radius.circular(16),
+                      bottomLeft: Radius.circular(isMe ? 16 : 4),
+                      bottomRight: Radius.circular(isMe ? 4 : 16),
+                    ),
+                    boxShadow: isMe ? [] : [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 4, offset: const Offset(0, 2))],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildMessageContent(message, isMe),
+                      const SizedBox(height: 4),
+                      Text(
+                        time,
+                        style: AppTextStyle.medium.copyWith(fontSize: 10, color: isMe ? Colors.white.withValues(alpha: 0.7) : const Color(0xFF94A3B8)),
+                      ),
+                    ],
+                  ),
+                ),
               ),
-              child: _buildMessageContent(message, true),
-            ),
-            const SizedBox(height: 4),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                const Icon(Icons.done_all, size: 14, color: Color(0xFF94A3B8)),
-                const SizedBox(width: 4),
-                Text(time, style: AppTextStyle.medium.copyWith(fontSize: 10, color: const Color(0xFF94A3B8))),
-              ],
-            ),
-          ],
-        ),
-      );
-    } else {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                _buildAvatar(message.senderName, isMe: false),
-                const SizedBox(width: 8),
-                Text(message.senderName, style: AppTextStyle.bold.copyWith(fontSize: 12, color: const Color(0xFF1E293B))),
-                const SizedBox(width: 4),
-                Text("• ${message.senderType?.toLowerCase() ?? 'admin'}", style: AppTextStyle.medium.copyWith(fontSize: 10, color: const Color(0xFF94A3B8))),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: const BorderRadius.only(topRight: Radius.circular(20), bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
-                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
-              ),
-              child: _buildMessageContent(message, false),
-            ),
-            const SizedBox(height: 4),
-            Text(time, style: AppTextStyle.medium.copyWith(fontSize: 10, color: const Color(0xFF94A3B8))),
-          ],
-        ),
-      );
-    }
+              if (isMe) const SizedBox(width: 32), // Padding on right for self messages
+              if (!isMe) const SizedBox(width: 32), // Padding on left for others
+            ],
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildAvatar(String name, {required bool isMe}) {

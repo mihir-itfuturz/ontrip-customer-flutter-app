@@ -11,16 +11,17 @@ class BookingDetailsCtrl extends GetxController {
   // Review State
   Rxn<ReviewResponse> reviewResponse = Rxn<ReviewResponse>();
   Rxn<Review> userReview = Rxn<Review>();
-  RxBool isReviewsLoading = false.obs;
   RxDouble userRating = 0.0.obs;
   final TextEditingController reviewCommentCtrl = TextEditingController();
+  final RxBool isReviewLoading = false.obs;
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
     if (bookingId.isNotEmpty) {
-      fetchBookingDetails();
-      fetchUserBookingReview();
+      await fetchBookingDetails();
+      await fetchUserBookingReview();
+      await fetchPackageReviews(booking.value!.package!.id!);
     }
   }
 
@@ -42,8 +43,14 @@ class BookingDetailsCtrl extends GetxController {
           booking.value = Booking.fromJson(data);
         }
         // After fetching booking, fetch reviews for the package
-        if (booking.value?.package?.id != null) {
-          fetchPackageReviews(booking.value!.package!.id!);
+        // if (booking.value?.package?.id != null) {
+        //   fetchPackageReviews(booking.value!.package!.id!);
+        // }
+
+        // Update Home Screen's last viewed booking
+        GetStorage().write('last_viewed_booking_id', booking.value!.bookingId);
+        if (Get.isRegistered<HomeController>()) {
+          Get.find<HomeController>().setBooking(booking.value!);
         }
       } else {
         errorToast(response.message);
@@ -56,37 +63,32 @@ class BookingDetailsCtrl extends GetxController {
     }
   }
 
-  Future<void> fetchPackageReviews(String packageId) async {
+  Future<void> fetchPackageReviews(String? packageId) async {
+    if (packageId == null) return;
     try {
-      isReviewsLoading.value = true;
-      final response = await ApiManager.instance.call(
-        endPoint: BACKEND.packageReviews(packageId),
-        type: ApiType.get,
-      );
-
+      final response = await ApiManager.instance.call(endPoint: "${BACKEND.packageReviews(packageId)}?page=1&limit=5", type: ApiType.get);
       if (response.status == 200 || response.status == 1) {
         reviewResponse.value = ReviewResponse.fromJson(response.data);
       }
     } catch (e) {
       debugPrint("Error fetching reviews: $e");
     } finally {
-      isReviewsLoading.value = false;
+      isReviewLoading.value = false;
     }
   }
 
   Future<void> fetchUserBookingReview() async {
     try {
-      final response = await ApiManager.instance.call(
-        endPoint: BACKEND.bookingReview(bookingId),
-        type: ApiType.get,
-      );
-
+      final response = await ApiManager.instance.call(endPoint: BACKEND.bookingReview(bookingId), type: ApiType.get);
       if (response.status == 200 || response.status == 1) {
         if (response.data["review"] != null) {
           userReview.value = Review.fromJson(response.data["review"]);
-          // Populate existing rating/comment if needed
-          userRating.value = userReview.value?.rating ?? 0.0;
+          userRating.value = userReview.value?.packageRating ?? 0.0;
           reviewCommentCtrl.text = userReview.value?.comment ?? "";
+        } else {
+          userReview.value = null;
+          userRating.value = 0.0;
+          reviewCommentCtrl.text = "";
         }
       }
     } catch (e) {
@@ -105,11 +107,7 @@ class BookingDetailsCtrl extends GetxController {
       final response = await ApiManager.instance.call(
         endPoint: BACKEND.bookingReview(bookingId),
         type: ApiType.post,
-        body: {
-          "packageRating": userRating.value,
-          "overallRating": userRating.value,
-          "comment": reviewCommentCtrl.text.trim(),
-        },
+        body: {"packageRating": userRating.value, "overallRating": userRating.value, "comment": reviewCommentCtrl.text.trim()},
       );
 
       if (response.status == 200 || response.status == 1) {

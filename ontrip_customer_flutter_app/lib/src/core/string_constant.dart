@@ -12,4 +12,5 @@ class StringConstants {
   static const privacyPolicy = 'https://sites.google.com/view/OnTrip/home';
   static const contactMail = 'info@itfuturz.com';
   static const appScriptWebUrl = 'https://script.google.com/macros/s/AKfycbx9rWy7bPBf2HxFqiMYYnhvHSmApz54WU2tIkvEfqek7xjN0qifH7BsioJMMRIlP_wrEA/exec';
+  static const notificationEnabled = 'notification_enabled';
 }

@@ -66,10 +66,10 @@ class SignInCtrl extends GetxController {
     update();
     await clearStorage();
     await Future.delayed(Duration(seconds: 2));
-    final businessCardId = getStorage(AppSession.token);
+    final token = getStorage(AppSession.token);
     isLoadingForLogout = false;
     update();
-    if (businessCardId == null || businessCardId.toString().isEmpty) {
+    if (token == null || token.toString().isEmpty) {
       return true;
     } else {
       return false;

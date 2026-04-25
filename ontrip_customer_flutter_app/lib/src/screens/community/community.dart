@@ -49,15 +49,9 @@ class CommunityScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Community",
-            style: AppTextStyle.bold.copyWith(fontSize: 28, color: const Color(0xFF0F172A), letterSpacing: -0.5),
-          ),
+          Text("Community", style: AppTextStyle.bold.copyWith(fontSize: 28, color: const Color(0xFF0F172A), letterSpacing: -0.5)),
           const SizedBox(height: 4),
-          Text(
-            "Connect with fellow travelers and experts.",
-            style: AppTextStyle.medium.copyWith(fontSize: 14, color: const Color(0xFF64748B)),
-          ),
+          Text("Connect with fellow travelers and experts.", style: AppTextStyle.medium.copyWith(fontSize: 14, color: const Color(0xFF64748B))),
         ],
       ),
     );
@@ -79,7 +73,7 @@ class CommunityScreen extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => controller.navigateToChat(package?.id),
+          onTap: () => controller.navigateToChat(package?.id, coverImage),
           borderRadius: BorderRadius.circular(20),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -87,12 +81,7 @@ class CommunityScreen extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(14),
-                  child: CustomNetworkImage(
-                    imageUrl: "${'https://ontrip.itfuturz.in/'}$coverImage",
-                    height: 52,
-                    width: 52,
-                    fit: BoxFit.cover,
-                  ),
+                  child: CustomNetworkImage(imageUrl: "https://ontrip.itfuturz.in/$coverImage", height: 52, width: 52, fit: BoxFit.cover),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -106,10 +95,7 @@ class CommunityScreen extends StatelessWidget {
                         style: AppTextStyle.bold.copyWith(fontSize: 15, color: const Color(0xFF2D2C74)),
                       ),
                       const SizedBox(height: 2),
-                      Text(
-                        destination,
-                        style: AppTextStyle.medium.copyWith(fontSize: 13, color: const Color(0xFF94A3B8)),
-                      ),
+                      Text(destination, style: AppTextStyle.medium.copyWith(fontSize: 13, color: const Color(0xFF94A3B8))),
                     ],
                   ),
                 ),

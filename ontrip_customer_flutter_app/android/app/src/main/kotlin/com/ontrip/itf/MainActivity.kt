@@ -1,4 +1,4 @@
-package com.example.ontrip_customer_flutter_app
+package com.ontrip.itf
 
 import io.flutter.embedding.android.FlutterActivity
 

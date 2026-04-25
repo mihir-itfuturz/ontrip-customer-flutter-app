@@ -111,6 +111,7 @@ export 'src/services/navigation_service.dart';
 export 'src/services/pre_binder.dart';
 export 'src/services/storage_service.dart';
 export 'src/services/notification_service.dart';
+export 'src/services/socket_service.dart';
 
 //! SCREENS
 

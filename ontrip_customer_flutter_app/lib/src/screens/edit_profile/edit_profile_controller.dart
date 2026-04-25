@@ -52,6 +52,8 @@ class EditProfileCtrl extends GetxController {
         // Update local data
         if (response.data != null && response.data['customer'] != null) {
           authService.userAuthData.assignAll(response.data['customer']);
+
+     
         } else {
           authService.userAuthData.addAll(body);
         }

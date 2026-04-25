@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import '../../../../app_export.dart';
 
 class VerifyOTPCtrl extends GetxController {
@@ -21,7 +23,9 @@ class VerifyOTPCtrl extends GetxController {
 
     try {
       isLoading.value = true;
-      final Map<String, dynamic> body = {"phone": phone, "otp": otpController.text.trim()};
+      String fcm = await notificationService.getToken() ?? "";
+      log(fcm);
+      final Map<String, dynamic> body = {"phone": phone, "otp": otpController.text.trim(), 'fcmToken': fcm};
 
       final response = await ApiManager.instance.call(endPoint: BACKEND.signIn, body: body);
 

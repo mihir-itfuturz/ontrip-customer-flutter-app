@@ -55,7 +55,7 @@ class SplashScreen extends GetWidget<SplashCtrl> {
                               gradient: LinearGradient(
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
-                                colors: [decoration.colorScheme.primary, decoration.colorScheme.primary.withValues(alpha: 0.8)],
+                                colors: [decoration.colorScheme.primary, decoration.colorScheme.primary.withValues(alpha: 0.5)],
                               ),
                               image: DecorationImage(image: AssetImage(Graphics.instance.logo), fit: BoxFit.cover),
                             ),

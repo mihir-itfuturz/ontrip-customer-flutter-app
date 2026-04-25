@@ -1,4 +1,3 @@
-
 import '../../../app_export.dart';
 
 class DashboardScreen extends GetView<DashboardCtrl> {
