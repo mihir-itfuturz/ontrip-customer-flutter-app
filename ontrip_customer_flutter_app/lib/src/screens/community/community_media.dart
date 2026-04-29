@@ -9,38 +9,42 @@ class CommunityMediaScreen extends GetView<CommunityMediaCtrl> {
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          title: const Text(
-            "Community Gallery",
-            style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),
-          ),
-          centerTitle: true,
-          leading: IconButton(
-            onPressed: () => Get.back(),
-            icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Color(0xFF1E293B)),
-          ),
-          actions: [
-            IconButton(
-              onPressed: () => controller.fetchImages(refresh: true),
-              icon: const Icon(Icons.refresh, color: Color(0xFF1E293B)),
-            ),
-          ],
-          elevation: 0,
+      child: SafeArea(
+        bottom: true,
+        top: false,
+        child: Scaffold(
           backgroundColor: Colors.white,
-          bottom: TabBar(
-            onTap: (index) => controller.switchTab(index),
-            labelColor: Constant.instance.primary,
-            unselectedLabelColor: const Color(0xFF1E293B).withValues(alpha: 0.5),
-            indicatorColor: Constant.instance.primary,
-            tabs: const [
-              Tab(text: "All Photos"),
-              Tab(text: "My Photos"),
+          appBar: AppBar(
+            title: const Text(
+              "Community Gallery",
+              style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),
+            ),
+            centerTitle: true,
+            leading: IconButton(
+              onPressed: () => Get.back(),
+              icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Color(0xFF1E293B)),
+            ),
+            actions: [
+              IconButton(
+                onPressed: () => controller.fetchImages(refresh: true),
+                icon: const Icon(Icons.refresh, color: Color(0xFF1E293B)),
+              ),
             ],
+            elevation: 0,
+            backgroundColor: Colors.white,
+            bottom: TabBar(
+              onTap: (index) => controller.switchTab(index),
+              labelColor: Constant.instance.primary,
+              unselectedLabelColor: const Color(0xFF1E293B).withValues(alpha: 0.5),
+              indicatorColor: Constant.instance.primary,
+              tabs: const [
+                Tab(text: "All Photos"),
+                Tab(text: "My Photos"),
+              ],
+            ),
           ),
+          body: TabBarView(children: [_buildAllPhotosTab(), _buildMyPhotosTab(context)]),
         ),
-        body: TabBarView(children: [_buildAllPhotosTab(), _buildMyPhotosTab(context)]),
       ),
     );
   }
