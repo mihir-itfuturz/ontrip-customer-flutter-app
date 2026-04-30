@@ -41,48 +41,47 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAspAqI5M41wLyvAxfV5dQ6_JHmw9dt0vQ',
-    appId: '1:618650736687:web:c0f95e70da34ce82a78eda',
-    messagingSenderId: '618650736687',
-    projectId: 'on-trip-9284c',
-    authDomain: 'on-trip-9284c.firebaseapp.com',
-    storageBucket: 'on-trip-9284c.firebasestorage.app',
-    measurementId: 'G-ESSPC3N9EF',
+    apiKey: 'AIzaSyD0dfOu1iQtEADM5V35ukCV6u-IQK4ruY8',
+    appId: '1:804112151443:web:844bdcc7da44ae443a2e66',
+    messagingSenderId: '804112151443',
+    projectId: 'bizlinker-b1534',
+    authDomain: 'bizlinker-b1534.firebaseapp.com',
+    storageBucket: 'bizlinker-b1534.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCnYd4ooCEnpzuPY2qtfa0wyzxFxthv60Y',
-    appId: '1:618650736687:android:aa11dcc3af86c98ba78eda',
-    messagingSenderId: '618650736687',
-    projectId: 'on-trip-9284c',
-    storageBucket: 'on-trip-9284c.firebasestorage.app',
+    apiKey: 'AIzaSyCEBBTKbb_JKro_0KR3ORipzGCgnn_FoIs',
+    appId: '1:804112151443:android:e72a7fddd6acba1e3a2e66',
+    messagingSenderId: '804112151443',
+    projectId: 'bizlinker-b1534',
+    storageBucket: 'bizlinker-b1534.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCzkP36d6QqVKdZzLbWPfvQQtpXpszxp-0',
-    appId: '1:618650736687:ios:ecae5514cd317ca2a78eda',
-    messagingSenderId: '618650736687',
-    projectId: 'on-trip-9284c',
-    storageBucket: 'on-trip-9284c.firebasestorage.app',
-    iosBundleId: 'com.example.ontripCustomerFlutterApp',
+    apiKey: 'AIzaSyBxPtkduD5MZgVFDPlS61MTA9riMtgK9yw',
+    appId: '1:804112151443:ios:c3101b243be8e7e53a2e66',
+    messagingSenderId: '804112151443',
+    projectId: 'bizlinker-b1534',
+    storageBucket: 'bizlinker-b1534.firebasestorage.app',
+    iosBundleId: 'com.ontrip.itf',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCzkP36d6QqVKdZzLbWPfvQQtpXpszxp-0',
-    appId: '1:618650736687:ios:ecae5514cd317ca2a78eda',
-    messagingSenderId: '618650736687',
-    projectId: 'on-trip-9284c',
-    storageBucket: 'on-trip-9284c.firebasestorage.app',
+    apiKey: 'AIzaSyBxPtkduD5MZgVFDPlS61MTA9riMtgK9yw',
+    appId: '1:804112151443:ios:6231fab6fa40478b3a2e66',
+    messagingSenderId: '804112151443',
+    projectId: 'bizlinker-b1534',
+    storageBucket: 'bizlinker-b1534.firebasestorage.app',
     iosBundleId: 'com.example.ontripCustomerFlutterApp',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyAspAqI5M41wLyvAxfV5dQ6_JHmw9dt0vQ',
-    appId: '1:618650736687:web:8429c7a1fad7dc41a78eda',
-    messagingSenderId: '618650736687',
-    projectId: 'on-trip-9284c',
-    authDomain: 'on-trip-9284c.firebaseapp.com',
-    storageBucket: 'on-trip-9284c.firebasestorage.app',
-    measurementId: 'G-44VQBRMM8W',
+    apiKey: 'AIzaSyD0dfOu1iQtEADM5V35ukCV6u-IQK4ruY8',
+    appId: '1:804112151443:web:52a0454aea90520b3a2e66',
+    messagingSenderId: '804112151443',
+    projectId: 'bizlinker-b1534',
+    authDomain: 'bizlinker-b1534.firebaseapp.com',
+    storageBucket: 'bizlinker-b1534.firebasestorage.app',
   );
+
 }

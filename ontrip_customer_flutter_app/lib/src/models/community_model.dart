@@ -95,9 +95,10 @@ class CommunityMessage {
   final String? type;
   final String? content;
   final String? imageUrl;
+  final String? videoUrl;
   final DateTime? createdAt;
 
-  CommunityMessage({this.id, this.community, this.senderType, this.sender, this.type, this.content, this.imageUrl, this.createdAt});
+  CommunityMessage({this.id, this.community, this.senderType, this.sender, this.type, this.content, this.imageUrl, this.videoUrl, this.createdAt});
 
   factory CommunityMessage.fromJson(Map<String, dynamic> json) => CommunityMessage(
     id: json["_id"],
@@ -107,6 +108,7 @@ class CommunityMessage {
     type: json["type"],
     content: json["content"],
     imageUrl: json["imageUrl"],
+    videoUrl: json["videoUrl"],
     createdAt: json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
   );
 
@@ -125,9 +127,9 @@ class CommunityMediaResponse {
   CommunityMediaResponse({this.images, this.pagination});
 
   factory CommunityMediaResponse.fromJson(Map<String, dynamic> json) => CommunityMediaResponse(
-        images: json["images"] == null ? null : List<CommunityImage>.from(json["images"].map((x) => CommunityImage.fromJson(x))),
-        pagination: json["pagination"] == null ? null : CommunityPagination.fromJson(json["pagination"]),
-      );
+    images: json["images"] == null ? null : List<CommunityImage>.from(json["images"].map((x) => CommunityImage.fromJson(x))),
+    pagination: json["pagination"] == null ? null : CommunityPagination.fromJson(json["pagination"]),
+  );
 }
 
 class CommunityImage {
@@ -138,6 +140,7 @@ class CommunityImage {
   final Uploader? uploader;
   final String? customer;
   final String? imageUrl;
+  final String? videoUrl;
   final String? caption;
   final String? message;
   final DateTime? createdAt;
@@ -151,6 +154,7 @@ class CommunityImage {
     this.uploader,
     this.customer,
     this.imageUrl,
+    this.videoUrl,
     this.caption,
     this.message,
     this.createdAt,
@@ -158,18 +162,19 @@ class CommunityImage {
   });
 
   factory CommunityImage.fromJson(Map<String, dynamic> json) => CommunityImage(
-        id: json["_id"],
-        community: json["community"],
-        package: json["package"],
-        uploaderType: json["uploaderType"],
-        uploader: json["uploader"] == null ? null : Uploader.fromJson(json["uploader"]),
-        customer: json["customer"],
-        imageUrl: json["imageUrl"],
-        caption: json["caption"],
-        message: json["message"],
-        createdAt: json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
-        updatedAt: json["updatedAt"] == null ? null : DateTime.parse(json["updatedAt"]),
-      );
+    id: json["_id"],
+    community: json["community"],
+    package: json["package"],
+    uploaderType: json["uploaderType"],
+    uploader: json["uploader"] == null ? null : Uploader.fromJson(json["uploader"]),
+    customer: json["customer"],
+    imageUrl: json["imageUrl"],
+    videoUrl: json["videoUrl"],
+    caption: json["caption"],
+    message: json["message"],
+    createdAt: json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
+    updatedAt: json["updatedAt"] == null ? null : DateTime.parse(json["updatedAt"]),
+  );
 }
 
 class Uploader {
@@ -179,11 +184,7 @@ class Uploader {
 
   Uploader({this.id, this.phone, this.name});
 
-  factory Uploader.fromJson(Map<String, dynamic> json) => Uploader(
-        id: json["_id"],
-        phone: json["phone"],
-        name: json["name"],
-      );
+  factory Uploader.fromJson(Map<String, dynamic> json) => Uploader(id: json["_id"], phone: json["phone"], name: json["name"]);
 }
 
 class CommunityPagination {
@@ -194,10 +195,6 @@ class CommunityPagination {
 
   CommunityPagination({this.page, this.limit, this.total, this.totalPages});
 
-  factory CommunityPagination.fromJson(Map<String, dynamic> json) => CommunityPagination(
-        page: json["page"],
-        limit: json["limit"],
-        total: json["total"],
-        totalPages: json["totalPages"],
-      );
+  factory CommunityPagination.fromJson(Map<String, dynamic> json) =>
+      CommunityPagination(page: json["page"], limit: json["limit"], total: json["total"], totalPages: json["totalPages"]);
 }

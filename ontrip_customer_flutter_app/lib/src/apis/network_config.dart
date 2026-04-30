@@ -10,7 +10,7 @@ class AppNetworkConstants {
     return _masterCtrl.localEnvJson;
   }
 
-  static Map<String, String> get _envJson => _env(isLive: true);
+  static Map<String, String> get _envJson => _env(isLive: false);
 
   static final apiBaseURL = _envJson['mobile_base_url']!;
   static final baseURL = _envJson['image_url']!;

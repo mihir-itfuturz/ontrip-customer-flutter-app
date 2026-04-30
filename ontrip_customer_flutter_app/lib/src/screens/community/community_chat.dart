@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import '../../../../../app_export.dart';
+import '../common/media_display_screen.dart';
 
 class CommunityChatScreen extends StatelessWidget {
   const CommunityChatScreen({super.key});
@@ -69,7 +70,7 @@ class CommunityChatScreen extends StatelessWidget {
               return ClipRRect(
                 borderRadius: BorderRadius.circular(50),
                 child: img != null && img.isNotEmpty
-                    ? CustomNetworkImage(imageUrl: "https://ontrip.itfuturz.in/$img", height: 45, width: 45, fit: BoxFit.cover)
+                    ? CustomNetworkImage(imageUrl: "${AppNetworkConstants.baseURL}$img", height: 45, width: 45, fit: BoxFit.cover)
                     : const Icon(Icons.forum_outlined, color: Color(0xFF4338CA), size: 24),
               );
             }),
@@ -226,28 +227,158 @@ class CommunityChatScreen extends StatelessWidget {
     );
   }
 
+  // Widget _buildMessageContent(CommunityMessage message, bool isMe) {
+  //   if (message.type == "image") {
+  //     return Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         ClipRRect(
+  //           borderRadius: BorderRadius.circular(12),
+  //           child: CustomNetworkImage(imageUrl: "${AppNetworkConstants.baseURL}${message.imageUrl}", width: 200),
+  //         ),
+  //         if (message.content?.isNotEmpty == true) ...[
+  //           const SizedBox(height: 8),
+  //           Text(message.content!, style: AppTextStyle.medium.copyWith(fontSize: 14, color: isMe ? Colors.white : const Color(0xFF1E293B))),
+  //         ],
+  //       ],
+  //     );
+  //   }
+  //   return Text(message.content ?? "", style: AppTextStyle.medium.copyWith(fontSize: 14, color: isMe ? Colors.white : const Color(0xFF1E293B)));
+  // }
+
   Widget _buildMessageContent(CommunityMessage message, bool isMe) {
-    if (message.type == "image") {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: CustomNetworkImage(imageUrl: "https://ontrip.itfuturz.in/${message.imageUrl}", width: 200),
-          ),
-          if (message.content?.isNotEmpty == true) ...[
-            const SizedBox(height: 8),
-            Text(message.content!, style: AppTextStyle.medium.copyWith(fontSize: 14, color: isMe ? Colors.white : const Color(0xFF1E293B))),
-          ],
-        ],
-      );
+    final mediaUrl = message.imageUrl ?? message.imageUrl ?? message.imageUrl;
+
+    if (message.type == "image" || (mediaUrl != null && !_isVideoFile(mediaUrl))) {
+      return _buildImageContent(message, isMe);
+    } else if (message.type == "video" || _isVideoFile(mediaUrl ?? "")) {
+      return _buildVideoContent(message, isMe);
     }
+
+    // Default: Text message
     return Text(message.content ?? "", style: AppTextStyle.medium.copyWith(fontSize: 14, color: isMe ? Colors.white : const Color(0xFF1E293B)));
+  }
+
+  bool _isVideoFile(String url) {
+    final lower = url.toLowerCase();
+    return lower.endsWith('.mp4') || lower.endsWith('.mov') || lower.endsWith('.avi') || lower.endsWith('.mkv') || lower.endsWith('.webm');
+  }
+
+  Widget _buildImageContent(CommunityMessage message, bool isMe) {
+    final imageUrl = _resolveMediaUrl(message.imageUrl);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: () {
+            if (imageUrl == null) return;
+            Get.to(() => MediaDisplayScreen(url: imageUrl, isVideo: false));
+          },
+          onLongPress: () => _showMediaActions(message: message, mediaUrl: imageUrl, isVideo: false, isMe: isMe),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                CustomNetworkImage(imageUrl: imageUrl, width: 220, height: 220, fit: BoxFit.cover),
+                if (isMe)
+                  Positioned(
+                    bottom: 8,
+                    left: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(color: Constant.instance.primary, borderRadius: BorderRadius.circular(20)),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.person_rounded, color: Colors.white, size: 12),
+                          SizedBox(width: 4),
+                          Text(
+                            "My Photo",
+                            style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+        if (message.content?.isNotEmpty == true) ...[
+          const SizedBox(height: 8),
+          Text(message.content!, style: AppTextStyle.medium.copyWith(fontSize: 14, color: isMe ? Colors.white : const Color(0xFF1E293B))),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildVideoContent(CommunityMessage message, bool isMe) {
+    final videoUrl = _resolveMediaUrl(message.videoUrl);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                width: 220,
+                height: 220,
+                color: Colors.black12,
+                child: message.videoUrl != null
+                    ? CustomNetworkImage(imageUrl: videoUrl, width: 220, height: 220, fit: BoxFit.cover)
+                    : const Center(child: Icon(Icons.video_library, size: 50, color: Colors.white70)),
+              ),
+            ),
+            if (isMe)
+              Positioned(
+                bottom: 8,
+                left: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: Constant.instance.primary, borderRadius: BorderRadius.circular(20)),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.person_rounded, color: Colors.white, size: 12),
+                      SizedBox(width: 4),
+                      Text(
+                        "My Video",
+                        style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            GestureDetector(
+              onTap: () {
+                if (videoUrl == null) return;
+                Get.to(() => MediaDisplayScreen(url: videoUrl, isVideo: true));
+              },
+              onLongPress: () => _showMediaActions(message: message, mediaUrl: videoUrl, isVideo: true, isMe: isMe),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.6), shape: BoxShape.circle),
+                child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 40),
+              ),
+            ),
+          ],
+        ),
+        if (message.content?.isNotEmpty == true) ...[
+          const SizedBox(height: 8),
+          Text(message.content!, style: AppTextStyle.medium.copyWith(fontSize: 14, color: isMe ? Colors.white : const Color(0xFF1E293B))),
+        ],
+      ],
+    );
   }
 
   Widget _buildInputArea(CommunityChatCtrl controller) {
     return Obx(() {
       final hasImages = controller.selectedImages.isNotEmpty;
+      final hasMedia = controller.selectedImages.isNotEmpty || controller.selectedVideos.isNotEmpty;
       return Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -258,36 +389,116 @@ class CommunityChatScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               // ── Image Preview Strip ──
-              if (hasImages)
+              // if (hasImages)
+              //   SizedBox(
+              //     height: 88,
+              //     child: ListView.builder(
+              //       scrollDirection: Axis.horizontal,
+              //       padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              //       itemCount: controller.selectedImages.length,
+              //       itemBuilder: (context, index) {
+              //         final file = controller.selectedImages[index];
+              //         return Padding(
+              //           padding: const EdgeInsets.only(right: 8),
+              //           child: Stack(
+              //             children: [
+              //               ClipRRect(
+              //                 borderRadius: BorderRadius.circular(12),
+              //                 child: Image.file(File(file.path), height: 72, width: 72, fit: BoxFit.cover),
+              //               ),
+              //               Positioned(
+              //                 top: 2,
+              //                 right: 2,
+              //                 child: GestureDetector(
+              //                   onTap: () => controller.removeImage(index),
+              //                   child: Container(
+              //                     height: 20,
+              //                     width: 20,
+              //                     decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+              //                     child: const Icon(Icons.close, color: Colors.white, size: 12),
+              //                   ),
+              //                 ),
+              //               ),
+              //             ],
+              //           ),
+              //         );
+              //       },
+              //     ),
+              //   ),
+              if (hasMedia)
                 SizedBox(
                   height: 88,
+
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                    itemCount: controller.selectedImages.length,
+                    itemCount: controller.selectedImages.length + controller.selectedVideos.length,
                     itemBuilder: (context, index) {
-                      final file = controller.selectedImages[index];
+                      // final file = controller. selectedImages[index];
+                      final bool isImage = index < controller.selectedImages.length;
+                      final file = isImage ? controller.selectedImages[index] : controller.selectedVideos[index - controller.selectedImages.length];
+
+                      final bool isVideo = !isImage;
                       return Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: Stack(
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(12),
-                              child: Image.file(File(file.path), height: 72, width: 72, fit: BoxFit.cover),
+                              child: isVideo
+                                  ? Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        Container(
+                                          height: 72,
+                                          width: 72,
+                                          padding: const EdgeInsets.all(6),
+                                          decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.2)),
+                                          child: Icon(Icons.play_arrow_rounded, color: Colors.black.withValues(alpha: 0.8), size: 30),
+                                        ),
+                                      ],
+                                    )
+                                  : Image.file(File(file.path), height: 72, width: 72, fit: BoxFit.cover),
                             ),
                             Positioned(
                               top: 2,
                               right: 2,
                               child: GestureDetector(
-                                onTap: () => controller.removeImage(index),
+                                onTap: () => isVideo ? controller.removeVideo(index - controller.selectedImages.length) : controller.removeImage(index),
                                 child: Container(
-                                  height: 20,
-                                  width: 20,
+                                  height: 25,
+                                  width: 25,
                                   decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
                                   child: const Icon(Icons.close, color: Colors.white, size: 12),
                                 ),
                               ),
                             ),
+                            // if (isVideo)
+                            //   Positioned(
+                            //     bottom: 2,
+                            //     left: 2,
+                            //     child: Container(
+                            //       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                            //       decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(4)),
+                            //       child: const Text(
+                            //         "VIDEO",
+                            //         style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                            //       ),
+                            //     ),
+                            //   ),
+                            // Positioned(
+                            //   top: 2,
+                            //   right: 2,
+                            //   child: GestureDetector(
+                            //     onTap: () => controller.removeImage(index),
+                            //     child: Container(
+                            //       height: 20,
+                            //       width: 20,
+                            //       decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
+                            //       child: const Icon(Icons.close, color: Colors.white, size: 12),
+                            //     ),
+                            //   ),
+                            // ),
                           ],
                         ),
                       );
@@ -300,7 +511,7 @@ class CommunityChatScreen extends StatelessWidget {
                 child: Row(
                   children: [
                     GestureDetector(
-                      onTap: controller.pickImages,
+                      onTap: controller.pickMedia,
                       child: Container(
                         padding: const EdgeInsets.all(10),
                         decoration: BoxDecoration(
@@ -336,8 +547,8 @@ class CommunityChatScreen extends StatelessWidget {
                       onTap: controller.isSending.value
                           ? null
                           : () {
-                              if (controller.selectedImages.isNotEmpty) {
-                                controller.sendImages();
+                              if (controller.selectedImages.isNotEmpty || controller.selectedVideos.isNotEmpty) {
+                                controller.sendMedia();
                               } else {
                                 controller.sendMessage();
                               }
@@ -358,5 +569,55 @@ class CommunityChatScreen extends StatelessWidget {
         ),
       );
     });
+  }
+
+  String? _resolveMediaUrl(String? url) {
+    if (url == null || url.isEmpty) return null;
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return "${AppNetworkConstants.baseURL}$url";
+  }
+
+  void _showMediaActions({required CommunityMessage message, required String? mediaUrl, required bool isVideo, required bool isMe}) {
+    if (mediaUrl == null || mediaUrl.isEmpty) return;
+    final ctrl = Get.find<CommunityChatCtrl>();
+    Get.bottomSheet(
+      SafeArea(
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.download_rounded),
+                title: const Text("Download"),
+                onTap: () {
+                  Get.back();
+                  ctrl.downloadMediaFromUrl(url: mediaUrl, isVideo: isVideo);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent),
+                title: const Text("Delete", style: TextStyle(color: Colors.redAccent)),
+                onTap: () {
+                  Get.back();
+                  if (!isMe) {
+                    warningToast("You can delete only your images/videos");
+                    return;
+                  }
+                  if ((message.id ?? '').isEmpty) {
+                    warningToast("Media id not found");
+                    return;
+                  }
+                  ctrl.deleteMediaByIds([message.id!]);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

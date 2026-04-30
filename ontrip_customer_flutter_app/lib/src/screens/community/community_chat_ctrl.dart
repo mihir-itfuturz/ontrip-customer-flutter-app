@@ -1,7 +1,11 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:file_picker/file_picker.dart';
 
 import 'package:dio/dio.dart' as dio;
+import 'package:gal/gal.dart';
 import '../../../../../app_export.dart';
 
 class CommunityChatCtrl extends GetxController {
@@ -10,6 +14,7 @@ class CommunityChatCtrl extends GetxController {
   final RxBool isLoading = false.obs;
   final RxBool isSending = false.obs;
   final RxList<XFile> selectedImages = <XFile>[].obs;
+  final RxList<XFile> selectedVideos = <XFile>[].obs;
   final TextEditingController messageController = TextEditingController();
   final ScrollController scrollController = ScrollController();
   final RxnString coverImage = RxnString();
@@ -267,9 +272,40 @@ class CommunityChatCtrl extends GetxController {
   }
 
   Future<void> pickImages() async {
-    final List<XFile> picked = await _picker.pickMultiImage(imageQuality: 80);
+    final List<XFile> picked = await _picker.pickMultipleMedia(maxHeight: 80, maxWidth: 80, imageQuality: 80);
     if (picked.isEmpty) return;
     selectedImages.addAll(picked);
+  }
+
+  Future<void> pickMedia() async {
+    try {
+      final result = await FilePicker.pickFiles(type: FileType.media, allowMultiple: true, withData: true);
+
+      if (result == null) return;
+
+      for (final file in result.files) {
+        if (file.path == null) continue;
+
+        final xfile = XFile(file.path!);
+        final ext = file.extension?.toLowerCase().trim();
+
+        final isVideo = ['mp4', 'mov', 'avi', 'mkv', 'webm'].contains(ext);
+
+        if (isVideo) {
+          selectedVideos.add(xfile);
+        } else {
+          selectedImages.add(xfile);
+        }
+      }
+
+      if (selectedImages.isNotEmpty || selectedVideos.isNotEmpty) {
+        // Optional: Show a small toast
+        // successToast("${selectedImages.length} image(s) and ${selectedVideos.length} video(s) selected");
+      }
+    } catch (e) {
+      debugPrint("Media pick error: $e");
+      errorToast("Couldn't pick media. Please try again.");
+    }
   }
 
   void removeImage(int index) {
@@ -278,17 +314,63 @@ class CommunityChatCtrl extends GetxController {
     }
   }
 
-  Future<void> sendImages() async {
-    if (selectedImages.isEmpty || community.value == null) return;
+  void removeVideo(int index) {
+    if (index >= 0 && index < selectedVideos.length) {
+      selectedVideos.removeAt(index);
+    }
+  }
+
+  // Future<void> sendImages() async {
+
+  //   if (selectedImages.isEmpty || community.value == null) return;
+  //   final caption = messageController.text.trim();
+  //   try {
+  //     isSending.value = true;
+  //     communityId = community.value!.id;
+  //     messageController.clear();
+
+  //     for (final xfile in List<XFile>.from(selectedImages)) {
+  //       final formData = dio.FormData.fromMap({
+  //         'media': await dio.MultipartFile.fromFile(xfile.path, filename: xfile.name),
+  //         if (caption.isNotEmpty) 'caption': caption,
+  //       });
+
+  //       final response = await ApiManager.instance.call(
+  //         endPoint: "${BACKEND.communityMessages}${community.value!.id}/messages/image",
+  //         type: ApiType.post,
+  //         body: formData,
+  //       );
+
+  //       if (response.status != 200 && response.status != 1) {
+  //         errorToast(response.message);
+  //       }
+  //     }
+
+  //     selectedImages.clear();
+  //     await fetchMessages(showLoading: false);
+  //   } catch (e) {
+  //     debugPrint("Error sending images: $e");
+  //     errorToast("Failed to send image");
+  //   } finally {
+  //     isSending.value = false;
+  //   }
+  // }
+  Future<void> sendMedia() async {
+    if ((selectedImages.isEmpty && selectedVideos.isEmpty) || community.value == null) {
+      return;
+    }
+
     final caption = messageController.text.trim();
+
     try {
       isSending.value = true;
-      communityId = community.value!.id;
       messageController.clear();
+
+      // Send all selected Images
 
       for (final xfile in List<XFile>.from(selectedImages)) {
         final formData = dio.FormData.fromMap({
-          'image': await dio.MultipartFile.fromFile(xfile.path, filename: xfile.name),
+          'media': await dio.MultipartFile.fromFile(xfile.path, filename: xfile.name),
           if (caption.isNotEmpty) 'caption': caption,
         });
 
@@ -303,11 +385,34 @@ class CommunityChatCtrl extends GetxController {
         }
       }
 
+      // Send all selected Videos
+
+      for (final xfile in List<XFile>.from(selectedVideos)) {
+        final formData = dio.FormData.fromMap({
+          'media': await dio.MultipartFile.fromFile(xfile.path, filename: xfile.name),
+          if (caption.isNotEmpty) 'caption': caption,
+        });
+
+        final response = await ApiManager.instance.call(
+          endPoint: "${BACKEND.communityMessages}${community.value!.id}/messages/image",
+          type: ApiType.post,
+          body: formData,
+        );
+
+        if (response.status != 200 && response.status != 1) {
+          errorToast(response.message);
+        }
+      }
+
+      // Clear selections after successful upload
       selectedImages.clear();
+      selectedVideos.clear();
+
       await fetchMessages(showLoading: false);
+      successToast("Media sent successfully");
     } catch (e) {
-      debugPrint("Error sending images: $e");
-      errorToast("Failed to send image");
+      debugPrint("Error sending media: $e");
+      errorToast("Failed to send media");
     } finally {
       isSending.value = false;
     }
@@ -323,5 +428,102 @@ class CommunityChatCtrl extends GetxController {
         );
       });
     }
+  }
+
+  String? _resolveMediaUrl(String? rawUrl) {
+    if (rawUrl == null || rawUrl.trim().isEmpty) return null;
+    final trimmed = rawUrl.trim();
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
+    return "${AppNetworkConstants.baseURL}$trimmed";
+  }
+
+  Future<void> downloadMediaFromUrl({required String? url, required bool isVideo}) async {
+    final resolved = _resolveMediaUrl(url);
+    if (resolved == null) {
+      warningToast("Media URL not available");
+      return;
+    }
+
+    final granted = await _ensureMediaPermissions();
+    if (!granted) {
+      warningToast("Storage permission denied");
+      return;
+    }
+
+    final downloader = dio.Dio();
+    try {
+      if (isVideo) {
+        final ext = _videoExtension(resolved);
+        final tempFile = File("${Directory.systemTemp.path}/ontrip_${DateTime.now().microsecondsSinceEpoch}.$ext");
+        await downloader.download(resolved, tempFile.path);
+        await Gal.putVideo(tempFile.path, album: "OnTrip");
+        if (await tempFile.exists()) await tempFile.delete();
+      } else {
+        final response = await downloader.get<List<int>>(resolved, options: dio.Options(responseType: dio.ResponseType.bytes));
+        final bytes = response.data;
+        if (bytes == null || bytes.isEmpty) {
+          errorToast("Failed to download image");
+          return;
+        }
+        await Gal.putImageBytes(Uint8List.fromList(bytes), album: "OnTrip");
+      }
+      successToast("Downloaded successfully");
+    } catch (e) {
+      debugPrint("Download media failed: $e");
+      errorToast("Failed to download media");
+    }
+  }
+
+  Future<void> deleteMediaByIds(List<String> imageIds) async {
+    final communityIdValue = community.value?.id;
+    if (communityIdValue == null) return;
+
+    final ids = imageIds.where((e) => e.trim().isNotEmpty).toSet().toList();
+    if (ids.isEmpty) return;
+
+    try {
+      final response = await ApiManager.instance.call(
+        endPoint: BACKEND.communityBulkDeleteImages(communityIdValue),
+        type: ApiType.delete,
+        body: {"imageIds": ids},
+      );
+
+      if (response.status == 200 || response.status == 1) {
+        messages.removeWhere((m) => ids.contains(m.id));
+        successToast("Deleted successfully");
+      } else {
+        errorToast(response.message);
+      }
+    } catch (e) {
+      debugPrint("Delete media failed: $e");
+      errorToast("Failed to delete media");
+    }
+  }
+
+  String _videoExtension(String url) {
+    final path = Uri.tryParse(url)?.path.toLowerCase() ?? url.toLowerCase();
+    if (path.endsWith('.mov')) return 'mov';
+    if (path.endsWith('.avi')) return 'avi';
+    if (path.endsWith('.mkv')) return 'mkv';
+    if (path.endsWith('.webm')) return 'webm';
+    return 'mp4';
+  }
+
+  Future<bool> _ensureMediaPermissions() async {
+    if (Platform.isAndroid) {
+      final androidInfo = await DeviceInfoPlugin().androidInfo;
+      if (androidInfo.version.sdkInt >= 33) {
+        final photos = await Permission.photos.request();
+        final videos = await Permission.videos.request();
+        return photos.isGranted || videos.isGranted;
+      }
+      final storage = await Permission.storage.request();
+      return storage.isGranted;
+    }
+    if (Platform.isIOS) {
+      final photos = await Permission.photosAddOnly.request();
+      return photos.isGranted || photos.isLimited;
+    }
+    return true;
   }
 }

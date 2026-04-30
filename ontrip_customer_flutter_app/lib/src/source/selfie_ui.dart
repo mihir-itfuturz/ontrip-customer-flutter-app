@@ -8,9 +8,9 @@ import 'package:ontrip_customer_flutter_app/src/core/constants.dart';
 class SelfieUI extends StatefulWidget {
   final String distributorName;
   final bool isProfile;
-  final String? albumId;
+  final String? communityId;
 
-  const SelfieUI({super.key, required this.distributorName, required this.isProfile, this.albumId});
+  const SelfieUI({super.key, required this.distributorName, required this.isProfile, this.communityId});
 
   @override
   State<SelfieUI> createState() => _SelfieUIState();

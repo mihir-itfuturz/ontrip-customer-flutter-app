@@ -1,6 +1,7 @@
 import 'dart:io';
 import '../../../../../app_export.dart';
 import '../../source/selfie_ui.dart';
+import '../common/media_display_screen.dart';
 
 class CommunityMediaScreen extends GetView<CommunityMediaCtrl> {
   const CommunityMediaScreen({super.key});
@@ -9,41 +10,48 @@ class CommunityMediaScreen extends GetView<CommunityMediaCtrl> {
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
-      child: SafeArea(
-        bottom: true,
-        top: false,
-        child: Scaffold(
-          backgroundColor: Colors.white,
-          appBar: AppBar(
-            title: const Text(
-              "Community Gallery",
-              style: TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),
-            ),
-            centerTitle: true,
-            leading: IconButton(
-              onPressed: () => Get.back(),
-              icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Color(0xFF1E293B)),
-            ),
-            actions: [
-              IconButton(
-                onPressed: () => controller.fetchImages(refresh: true),
-                icon: const Icon(Icons.refresh, color: Color(0xFF1E293B)),
-              ),
-            ],
-            elevation: 0,
+      child: Obx(
+        () => PopScope(
+          canPop: !controller.selectionMode.value,
+          onPopInvokedWithResult: (didPop, result) {
+            if (!didPop && controller.selectionMode.value) {
+              controller.toggleSelectionMode(false);
+            }
+          },
+          child: Scaffold(
             backgroundColor: Colors.white,
-            bottom: TabBar(
-              onTap: (index) => controller.switchTab(index),
-              labelColor: Constant.instance.primary,
-              unselectedLabelColor: const Color(0xFF1E293B).withValues(alpha: 0.5),
-              indicatorColor: Constant.instance.primary,
-              tabs: const [
-                Tab(text: "All Photos"),
-                Tab(text: "My Photos"),
-              ],
+            appBar: AppBar(
+              title: Text(
+                controller.selectionMode.value ? "${controller.selectedMediaIds.length} selected" : "Community Gallery",
+                style: const TextStyle(color: Color(0xFF1E293B), fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+              centerTitle: true,
+              leading: IconButton(
+                onPressed: () {
+                  if (controller.selectionMode.value) {
+                    controller.toggleSelectionMode(false);
+                    return;
+                  }
+                  Get.back();
+                },
+                icon: const Icon(Icons.arrow_back_ios_new, size: 20, color: Color(0xFF1E293B)),
+              ),
+              actions: [_buildAppBarActions(context)],
+              elevation: 0,
+              backgroundColor: Colors.white,
+              bottom: TabBar(
+                onTap: (index) => controller.switchTab(index),
+                labelColor: Constant.instance.primary,
+                unselectedLabelColor: const Color(0xFF1E293B).withValues(alpha: 0.5),
+                indicatorColor: Constant.instance.primary,
+                tabs: const [
+                  Tab(text: "All Photos"),
+                  Tab(text: "My Photos"),
+                ],
+              ),
             ),
+            body: TabBarView(children: [_buildAllPhotosTab(), _buildMyPhotosTab(context)]),
           ),
-          body: TabBarView(children: [_buildAllPhotosTab(), _buildMyPhotosTab(context)]),
         ),
       ),
     );
@@ -81,21 +89,25 @@ class CommunityMediaScreen extends GetView<CommunityMediaCtrl> {
               }
 
               final image = controller.images[index];
-              return GestureDetector(
-                onTap: () {
-                  // Navigate to full screen image view if needed
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: CustomNetworkImage(imageUrl: "${AppNetworkConstants.baseURL}${image.imageUrl}", fit: BoxFit.cover),
-                  ),
-                ),
-              );
+              return Obx(() {
+                final isSelected = controller.isSelected(image.id);
+                final isSelectionMode = controller.selectionMode.value;
+                return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () {
+                    if (isSelectionMode) {
+                      controller.toggleMediaSelection(image);
+                    } else {
+                      _openMedia(image);
+                    }
+                  },
+                  onLongPress: () {
+                    controller.toggleSelectionMode(true);
+                    controller.toggleMediaSelection(image);
+                  },
+                  child: _buildMediaTile(media: image, isSelected: isSelected, showSelectionUi: isSelectionMode, showOwnerTag: controller.isOwnMedia(image)),
+                );
+              });
             },
           ),
         ),
@@ -249,13 +261,28 @@ class CommunityMediaScreen extends GetView<CommunityMediaCtrl> {
         itemCount: controller.matchedImages.length,
         itemBuilder: (context, index) {
           final image = controller.matchedImages[index];
-          return GestureDetector(
-            onTap: () {},
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: CustomNetworkImage(imageUrl: "${AppNetworkConstants.baseURL}${image.imageUrl}", fit: BoxFit.cover),
-            ),
-          );
+          return Obx(() {
+            final isSelected = controller.isSelected(image.id);
+            final isSelectionMode = controller.selectionMode.value;
+            return GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                if (isSelectionMode) {
+                  controller.toggleMediaSelection(image);
+                } else {
+                  _openMedia(image);
+                }
+              },
+              onLongPress: () {
+                controller.toggleSelectionMode(true);
+                controller.toggleMediaSelection(image);
+              },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: _buildMediaTile(media: image, isSelected: isSelected, showSelectionUi: isSelectionMode, showOwnerTag: controller.isOwnMedia(image)),
+              ),
+            );
+          });
         },
       );
     }
@@ -311,12 +338,167 @@ class CommunityMediaScreen extends GetView<CommunityMediaCtrl> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => SelfieUI(distributorName: '', isProfile: false, albumId: controller.communityId),
+        builder: (_) => SelfieUI(distributorName: '', isProfile: false, communityId: controller.communityId),
       ),
     );
 
     if (result != null && result is File) {
       controller.findMyPhotos(selfie: result);
+    } else {
+      warningToast('Please capture a selfie to proceed');
     }
+  }
+
+  void _openMedia(CommunityImage media) {
+    final url = controller.resolveMediaUrl(media);
+    if (url == null) return;
+    Get.to(() => MediaDisplayScreen(url: url, isVideo: controller.isVideoMedia(media)));
+  }
+
+  Widget _buildMediaTile({required CommunityImage media, required bool isSelected, required bool showSelectionUi, bool showOwnerTag = false}) {
+    final resolved = controller.resolveMediaUrl(media);
+    final isVideo = controller.isVideoMedia(media);
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            CustomNetworkImage(imageUrl: resolved, fit: BoxFit.cover),
+            if (isVideo)
+              Center(
+                child: Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.6), shape: BoxShape.circle),
+                  child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 36),
+                ),
+              ),
+            // if (isSelected)
+            //   Positioned.fill(
+            //     child: Container(
+            //       color: Colors.black.withValues(alpha: 0.35),
+            //       child: const Center(child: Icon(Icons.check_circle, color: Colors.white, size: 30)),
+            //     ),
+            //   ),
+            if (showSelectionUi)
+              Positioned(
+                top: 8,
+                right: 8,
+                child: Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    color: isSelected ? Constant.instance.primary : Colors.white.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: isSelected ? Constant.instance.primary : const Color(0xFFCBD5E1), width: 1.5),
+                  ),
+                  child: Icon(isSelected ? Icons.check : Icons.circle_outlined, size: 16, color: isSelected ? Colors.white : const Color(0xFF64748B)),
+                ),
+              ),
+            if (showOwnerTag)
+              Positioned(
+                bottom: 8,
+                left: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: Constant.instance.primary, borderRadius: BorderRadius.circular(20)),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(isVideo ? Icons.video_library_rounded : Icons.person_rounded, color: Colors.white, size: 12),
+                      const SizedBox(width: 4),
+                      Text(
+                        isVideo ? "My Video" : "My Photo",
+                        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAppBarActions(BuildContext context) {
+    if (controller.selectionMode.value) {
+      final selectableIds = _selectableMediaIds();
+      final allSelected = selectableIds.isNotEmpty && controller.selectedMediaIds.length == selectableIds.length;
+      return Row(
+        children: [
+          InkWell(
+            borderRadius: BorderRadius.circular(8),
+            onTap: selectableIds.isEmpty
+                ? null
+                : () {
+                    if (allSelected) {
+                      controller.selectedMediaIds.clear();
+                    } else {
+                      controller.selectedMediaIds.assignAll(selectableIds);
+                    }
+                  },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+              child: Row(
+                children: [
+                  Icon(allSelected ? Icons.check_box_rounded : Icons.check_box_outline_blank_rounded, color: const Color(0xFF1E293B)),
+                  const SizedBox(width: 4),
+                  Text(allSelected ? "Unselect all" : "Select all", style: const TextStyle(color: Color(0xFF1E293B), fontSize: 13)),
+                ],
+              ),
+            ),
+          ),
+          IconButton(
+            onPressed: controller.selectedMediaIds.isEmpty ? null : () => controller.downloadSelectedMedia(),
+            icon: const Icon(Icons.download_rounded, color: Color(0xFF1E293B)),
+          ),
+          IconButton(
+            onPressed: controller.selectedMediaIds.isEmpty ? null : () => _confirmDeleteSelected(context),
+            icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent),
+          ),
+        ],
+      );
+    }
+    return IconButton(
+      onPressed: () => controller.fetchImages(refresh: true),
+      icon: const Icon(Icons.refresh, color: Color(0xFF1E293B)),
+    );
+  }
+
+  List<String> _selectableMediaIds() {
+    final ids = <String>{};
+    for (final item in controller.images) {
+      if ((item.id ?? '').isNotEmpty) ids.add(item.id!);
+    }
+    for (final item in controller.matchedImages) {
+      if ((item.id ?? '').isNotEmpty) ids.add(item.id!);
+    }
+    return ids.toList();
+  }
+
+  void _confirmDeleteSelected(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Delete selected media?"),
+        content: Text("This will remove ${controller.selectedMediaIds.length} item(s)."),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text("Cancel")),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await controller.deleteSelectedMedia();
+            },
+            child: const Text("Delete"),
+          ),
+        ],
+      ),
+    );
   }
 }

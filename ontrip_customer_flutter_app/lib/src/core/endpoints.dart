@@ -15,4 +15,5 @@ class BACKEND {
   static String communityImages(String id) => 'community/$id/images';
   static String packageReviews(String id) => 'customer/packages/$id/reviews';
   static String bookingReview(String id) => 'customer/bookings/$id/review';
+  static String communityBulkDeleteImages(String id) => 'community/$id/bulk-delete-images';
 }
