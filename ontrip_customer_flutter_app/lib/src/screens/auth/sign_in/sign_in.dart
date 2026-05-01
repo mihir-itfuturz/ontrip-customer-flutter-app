@@ -267,7 +267,16 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
               spacing: 4,
               children: [
                 GestureDetector(
-                  onTap: () => AppUrl.urlLaunch(url: StringConstants.privacyPolicy),
+                  onTap: () {
+                    final url = StringConstants.termsCondition;
+                    debugPrint("🔗 Trying to launch URL: '$url'");
+
+                    if (url.isEmpty) {
+                      debugPrint("❌ URL is empty!");
+                    }
+
+                    AppUrl.urlLaunch(url: url);
+                  },
                   child: Text(
                     "Terms of Service",
                     style: TextStyle(fontSize: 12, color: decoration.colorScheme.primary, fontWeight: FontWeight.w600, decoration: TextDecoration.underline),
@@ -275,7 +284,16 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
                 ),
                 Text(" and ", style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
                 GestureDetector(
-                  onTap: () => AppUrl.urlLaunch(url: StringConstants.privacyPolicy),
+                  onTap: () {
+                    final url = StringConstants.privacyPolicy;
+                    debugPrint("🔗 Trying to launch URL: '$url'");
+
+                    if (url.isEmpty) {
+                      debugPrint("❌ URL is empty!");
+                    }
+
+                    AppUrl.urlLaunch(url: url);
+                  },
                   child: Text(
                     "Privacy Policy",
                     style: TextStyle(fontSize: 12, color: decoration.colorScheme.primary, fontWeight: FontWeight.w600, decoration: TextDecoration.underline),
