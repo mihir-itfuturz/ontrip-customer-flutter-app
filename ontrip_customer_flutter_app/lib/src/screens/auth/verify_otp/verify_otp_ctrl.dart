@@ -25,16 +25,21 @@ class VerifyOTPCtrl extends GetxController {
       isLoading.value = true;
       String fcm = await notificationService.getToken() ?? "";
       log(fcm);
-      final Map<String, dynamic> body = {"phone": phone, "otp": otpController.text.trim(), 'fcmToken': fcm};
+      final Map<String, dynamic> body = {
+        "phone": phone,
+        "otp": otpController.text.trim(),
+        'fcmToken': fcm,
+      };
 
-      final response = await ApiManager.instance.call(endPoint: BACKEND.signIn, body: body);
-
-      if (response.status == 1 || response.status == 200) {
-        if (response.data != null) {
-          await processAfterSignIn(response.data!);
-        } else {
-          errorToast("Authentication failed: No data received");
-        }
+      final response = await ApiManager.call(
+        endPoint: BACKEND.signIn,
+        body: body,
+      );
+      log('----------------------------------------response.data');
+      log('=-=-=-=-=-= ${response.data}');
+      if ((response.status == 1 || response.status == 200) &&
+          response.success == true) {
+        await processAfterSignIn(response.data!);
       } else {
         errorToast(response.message);
       }
@@ -48,7 +53,8 @@ class VerifyOTPCtrl extends GetxController {
   Future<void> processAfterSignIn(dynamic responseData) async {
     // Handling different token structures based on previous SignInCtrl logic
     String? token;
-    if (responseData['tokens'] != null && responseData['tokens']["token"] != null) {
+    if (responseData['tokens'] != null &&
+        responseData['tokens']["token"] != null) {
       token = responseData['tokens']["token"];
     } else if (responseData['token'] != null) {
       token = responseData['token'];

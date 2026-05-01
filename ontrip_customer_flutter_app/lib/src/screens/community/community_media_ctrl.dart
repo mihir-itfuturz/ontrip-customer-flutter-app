@@ -5,7 +5,8 @@ import 'package:gal/gal.dart';
 import '../../../../../app_export.dart';
 
 class CommunityMediaCtrl extends GetxController {
-  static const String _communityMediaBaseUrl = 'https://nh422t96-8000.inc1.devtunnels.ms';
+  static const String _communityMediaBaseUrl =
+      'https://nh422t96-8000.inc1.devtunnels.ms';
   final RxList<CommunityImage> images = <CommunityImage>[].obs;
   final RxBool isLoading = false.obs;
   final RxInt currentPage = 1.obs;
@@ -46,12 +47,14 @@ class CommunityMediaCtrl extends GetxController {
 
     try {
       isLoading.value = true;
-      final response = await ApiManager.instance.call(
-        endPoint: "${BACKEND.communityImages(communityId)}?page=${currentPage.value}&limit=30",
+      final response = await ApiManager.call(
+        endPoint:
+            "${BACKEND.communityImages(communityId)}?page=${currentPage.value}&limit=30",
         type: ApiType.get,
       );
 
-      if (response.status == 200 || response.status == 1) {
+      if ((response.status == 1 || response.status == 200) &&
+          response.success == true) {
         final mediaData = CommunityMediaResponse.fromJson(response.data);
         if (mediaData.images != null) {
           if (refresh) {
@@ -96,7 +99,7 @@ class CommunityMediaCtrl extends GetxController {
       // Since we don't have the real endpoint, let's mock it to 'noMatches' by default
       // to allow users to trigger the SelfieUI.
       // If there was an endpoint:
-      // final res = await ApiManager.instance.call(endPoint: '...', type: ApiType.get);
+      // final res = await ApiManager.call(endPoint: '...', type: ApiType.get);
 
       faceStatus.value = FaceStatus.noMatches;
     } catch (e) {
@@ -108,17 +111,29 @@ class CommunityMediaCtrl extends GetxController {
     try {
       faceStatus.value = FaceStatus.loading;
       final formData = dio.FormData.fromMap({
-        'file': await dio.MultipartFile.fromFile(selfie.path, filename: selfie.path.split('/').last),
+        'file': await dio.MultipartFile.fromFile(
+          selfie.path,
+          filename: selfie.path.split('/').last,
+        ),
         'group_id': communityId,
         'threshold': '0.50',
       });
 
-      final response = await ApiManager.instance.call(endPoint: '$_communityMediaBaseUrl/guest/find-my-photos', type: ApiType.post, body: formData);
+      final response = await ApiManager.call(
+        endPoint: '$_communityMediaBaseUrl/guest/find-my-photos',
+        type: ApiType.post,
+        body: formData,
+      );
 
-      if (response.status == 200 || response.status == 1) {
-        final List<CommunityImage> foundImages = _parseMatchedImages(response.data);
+      if ((response.status == 1 || response.status == 200) &&
+          response.success == true) {
+        final List<CommunityImage> foundImages = _parseMatchedImages(
+          response.data,
+        );
         matchedImages.assignAll(foundImages);
-        faceStatus.value = foundImages.isEmpty ? FaceStatus.noMatches : FaceStatus.hasMatches;
+        faceStatus.value = foundImages.isEmpty
+            ? FaceStatus.noMatches
+            : FaceStatus.hasMatches;
       } else {
         matchedImages.clear();
         faceStatus.value = FaceStatus.noMatches;
@@ -153,7 +168,8 @@ class CommunityMediaCtrl extends GetxController {
     }
   }
 
-  bool isSelected(String? mediaId) => mediaId != null && selectedMediaIds.contains(mediaId);
+  bool isSelected(String? mediaId) =>
+      mediaId != null && selectedMediaIds.contains(mediaId);
 
   List<CommunityImage> get _allMediaItems {
     final byId = <String, CommunityImage>{};
@@ -166,10 +182,15 @@ class CommunityMediaCtrl extends GetxController {
     return byId.values.toList();
   }
 
-  List<CommunityImage> get selectedMediaItems => _allMediaItems.where((e) => selectedMediaIds.contains(e.id)).toList();
+  List<CommunityImage> get selectedMediaItems =>
+      _allMediaItems.where((e) => selectedMediaIds.contains(e.id)).toList();
 
   String? resolveMediaUrl(CommunityImage media) {
-    final raw = (media.videoUrl?.trim().isNotEmpty == true ? media.videoUrl : media.imageUrl)?.trim();
+    final raw =
+        (media.videoUrl?.trim().isNotEmpty == true
+                ? media.videoUrl
+                : media.imageUrl)
+            ?.trim();
     if (raw == null || raw.isEmpty) return null;
     if (raw.startsWith('http://') || raw.startsWith('https://')) return raw;
     return "${AppNetworkConstants.baseURL}$raw";
@@ -180,7 +201,12 @@ class CommunityMediaCtrl extends GetxController {
     if (url == null) return false;
     final normalized = url.toLowerCase();
     final path = Uri.tryParse(normalized)?.path.toLowerCase() ?? normalized;
-    return path.endsWith('.mp4') || path.endsWith('.mov') || path.endsWith('.avi') || path.endsWith('.mkv') || path.endsWith('.webm') || path.endsWith('.m4v');
+    return path.endsWith('.mp4') ||
+        path.endsWith('.mov') ||
+        path.endsWith('.avi') ||
+        path.endsWith('.mkv') ||
+        path.endsWith('.webm') ||
+        path.endsWith('.m4v');
   }
 
   Future<void> downloadMediaItems(List<CommunityImage> items) async {
@@ -198,16 +224,24 @@ class CommunityMediaCtrl extends GetxController {
       if (url == null) continue;
       try {
         if (isVideoMedia(media)) {
-          final tempFile = File("${Directory.systemTemp.path}/ontrip_${DateTime.now().microsecondsSinceEpoch}.mp4");
+          final tempFile = File(
+            "${Directory.systemTemp.path}/ontrip_${DateTime.now().microsecondsSinceEpoch}.mp4",
+          );
           await downloader.download(url, tempFile.path);
           await Gal.putVideo(tempFile.path, album: "OnTrip");
           if (await tempFile.exists()) {
             await tempFile.delete();
           }
         } else {
-          final response = await downloader.get<List<int>>(url, options: dio.Options(responseType: dio.ResponseType.bytes));
+          final response = await downloader.get<List<int>>(
+            url,
+            options: dio.Options(responseType: dio.ResponseType.bytes),
+          );
           if (response.data == null) continue;
-          await Gal.putImageBytes(Uint8List.fromList(response.data!), album: "OnTrip");
+          await Gal.putImageBytes(
+            Uint8List.fromList(response.data!),
+            album: "OnTrip",
+          );
         }
         success++;
       } catch (e) {
@@ -249,7 +283,9 @@ class CommunityMediaCtrl extends GetxController {
 
     await deleteMediaByIds(ownIds);
     if (otherCount.isNotEmpty) {
-      warningToast("Some selected items were skipped. You can delete only your images/videos");
+      warningToast(
+        "Some selected items were skipped. You can delete only your images/videos",
+      );
     }
   }
 
@@ -257,13 +293,14 @@ class CommunityMediaCtrl extends GetxController {
     final cleaned = ids.where((e) => e.trim().isNotEmpty).toSet().toList();
     if (cleaned.isEmpty || communityId.isEmpty) return;
     try {
-      final response = await ApiManager.instance.call(
+      final response = await ApiManager.call(
         endPoint: BACKEND.communityBulkDeleteImages(communityId),
         type: ApiType.delete,
         body: {'imageIds': cleaned},
       );
 
-      if (response.status == 200 || response.status == 1) {
+      if ((response.status == 1 || response.status == 200) &&
+          response.success == true) {
         images.removeWhere((e) => cleaned.contains(e.id));
         matchedImages.removeWhere((e) => cleaned.contains(e.id));
         selectedMediaIds.removeWhere((e) => cleaned.contains(e));
@@ -321,7 +358,14 @@ class CommunityMediaCtrl extends GetxController {
     if (data is List) {
       rawList.addAll(data);
     } else if (data is Map<String, dynamic>) {
-      final candidates = [data['images'], data['matchedImages'], data['photos'], data['results'], data['matches'], data['data']];
+      final candidates = [
+        data['images'],
+        data['matchedImages'],
+        data['photos'],
+        data['results'],
+        data['matches'],
+        data['data'],
+      ];
 
       for (final candidate in candidates) {
         if (candidate is List) {
@@ -336,7 +380,8 @@ class CommunityMediaCtrl extends GetxController {
         .map((item) {
           final map = Map<String, dynamic>.from(item);
           map['community'] ??= communityId;
-          map['imageUrl'] ??= map['url'] ?? map['image'] ?? map['file'] ?? map['path'];
+          map['imageUrl'] ??=
+              map['url'] ?? map['image'] ?? map['file'] ?? map['path'];
           return CommunityImage.fromJson(map);
         })
         .where((image) => (image.imageUrl ?? '').isNotEmpty)

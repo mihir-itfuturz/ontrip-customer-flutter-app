@@ -13,4 +13,8 @@ void preBinderControllers() {
   Get.put(AuthenticationController(), permanent: true);
   Get.put(SignInCtrl(), permanent: true);
   Get.put(DashboardCtrl(), permanent: true);
+  Get.put(HomeController(), permanent: true);
+  Get.put(CommunityCtrl(), permanent: true);
+  Get.put(HistoryCtrl(), permanent: true);
+  Get.put(SettingsCtrl(), permanent: true);
 }

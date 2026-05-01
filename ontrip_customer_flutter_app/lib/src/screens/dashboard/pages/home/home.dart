@@ -8,16 +8,31 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _fadeController;
   late final Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
-    _fadeController = AnimationController(duration: const Duration(milliseconds: 1000), vsync: this);
-    _fadeAnimation = CurvedAnimation(parent: _fadeController, curve: Curves.easeIn);
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeInOut,
+    );
     _fadeController.forward();
+
+    // Initialize HomeController
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final controller = Get.find<HomeController>();
+      if (controller.bookings.isEmpty) {
+        controller.initialize();
+      }
+    });
   }
 
   @override
@@ -45,26 +60,29 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: decoration.colorScheme.primary.withValues(alpha: .04),
+      backgroundColor: const Color(0xFFF8FAFC),
       body: GetBuilder<HomeController>(
-        init: HomeController(),
         builder: (ctrl) {
           return SafeArea(
             bottom: true,
             top: false,
             child: FadeTransition(
               opacity: _fadeAnimation,
-              child: RefreshIndicator(
-                onRefresh: () async => await ctrl.initialize(),
-                child: CustomScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  slivers: [
-                    _buildAppBar(ctrl),
-                    // _buildMyBookingsCarousel(ctrl),
-                    _buildSelectedBookingDetails(ctrl),
-                    // const SliverToBoxAdapter(child: SizedBox(height: 100)),
-                  ],
-                ),
+              child: Column(
+                children: [
+                  // Fixed Header
+                  _buildAppBar(ctrl),
+                  // Scrollable Content
+                  Expanded(
+                    child: RefreshIndicator(
+                      onRefresh: () async => await ctrl.initialize(),
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: _buildSelectedBookingDetails(ctrl),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           );
@@ -74,14 +92,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   }
 
   Widget _buildSelectedBookingDetails(HomeController ctrl) {
-    return SliverToBoxAdapter(
-      child: Obx(() {
-        final booking = ctrl.selectedBooking.value;
-        if (booking == null) return const SizedBox.shrink();
+    return Obx(() {
+      final booking = ctrl.selectedBooking.value;
+      if (booking == null) return const SizedBox.shrink();
 
-        return Column(children: [_buildTripHeader(booking), _buildTripTabSection(booking, ctrl)]);
-      }),
-    );
+      return Column(
+        children: [
+          _buildTripHeader(booking),
+          _buildTripTabSection(booking, ctrl),
+        ],
+      );
+    });
   }
 
   Widget _buildTripHeader(Booking booking) {
@@ -92,19 +113,29 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       width: double.infinity,
       height: 280,
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-      decoration: BoxDecoration(color: Colors.grey.shade200, borderRadius: BorderRadius.circular(32)),
+      decoration: BoxDecoration(
+        color: Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(32),
+      ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(32),
         child: Stack(
           children: [
-            Positioned.fill(child: CustomNetworkImage(imageUrl: "https://ontrip.itfuturz.in/$coverImage")),
+            Positioned.fill(
+              child: CustomNetworkImage(
+                imageUrl: "https://ontrip.itfuturz.in/$coverImage",
+              ),
+            ),
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, Colors.black.withValues(alpha: 0.8)],
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.8),
+                    ],
                   ),
                 ),
               ),
@@ -117,21 +148,48 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(color: Constant.instance.primary, borderRadius: BorderRadius.circular(6)),
-                    child: Text(booking.bookingStatus?.toUpperCase() ?? "BOOKED", style: AppTextStyle.bold.copyWith(color: Colors.white, fontSize: 10)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Constant.instance.primary,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      booking.bookingStatus?.toUpperCase() ?? "BOOKED",
+                      style: AppTextStyle.bold.copyWith(
+                        color: Colors.white,
+                        fontSize: 10,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    booking.whitelabelPackage?.customTitle ?? package?.title ?? "Trip Details",
-                    style: AppTextStyle.bold.copyWith(color: Colors.white, fontSize: 24),
+                    booking.whitelabelPackage?.customTitle ??
+                        package?.title ??
+                        "Trip Details",
+                    style: AppTextStyle.bold.copyWith(
+                      color: Colors.white,
+                      fontSize: 24,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.location_on, color: Colors.white, size: 14),
+                      const Icon(
+                        Icons.location_on,
+                        color: Colors.white,
+                        size: 14,
+                      ),
                       const SizedBox(width: 8),
-                      Text(package?.destination ?? "Exploring", style: AppTextStyle.medium.copyWith(color: Colors.white.withValues(alpha: 0.9), fontSize: 14)),
+                      Text(
+                        package?.destination ?? "Exploring",
+                        style: AppTextStyle.medium.copyWith(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          fontSize: 14,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -180,11 +238,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     margin: const EdgeInsets.only(right: 10),
                     padding: const EdgeInsets.symmetric(horizontal: 18),
                     decoration: BoxDecoration(
-                      color: isSelected ? Constant.instance.primary : Colors.white,
+                      color: isSelected
+                          ? Constant.instance.primary
+                          : Colors.white,
                       borderRadius: BorderRadius.circular(14),
                       boxShadow: [
                         BoxShadow(
-                          color: isSelected ? Constant.instance.primary.withValues(alpha: 0.28) : Colors.black.withValues(alpha: 0.04),
+                          color: isSelected
+                              ? Constant.instance.primary.withValues(
+                                  alpha: 0.28,
+                                )
+                              : Colors.black.withValues(alpha: 0.04),
                           blurRadius: isSelected ? 12 : 8,
                           offset: Offset(0, isSelected ? 4 : 2),
                         ),
@@ -193,11 +257,22 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(tabs[index]["icon"] as IconData, size: 15, color: isSelected ? Colors.white : Colors.grey.shade500),
+                        Icon(
+                          tabs[index]["icon"] as IconData,
+                          size: 15,
+                          color: isSelected
+                              ? Colors.white
+                              : Colors.grey.shade500,
+                        ),
                         const SizedBox(width: 6),
                         Text(
                           tabs[index]["label"] as String,
-                          style: AppTextStyle.bold.copyWith(fontSize: 13, color: isSelected ? Colors.white : Colors.grey.shade600),
+                          style: AppTextStyle.bold.copyWith(
+                            fontSize: 13,
+                            color: isSelected
+                                ? Colors.white
+                                : Colors.grey.shade600,
+                          ),
                         ),
                       ],
                     ),
@@ -216,7 +291,8 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   Widget _buildTripItinerary(Booking booking, HomeController ctrl) {
     final itinerary = booking.package?.itinerary ?? [];
-    if (itinerary.isEmpty) return _buildTripEmptyState(Icons.map_outlined, "No itinerary available");
+    if (itinerary.isEmpty)
+      return _buildTripEmptyState(Icons.map_outlined, "No itinerary available");
 
     return Column(
       children: [
@@ -233,21 +309,44 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                   onTap: () => ctrl.onDayChange(index),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
-                    margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 8,
+                    ),
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     decoration: BoxDecoration(
-                      color: isSelected ? Constant.instance.primary : Colors.white,
+                      color: isSelected
+                          ? Constant.instance.primary
+                          : Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 5)],
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.03),
+                          blurRadius: 5,
+                        ),
+                      ],
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           "DAY",
-                          style: AppTextStyle.bold.copyWith(fontSize: 10, color: isSelected ? Colors.white.withValues(alpha: 0.7) : Colors.grey.shade400),
+                          style: AppTextStyle.bold.copyWith(
+                            fontSize: 10,
+                            color: isSelected
+                                ? Colors.white.withValues(alpha: 0.7)
+                                : Colors.grey.shade400,
+                          ),
                         ),
-                        Text("${index + 1}", style: AppTextStyle.bold.copyWith(fontSize: 18, color: isSelected ? Colors.white : Colors.grey.shade800)),
+                        Text(
+                          "${index + 1}",
+                          style: AppTextStyle.bold.copyWith(
+                            fontSize: 18,
+                            color: isSelected
+                                ? Colors.white
+                                : Colors.grey.shade800,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -265,21 +364,32 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(24),
+                  ),
                   child: Column(
                     children: [
-                      Text(dayData.title ?? "Day ${dayData.day}", style: AppTextStyle.bold.copyWith(fontSize: 20)),
+                      Text(
+                        dayData.title ?? "Day ${dayData.day}",
+                        style: AppTextStyle.bold.copyWith(fontSize: 20),
+                      ),
                       const SizedBox(height: 8),
                       Text(
                         dayData.description ?? "",
                         textAlign: TextAlign.center,
-                        style: AppTextStyle.medium.copyWith(fontSize: 14, color: Colors.grey.shade500),
+                        style: AppTextStyle.medium.copyWith(
+                          fontSize: 14,
+                          color: Colors.grey.shade500,
+                        ),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 16),
-                ...(dayData.experiences ?? []).map((exp) => _buildTripExperience(exp, ctrl)),
+                ...(dayData.experiences ?? []).map(
+                  (exp) => _buildTripExperience(exp, ctrl),
+                ),
               ],
             ),
           );
@@ -292,13 +402,24 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     final image = exp.images?.isNotEmpty == true ? exp.images![0] : "";
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+      ),
       child: Column(
         children: [
           if (image.isNotEmpty)
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-              child: CustomNetworkImage(imageUrl: image.startsWith("http") ? image : "https://ontrip.itfuturz.in/$image", height: 160, width: double.infinity),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(24),
+              ),
+              child: CustomNetworkImage(
+                imageUrl: image.startsWith("http")
+                    ? image
+                    : "https://ontrip.itfuturz.in/$image",
+                height: 160,
+                width: double.infinity,
+              ),
             ),
           Padding(
             padding: const EdgeInsets.all(20),
@@ -308,8 +429,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(exp.category?.toUpperCase() ?? "ACTIVITY", style: AppTextStyle.bold.copyWith(fontSize: 10, color: Constant.instance.primary)),
-                    Text("${exp.startTime} - ${exp.endTime ?? ""}", style: AppTextStyle.medium.copyWith(fontSize: 12)),
+                    Text(
+                      exp.category?.toUpperCase() ?? "ACTIVITY",
+                      style: AppTextStyle.bold.copyWith(
+                        fontSize: 10,
+                        color: Constant.instance.primary,
+                      ),
+                    ),
+                    Text(
+                      "${exp.startTime} - ${exp.endTime ?? ""}",
+                      style: AppTextStyle.medium.copyWith(fontSize: 12),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
@@ -319,9 +449,18 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(exp.name ?? "", style: AppTextStyle.bold.copyWith(fontSize: 16)),
+                          Text(
+                            exp.name ?? "",
+                            style: AppTextStyle.bold.copyWith(fontSize: 16),
+                          ),
                           const SizedBox(height: 4),
-                          Text(exp.description ?? "", style: AppTextStyle.medium.copyWith(fontSize: 13, color: Colors.grey.shade500)),
+                          Text(
+                            exp.description ?? "",
+                            style: AppTextStyle.medium.copyWith(
+                              fontSize: 13,
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -331,8 +470,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         onTap: () => ctrl.callVendor(exp.vendor?.phone),
                         child: Container(
                           padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(color: Constant.instance.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
-                          child: Icon(Icons.call, color: Constant.instance.primary, size: 18),
+                          decoration: BoxDecoration(
+                            color: Constant.instance.primary.withValues(
+                              alpha: 0.1,
+                            ),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.call,
+                            color: Constant.instance.primary,
+                            size: 18,
+                          ),
                         ),
                       ),
                   ],
@@ -350,11 +498,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return Container(
       margin: const EdgeInsets.all(20),
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("INCLUSIONS", style: AppTextStyle.bold.copyWith(color: Colors.green)),
+          Text(
+            "INCLUSIONS",
+            style: AppTextStyle.bold.copyWith(color: Colors.green),
+          ),
           const SizedBox(height: 16),
           ...inclusions.map(
             (item) => Padding(
@@ -378,11 +532,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return Container(
       margin: const EdgeInsets.all(20),
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("EXCLUSIONS", style: AppTextStyle.bold.copyWith(color: Colors.red)),
+          Text(
+            "EXCLUSIONS",
+            style: AppTextStyle.bold.copyWith(color: Colors.red),
+          ),
           const SizedBox(height: 16),
           ...exclusions.map(
             (item) => Padding(
@@ -403,22 +563,34 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
 
   Widget _buildTripSupport(Booking booking) {
     final agency = booking.agencyCustomer;
-    if (agency == null) return _buildTripEmptyState(Icons.headset_mic, "No support contact");
+    if (agency == null)
+      return _buildTripEmptyState(Icons.headset_mic, "No support contact");
     return Container(
       margin: const EdgeInsets.all(20),
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+      ),
       child: Column(
         children: [
           Row(
             children: [
-              CircleAvatar(backgroundColor: Constant.instance.primary.withValues(alpha: 0.1), child: Text(agency.name?[0] ?? "S")),
+              CircleAvatar(
+                backgroundColor: Constant.instance.primary.withValues(
+                  alpha: 0.1,
+                ),
+                child: Text(agency.name?[0] ?? "S"),
+              ),
               const SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(agency.name ?? "Support"),
-                  Text("Travel Agent", style: TextStyle(fontSize: 12, color: Colors.grey)),
+                  Text(
+                    "Travel Agent",
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
                 ],
               ),
             ],
@@ -428,13 +600,15 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             ListTile(
               leading: Icon(Icons.phone),
               title: Text(agency.phone!),
-              onTap: () => AppUrl.call("tel:${agency.phone}", mobile: agency.phone!),
+              onTap: () =>
+                  AppUrl.call("tel:${agency.phone}", mobile: agency.phone!),
             ),
           if (agency.email?.isNotEmpty == true)
             ListTile(
               leading: Icon(Icons.email),
               title: Text(agency.email!),
-              onTap: () => AppUrl.mail(email: agency.email!, subject: "Trip Enquiry"),
+              onTap: () =>
+                  AppUrl.mail(email: agency.email!, subject: "Trip Enquiry"),
             ),
         ],
       ),
@@ -453,11 +627,25 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("YOUR EXPERIENCE", style: AppTextStyle.bold.copyWith(fontSize: 14, color: Colors.grey.shade400, letterSpacing: 1.2)),
+            Text(
+              "YOUR EXPERIENCE",
+              style: AppTextStyle.bold.copyWith(
+                fontSize: 14,
+                color: Colors.grey.shade400,
+                letterSpacing: 1.2,
+              ),
+            ),
             const SizedBox(height: 16),
             _buildManageUserReview(ctrl),
             const SizedBox(height: 32),
-            Text("GUEST FEEDBACK", style: AppTextStyle.bold.copyWith(fontSize: 14, color: Colors.grey.shade400, letterSpacing: 1.2)),
+            Text(
+              "GUEST FEEDBACK",
+              style: AppTextStyle.bold.copyWith(
+                fontSize: 14,
+                color: Colors.grey.shade400,
+                letterSpacing: 1.2,
+              ),
+            ),
             const SizedBox(height: 16),
             if (reviews.isNotEmpty)
               Container(
@@ -466,25 +654,47 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 decoration: BoxDecoration(
                   color: Constant.instance.primary.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: Constant.instance.primary.withValues(alpha: 0.1)),
+                  border: Border.all(
+                    color: Constant.instance.primary.withValues(alpha: 0.1),
+                  ),
                 ),
                 child: Row(
                   children: [
                     _buildRatingSummaryItem("Package", avgPackage),
-                    Container(height: 40, width: 1, color: Colors.grey.shade300, margin: const EdgeInsets.symmetric(horizontal: 20)),
+                    Container(
+                      height: 40,
+                      width: 1,
+                      color: Colors.grey.shade300,
+                      margin: const EdgeInsets.symmetric(horizontal: 20),
+                    ),
                     _buildRatingSummaryItem("Overall", avgOverall),
                     const Spacer(),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text("$total", style: AppTextStyle.bold.copyWith(fontSize: 18, color: Constant.instance.primary)),
-                        Text("Reviews", style: AppTextStyle.medium.copyWith(fontSize: 12, color: Colors.grey.shade500)),
+                        Text(
+                          "$total",
+                          style: AppTextStyle.bold.copyWith(
+                            fontSize: 18,
+                            color: Constant.instance.primary,
+                          ),
+                        ),
+                        Text(
+                          "Reviews",
+                          style: AppTextStyle.medium.copyWith(
+                            fontSize: 12,
+                            color: Colors.grey.shade500,
+                          ),
+                        ),
                       ],
                     ),
                   ],
                 ),
               ),
-            if (reviews.isEmpty) _buildTripEmptyState(Icons.star_outline, "No reviews yet") else ...reviews.map((r) => _buildTripReviewCard(r)),
+            if (reviews.isEmpty)
+              _buildTripEmptyState(Icons.star_outline, "No reviews yet")
+            else
+              ...reviews.map((r) => _buildTripReviewCard(r)),
           ],
         ),
       );
@@ -497,7 +707,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, 10))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -505,12 +721,29 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(ctrl.userReview.value == null ? "How was your trip?" : "Your Review", style: AppTextStyle.bold.copyWith(fontSize: 16)),
+              Text(
+                ctrl.userReview.value == null
+                    ? "How was your trip?"
+                    : "Your Review",
+                style: AppTextStyle.bold.copyWith(fontSize: 16),
+              ),
               if (ctrl.userReview.value != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-                  child: Text("SUBMITTED", style: AppTextStyle.bold.copyWith(color: Colors.green, fontSize: 10)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    "SUBMITTED",
+                    style: AppTextStyle.bold.copyWith(
+                      color: Colors.green,
+                      fontSize: 10,
+                    ),
+                  ),
                 ),
             ],
           ),
@@ -520,10 +753,18 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               mainAxisSize: MainAxisSize.min,
               children: List.generate(5, (index) {
                 return GestureDetector(
-                  onTap: () => ctrl.userReview.value == null ? ctrl.userRating.value = index + 1.0 : null,
+                  onTap: () => ctrl.userReview.value == null
+                      ? ctrl.userRating.value = index + 1.0
+                      : null,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Icon(Icons.star_rounded, size: 36, color: index < ctrl.userRating.value ? Colors.amber : Colors.grey.shade300),
+                    child: Icon(
+                      Icons.star_rounded,
+                      size: 36,
+                      color: index < ctrl.userRating.value
+                          ? Colors.amber
+                          : Colors.grey.shade300,
+                    ),
                   ),
                 );
               }),
@@ -536,11 +777,17 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             readOnly: ctrl.userReview.value != null,
             decoration: InputDecoration(
               hintText: "Share your experience with others...",
-              hintStyle: AppTextStyle.medium.copyWith(fontSize: 14, color: Colors.grey.shade400),
+              hintStyle: AppTextStyle.medium.copyWith(
+                fontSize: 14,
+                color: Colors.grey.shade400,
+              ),
               filled: true,
               fillColor: Colors.grey.shade300,
               contentPadding: const EdgeInsets.all(16),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide.none,
+              ),
             ),
           ),
           if (ctrl.userReview.value == null) ...[
@@ -549,16 +796,32 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               width: double.infinity,
               height: 52,
               child: ElevatedButton(
-                onPressed: ctrl.isReviewLoading.value ? null : () => ctrl.submitReview(),
+                onPressed: ctrl.isReviewLoading.value
+                    ? null
+                    : () => ctrl.submitReview(),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Constant.instance.primary,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   elevation: 0,
                 ),
                 child: ctrl.isReviewLoading.value
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : Text(ctrl.userReview.value == null ? "Submit Review" : "Update Review", style: AppTextStyle.bold.copyWith(fontSize: 16)),
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Text(
+                        ctrl.userReview.value == null
+                            ? "Submit Review"
+                            : "Update Review",
+                        style: AppTextStyle.bold.copyWith(fontSize: 16),
+                      ),
               ),
             ),
           ],
@@ -571,7 +834,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTextStyle.medium.copyWith(fontSize: 12, color: Colors.grey.shade500)),
+        Text(
+          label,
+          style: AppTextStyle.medium.copyWith(
+            fontSize: 12,
+            color: Colors.grey.shade500,
+          ),
+        ),
         const SizedBox(height: 4),
         Row(
           children: [
@@ -591,7 +860,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -601,31 +876,62 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               Container(
                 width: 40,
                 height: 40,
-                decoration: BoxDecoration(color: Constant.instance.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: Constant.instance.primary.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
                 alignment: Alignment.center,
-                child: Text(review.customerName?[0].toUpperCase() ?? "U", style: AppTextStyle.bold.copyWith(color: Constant.instance.primary, fontSize: 16)),
+                child: Text(
+                  review.customerName?[0].toUpperCase() ?? "U",
+                  style: AppTextStyle.bold.copyWith(
+                    color: Constant.instance.primary,
+                    fontSize: 16,
+                  ),
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(review.customerName ?? "Guest User", style: AppTextStyle.bold.copyWith(fontSize: 15)),
+                    Text(
+                      review.customerName ?? "Guest User",
+                      style: AppTextStyle.bold.copyWith(fontSize: 15),
+                    ),
                     if (review.createdAt != null)
-                      Text(AppDateFormat.monthDayYear(review.createdAt!), style: AppTextStyle.medium.copyWith(fontSize: 11, color: Colors.grey.shade400)),
+                      Text(
+                        AppDateFormat.monthDayYear(review.createdAt!),
+                        style: AppTextStyle.medium.copyWith(
+                          fontSize: 11,
+                          color: Colors.grey.shade400,
+                        ),
+                      ),
                   ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(color: Colors.amber.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 child: Row(
                   children: [
-                    const Icon(Icons.star_rounded, color: Colors.amber, size: 16),
+                    const Icon(
+                      Icons.star_rounded,
+                      color: Colors.amber,
+                      size: 16,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       "${(review.packageRating ?? review.overallRating ?? 0.0).toInt()}",
-                      style: AppTextStyle.bold.copyWith(fontSize: 13, color: Colors.amber.shade800),
+                      style: AppTextStyle.bold.copyWith(
+                        fontSize: 13,
+                        color: Colors.amber.shade800,
+                      ),
                     ),
                   ],
                 ),
@@ -636,8 +942,18 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(16)),
-              child: Text(review.comment!, style: AppTextStyle.medium.copyWith(fontSize: 13, color: Colors.grey.shade700, height: 1.5)),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Text(
+                review.comment!,
+                style: AppTextStyle.medium.copyWith(
+                  fontSize: 13,
+                  color: Colors.grey.shade700,
+                  height: 1.5,
+                ),
+              ),
             ),
           ],
         ],
@@ -671,7 +987,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             const SizedBox(height: 24),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text("On-Going Trips", style: AppTextStyle.bold.copyWith(fontSize: 18, color: const Color(0xFF1E293B))),
+              child: Text(
+                "On-Going Trips",
+                style: AppTextStyle.bold.copyWith(
+                  fontSize: 18,
+                  color: const Color(0xFF1E293B),
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -694,7 +1016,10 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Widget _buildBookingCard(Booking booking, HomeController ctrl) {
     final package = booking.package;
     final coverImage = package?.coverImage ?? "";
-    final title = booking.whitelabelPackage?.customTitle ?? package?.title ?? "Trip Details";
+    final title =
+        booking.whitelabelPackage?.customTitle ??
+        package?.title ??
+        "Trip Details";
     final destination = package?.destination ?? "Unknown Location";
 
     return GestureDetector(
@@ -706,14 +1031,24 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         margin: const EdgeInsets.symmetric(horizontal: 8),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(24),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 15, offset: const Offset(0, 8))],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(24),
           child: Stack(
             children: [
               // Background Image
-              Positioned.fill(child: CustomNetworkImage(imageUrl: "${'https://ontrip.itfuturz.in/'}$coverImage")),
+              Positioned.fill(
+                child: CustomNetworkImage(
+                  imageUrl: "${'https://ontrip.itfuturz.in/'}$coverImage",
+                ),
+              ),
               // Gradient Overlay
               Positioned.fill(
                 child: Container(
@@ -721,7 +1056,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
-                      colors: [Colors.transparent, Colors.black.withValues(alpha: 0.2), Colors.black.withValues(alpha: 0.8)],
+                      colors: [
+                        Colors.transparent,
+                        Colors.black.withValues(alpha: 0.2),
+                        Colors.black.withValues(alpha: 0.8),
+                      ],
                       stops: const [0.0, 0.5, 1.0],
                     ),
                   ),
@@ -743,7 +1082,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         color: Colors.white,
                         fontSize: 18,
                         letterSpacing: -0.2,
-                        shadows: [Shadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 10)],
+                        shadows: [
+                          Shadow(
+                            color: Colors.black.withValues(alpha: 0.5),
+                            blurRadius: 10,
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -771,7 +1115,14 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         children: [
           const Icon(Icons.location_on, color: Colors.white, size: 16),
           const SizedBox(width: 8),
-          Text(destination.toUpperCase(), style: AppTextStyle.bold.copyWith(color: Colors.white, fontSize: 10, letterSpacing: 1.2)),
+          Text(
+            destination.toUpperCase(),
+            style: AppTextStyle.bold.copyWith(
+              color: Colors.white,
+              fontSize: 10,
+              letterSpacing: 1.2,
+            ),
+          ),
           const SizedBox(width: 12),
           _buildPaginationDots(),
         ],
@@ -792,7 +1143,12 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                 margin: const EdgeInsets.only(right: 6),
                 height: 6,
                 width: active ? 20 : 6,
-                decoration: BoxDecoration(color: active ? Colors.white : Colors.white.withValues(alpha: 0.4), borderRadius: BorderRadius.circular(10)),
+                decoration: BoxDecoration(
+                  color: active
+                      ? Colors.white
+                      : Colors.white.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(10),
+                ),
               );
             });
           }),
@@ -849,59 +1205,157 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   //     ),
   //   );
   // }
-  Widget _buildAppBar(HomeController ctrl) {
-    return SliverToBoxAdapter(
-      child: Obx(() {
-        final authCtrl = Get.find<AuthenticationController>();
-        final name = authCtrl.userAuthData['name'] ?? "User";
+  // Widget _buildAppBar(HomeController ctrl) {
+  //   return SliverToBoxAdapter(
+  //     child: Obx(() {
+  //       final authCtrl = Get.find<AuthenticationController>();
+  //       final name = authCtrl.userAuthData['name'] ?? "User";
 
-        return Container(
-          width: double.infinity,
-          // padding: const EdgeInsets.only(left: 24, right: 24, top: 40, bottom: 30),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [Constant.instance.primary, Constant.instance.primary.withValues(alpha: 0.9), Constant.instance.primary.withValues(alpha: 0.7)],
-            ),
-            borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(40), bottomRight: Radius.circular(40)),
-            boxShadow: [BoxShadow(color: Constant.instance.primary.withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 10))],
-          ),
-          padding: const EdgeInsets.fromLTRB(24, 50, 24, 30),
-          child: Row(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Constant.instance.white,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Constant.instance.primary, width: 2),
-                ),
-                padding: const EdgeInsets.all(12),
-                child: Center(
-                  child: Text(name.substring(0, 1).toUpperCase(), style: AppTextStyle.bold.copyWith(color: Constant.instance.primary, fontSize: 35)),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("$name’s Trips", style: AppTextStyle.bold.copyWith(color: Constant.instance.white, fontSize: 18)),
-                    Text(
-                      AppDateFormat.monthDayYear(DateTime.now()),
-                      style: AppTextStyle.medium.copyWith(color: Constant.instance.white.withValues(alpha: 0.8)),
+  //       return Container(
+  //         width: double.infinity,
+  //         // padding: const EdgeInsets.only(left: 24, right: 24, top: 40, bottom: 30),
+  //         decoration: BoxDecoration(
+  //           gradient: LinearGradient(
+  //             begin: Alignment.topLeft,
+  //             end: Alignment.bottomRight,
+  //             colors: [
+  //               Constant.instance.primary,
+  //               Constant.instance.primary.withValues(alpha: 0.9),
+  //               Constant.instance.primary.withValues(alpha: 0.7),
+  //             ],
+  //           ),
+  //           borderRadius: const BorderRadius.only(
+  //             bottomLeft: Radius.circular(40),
+  //             bottomRight: Radius.circular(40),
+  //           ),
+  //           boxShadow: [
+  //             BoxShadow(
+  //               color: Constant.instance.primary.withValues(alpha: 0.3),
+  //               blurRadius: 20,
+  //               offset: const Offset(0, 10),
+  //             ),
+  //           ],
+  //         ),
+  //         padding: const EdgeInsets.fromLTRB(24, 50, 24, 30),
+  //         child: Row(
+  //           children: [
+  //             Container(
+  //               decoration: BoxDecoration(
+  //                 color: Constant.instance.white,
+  //                 shape: BoxShape.circle,
+  //                 border: Border.all(
+  //                   color: Constant.instance.primary,
+  //                   width: 2,
+  //                 ),
+  //               ),
+  //               padding: const EdgeInsets.all(12),
+  //               child: Center(
+  //                 child: Text(
+  //                   name.substring(0, 1).toUpperCase(),
+  //                   style: AppTextStyle.bold.copyWith(
+  //                     color: Constant.instance.primary,
+  //                     fontSize: 35,
+  //                   ),
+  //                 ),
+  //               ),
+  //             ),
+  //             const SizedBox(width: 12),
+  //             Expanded(
+  //               child: Column(
+  //                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                 children: [
+  //                   Text(
+  //                     "$name’s Trips",
+  //                     style: AppTextStyle.bold.copyWith(
+  //                       color: Constant.instance.white,
+  //                       fontSize: 18,
+  //                     ),
+  //                   ),
+  //                   Text(
+  //                     AppDateFormat.monthDayYear(DateTime.now()),
+  //                     style: AppTextStyle.medium.copyWith(
+  //                       color: Constant.instance.white.withValues(alpha: 0.8),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //             // IconButton(
+  //             //   onPressed: () {},
+  //             //   icon: Icon(Icons.notifications_none_rounded, color: Constant.instance.white, size: 28),
+  //             // ),
+  //           ],
+  //         ),
+  //       );
+  //     }),
+  //   );
+  // }
+
+  Widget _buildAppBar(HomeController ctrl) {
+    return Obx(() {
+      final authCtrl = Get.find<AuthenticationController>();
+      final name = authCtrl.userAuthData['name'] ?? "User";
+
+      return Container(
+        width: double.infinity,
+        color: Colors.transparent, // Background is clean white/transparent
+        padding: const EdgeInsets.fromLTRB(24, 60, 24, 20),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8),
+                  // Greeting Line 1
+                  Text(
+                    "Good Morning,",
+                    style: AppTextStyle.bold.copyWith(
+                      color: Colors.grey.shade400,
+                      fontSize: 28,
+                      height: 1.1,
                     ),
-                  ],
+                  ),
+                  // Greeting Line 2 (Name + Emoji)
+                  Row(
+                    children: [
+                      Text(
+                        name,
+                        style: AppTextStyle.bold.copyWith(
+                          color: Colors.black,
+                          fontSize: 28,
+                          height: 1.1,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      const Text("👋", style: TextStyle(fontSize: 28)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            // Profile Image (Matches the top-right placement)
+            Container(
+              decoration: BoxDecoration(
+                color: Constant.instance.white,
+                shape: BoxShape.circle,
+                border: Border.all(color: Constant.instance.primary, width: 2),
+              ),
+              padding: const EdgeInsets.all(12),
+              child: Center(
+                child: Text(
+                  name.substring(0, 1).toUpperCase(),
+                  style: AppTextStyle.bold.copyWith(
+                    color: Constant.instance.primary,
+                    fontSize: 35,
+                  ),
                 ),
               ),
-              // IconButton(
-              //   onPressed: () {},
-              //   icon: Icon(Icons.notifications_none_rounded, color: Constant.instance.white, size: 28),
-              // ),
-            ],
-          ),
-        );
-      }),
-    );
+            ),
+          ],
+        ),
+      );
+    });
   }
 }

@@ -1,50 +1,90 @@
 import '../../../app_export.dart';
 
-class HistoryScreen extends StatelessWidget {
+class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
 
   @override
+  State<HistoryScreen> createState() => _HistoryScreenState();
+}
+
+class _HistoryScreenState extends State<HistoryScreen>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _fadeController;
+  late final Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeInOut,
+    );
+    _fadeController.forward();
+
+    // Initialize HistoryCtrl
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final controller = Get.find<HistoryCtrl>();
+      if (controller.bookings.isEmpty) {
+        controller.fetchHistory();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return GetBuilder<HistoryCtrl>(
-      init: HistoryCtrl(),
-      builder: (controller) {
-        return Scaffold(
-          backgroundColor: const Color(0xFFF8FAFC),
-          body: SafeArea(
-            bottom: false,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(controller),
-                const SizedBox(height: 16),
-                _buildSearchAndStats(controller),
-                const SizedBox(height: 10),
-                Expanded(
-                  child: Obx(() {
-                    if (controller.isLoading.value && controller.bookings.isEmpty) {
-                      return const Center(child: CustomLoadingIndicator());
-                    }
-                    if (controller.bookings.isEmpty) {
-                      return const Center(child: NoDataComponent(text: "No journeys found"));
-                    }
-                    return RefreshIndicator(
-                      onRefresh: controller.fetchHistory,
-                      child: ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        itemCount: controller.bookings.length,
-                        itemBuilder: (context, index) {
-                          return _buildBookingCard(controller.bookings[index], controller);
-                        },
-                      ),
-                    );
-                  }),
-                ),
-                
-              ],
+    final controller = Get.find<HistoryCtrl>();
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader(controller),
+            const SizedBox(height: 16),
+            _buildSearchAndStats(controller),
+            const SizedBox(height: 10),
+            Expanded(
+              child: Obx(() {
+                if (controller.isLoading.value && controller.bookings.isEmpty) {
+                  return const Center(child: CustomLoadingIndicator());
+                }
+                if (controller.bookings.isEmpty) {
+                  return const Center(
+                    child: NoDataComponent(text: "No journeys found"),
+                  );
+                }
+                return RefreshIndicator(
+                  onRefresh: controller.fetchHistory,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 10,
+                    ),
+                    itemCount: controller.bookings.length,
+                    itemBuilder: (context, index) {
+                      return _buildBookingCard(
+                        controller.bookings[index],
+                        controller,
+                      );
+                    },
+                  ),
+                );
+              }),
             ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 
@@ -54,9 +94,22 @@ class HistoryScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Your Journeys", style: AppTextStyle.bold.copyWith(fontSize: 28, color: const Color(0xFF0F172A), letterSpacing: -0.5)),
+          Text(
+            "Your Journeys",
+            style: AppTextStyle.bold.copyWith(
+              fontSize: 28,
+              color: const Color(0xFF0F172A),
+              letterSpacing: -0.5,
+            ),
+          ),
           const SizedBox(height: 4),
-          Text("Relive your memories and plan for the next one.", style: AppTextStyle.medium.copyWith(fontSize: 14, color: const Color(0xFF64748B))),
+          Text(
+            "Relive your memories and plan for the next one.",
+            style: AppTextStyle.medium.copyWith(
+              fontSize: 14,
+              color: const Color(0xFF64748B),
+            ),
+          ),
         ],
       ),
     );
@@ -73,15 +126,28 @@ class HistoryScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 4))],
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
               child: TextField(
                 controller: controller.searchController,
                 onChanged: controller.onSearchChanged,
                 decoration: InputDecoration(
                   hintText: "Search by Booking ID, Destination",
-                  hintStyle: AppTextStyle.medium.copyWith(color: Colors.grey.shade400, fontSize: 13),
-                  prefixIcon: Icon(Icons.search, color: Colors.grey.shade400, size: 20),
+                  hintStyle: AppTextStyle.medium.copyWith(
+                    color: Colors.grey.shade400,
+                    fontSize: 13,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: Colors.grey.shade400,
+                    size: 20,
+                  ),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(vertical: 15),
                 ),
@@ -96,12 +162,18 @@ class HistoryScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Constant.instance.primary.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Constant.instance.primary.withValues(alpha: 0.1)),
+                border: Border.all(
+                  color: Constant.instance.primary.withValues(alpha: 0.1),
+                ),
               ),
               child: Center(
                 child: Text(
                   "${controller.totalTrips.value} TOTAL TRIPS",
-                  style: AppTextStyle.bold.copyWith(color: Constant.instance.primary, fontSize: 10, letterSpacing: 0.5),
+                  style: AppTextStyle.bold.copyWith(
+                    color: Constant.instance.primary,
+                    fontSize: 10,
+                    letterSpacing: 0.5,
+                  ),
                 ),
               ),
             ),
@@ -114,10 +186,15 @@ class HistoryScreen extends StatelessWidget {
   Widget _buildBookingCard(Booking booking, HistoryCtrl controller) {
     final package = booking.package;
     final coverImage = package?.coverImage ?? "";
-    final title = booking.whitelabelPackage?.customTitle ?? package?.title ?? "Trip Details";
+    final title =
+        booking.whitelabelPackage?.customTitle ??
+        package?.title ??
+        "Trip Details";
     final destination = package?.destination ?? "Unknown Location";
     final bookingId = booking.bookingId ?? "N/A";
-    final travelDate = booking.travelDate != null ? AppDateFormat.monthDayYear(booking.travelDate!) : "N/A Date";
+    final travelDate = booking.travelDate != null
+        ? AppDateFormat.monthDayYear(booking.travelDate!)
+        : "N/A Date";
     final status = booking.bookingStatus ?? "pending";
 
     return Container(
@@ -125,7 +202,13 @@ class HistoryScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.06), blurRadius: 20, offset: const Offset(0, 8))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,24 +217,42 @@ class HistoryScreen extends StatelessWidget {
           Stack(
             children: [
               ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(28),
+                ),
                 child: SizedBox(
                   height: 180,
                   width: double.infinity,
-                  child: CustomNetworkImage(imageUrl: "${'https://ontrip.itfuturz.in/'}$coverImage"),
+                  child: CustomNetworkImage(
+                    imageUrl: "${'https://ontrip.itfuturz.in/'}$coverImage",
+                  ),
                 ),
               ),
               Positioned(
                 top: 16,
                 left: 16,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: _getStatusColor(status).withValues(alpha: 0.9),
                     borderRadius: BorderRadius.circular(10),
-                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 4)],
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 4,
+                      ),
+                    ],
                   ),
-                  child: Text(status.toUpperCase(), style: AppTextStyle.bold.copyWith(color: Colors.white, fontSize: 10)),
+                  child: Text(
+                    status.toUpperCase(),
+                    style: AppTextStyle.bold.copyWith(
+                      color: Colors.white,
+                      fontSize: 10,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -164,15 +265,29 @@ class HistoryScreen extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Icon(Icons.airplane_ticket_outlined, size: 14, color: Constant.instance.primary),
+                    Icon(
+                      Icons.airplane_ticket_outlined,
+                      size: 14,
+                      color: Constant.instance.primary,
+                    ),
                     const SizedBox(width: 6),
-                    Text(bookingId, style: AppTextStyle.bold.copyWith(fontSize: 12, color: Constant.instance.primary, letterSpacing: 0.5)),
+                    Text(
+                      bookingId,
+                      style: AppTextStyle.bold.copyWith(
+                        fontSize: 12,
+                        color: Constant.instance.primary,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Text(
                   title,
-                  style: AppTextStyle.bold.copyWith(fontSize: 18, color: const Color(0xFF1E293B)),
+                  style: AppTextStyle.bold.copyWith(
+                    fontSize: 18,
+                    color: const Color(0xFF1E293B),
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -198,9 +313,19 @@ class HistoryScreen extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("View Trip", style: AppTextStyle.bold.copyWith(fontSize: 14, color: const Color(0xFF475569))),
+                        Text(
+                          "View Trip",
+                          style: AppTextStyle.bold.copyWith(
+                            fontSize: 14,
+                            color: const Color(0xFF475569),
+                          ),
+                        ),
                         const SizedBox(width: 4),
-                        const Icon(Icons.chevron_right, size: 18, color: Color(0xFF64748B)),
+                        const Icon(
+                          Icons.chevron_right,
+                          size: 18,
+                          color: Color(0xFF64748B),
+                        ),
                       ],
                     ),
                   ),
@@ -218,7 +343,13 @@ class HistoryScreen extends StatelessWidget {
       children: [
         Icon(icon, size: 14, color: const Color(0xFF94A3B8)),
         const SizedBox(width: 6),
-        Text(label, style: AppTextStyle.medium.copyWith(fontSize: 13, color: const Color(0xFF64748B))),
+        Text(
+          label,
+          style: AppTextStyle.medium.copyWith(
+            fontSize: 13,
+            color: const Color(0xFF64748B),
+          ),
+        ),
       ],
     );
   }
@@ -226,11 +357,11 @@ class HistoryScreen extends StatelessWidget {
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'confirmed':
-        return const Color(0xFF3B82F6); 
+        return const Color(0xFF3B82F6);
       case 'completed':
-        return const Color(0xFF10B981); 
+        return const Color(0xFF10B981);
       case 'pending':
-        return const Color(0xFFF59E0B); 
+        return const Color(0xFFF59E0B);
       case 'cancelled':
         return const Color(0xFFEF4444);
       default:

@@ -4,7 +4,10 @@ import '../../../../app_export.dart';
 class SignInCtrl extends GetxController {
   final TextEditingController txtPhoneNumber = TextEditingController();
   final isLoadingForSignIn = false.obs;
-  List<TextEditingController> otpControllers = List.generate(4, (_) => TextEditingController());
+  List<TextEditingController> otpControllers = List.generate(
+    4,
+    (_) => TextEditingController(),
+  );
   List<FocusNode> otpFocusNodes = List.generate(4, (_) => FocusNode());
   bool isLoadingForLogout = false;
 
@@ -22,7 +25,6 @@ class SignInCtrl extends GetxController {
       }
       String clean = inputValue.replaceAll(RegExp(r'[\s\-()]'), '');
 
-      // ✅ Validate properly (Indian numbers)
       if (!RegExp(r'^(?:\+91)?[6-9]\d{9}$').hasMatch(clean)) {
         warningToast("Please enter a valid 10-digit mobile number");
         return;
@@ -33,8 +35,16 @@ class SignInCtrl extends GetxController {
       final Map<String, dynamic> sendJson = {"phone": phone};
 
       final endpoint = BACKEND.sendOtp;
-      final response = await ApiManager.instance.call(endPoint: endpoint, body: sendJson);
-      if (response.status == 1 || response.status == 200) {
+      log(endpoint);
+      final response = await ApiManager.call(
+        endPoint: endpoint,
+        body: sendJson,
+      );
+      log(
+        'response.status == 1 || response.status == 200: ${response.message}',
+      );
+      if ((response.status == 1 || response.status == 200) &&
+          response.success == true) {
         successToast(response.message);
         Get.toNamed(RouteNames.verifyOTP, arguments: {"phone": phone});
       } else {
@@ -80,7 +90,7 @@ class SignInCtrl extends GetxController {
     try {
       isLoadingForLogout = true;
       update();
-      final response = await ApiManager.instance.call(endPoint: BACKEND.deleteAccount);
+      final response = await ApiManager.call(endPoint: BACKEND.deleteAccount);
       if (response.data != null && response.data == true) {
         backScreen();
         await clearStorage();

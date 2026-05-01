@@ -10,7 +10,8 @@ class SignInScreen extends StatefulWidget {
   State<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMixin {
+class _SignInScreenState extends State<SignInScreen>
+    with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
@@ -24,13 +25,22 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
   }
 
   void _initializeAnimations() {
-    _fadeController = AnimationController(duration: const Duration(milliseconds: 1200), vsync: this);
-    _slideController = AnimationController(duration: const Duration(milliseconds: 900), vsync: this);
-    _fadeAnimation = CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut);
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic));
+    _fadeController = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    );
+    _slideController = AnimationController(
+      duration: const Duration(milliseconds: 900),
+      vsync: this,
+    );
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeInOut,
+    );
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
+        );
   }
 
   void _startAnimations() {
@@ -67,7 +77,11 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [const Color(0xFFF8FAFC), Colors.blue.shade50.withValues(alpha: 0.5), Colors.blue.shade50.withValues(alpha: 0.2)],
+                    colors: [
+                      const Color(0xFFF8FAFC),
+                      Colors.blue.shade50.withValues(alpha: 0.5),
+                      Colors.blue.shade50.withValues(alpha: 0.2),
+                    ],
                     stops: const [0.0, 0.5, 1.0],
                   ),
                 ),
@@ -75,9 +89,13 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
                   child: Center(
                     child: ListView(
                       shrinkWrap: true,
-                      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.onDrag,
                       physics: ClampingScrollPhysics(),
-                      children: [_buildSignInFormCard(ctrl), _buildFooterSection()],
+                      children: [
+                        _buildSignInFormCard(ctrl),
+                        _buildFooterSection(),
+                      ],
                     ),
                   ),
                 ),
@@ -101,14 +119,28 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
             color: Colors.white,
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
-              BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 32, offset: const Offset(0, 12)),
-              BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 4)),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 32,
+                offset: const Offset(0, 12),
+              ),
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
             ],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: [_buildWelcomeSection(), const SizedBox(height: 28), _buildCredentialField(ctrl), const SizedBox(height: 28), _buildSignInButton(ctrl)],
+            children: [
+              _buildWelcomeSection(),
+              const SizedBox(height: 28),
+              _buildCredentialField(ctrl),
+              const SizedBox(height: 28),
+              _buildSignInButton(ctrl),
+            ],
           ),
         ),
       ),
@@ -123,12 +155,27 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
           decoration: BoxDecoration(
             shape: BoxShape.rectangle,
             borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(colors: [decoration.colorScheme.primary, decoration.colorScheme.primary.withValues(alpha: 0.7)]),
-            boxShadow: [BoxShadow(color: decoration.colorScheme.primary.withValues(alpha: 0.2), blurRadius: 25, spreadRadius: 2)],
+            gradient: LinearGradient(
+              colors: [
+                decoration.colorScheme.primary,
+                decoration.colorScheme.primary.withValues(alpha: 0.7),
+              ],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: decoration.colorScheme.primary.withValues(alpha: 0.2),
+                blurRadius: 25,
+                spreadRadius: 2,
+              ),
+            ],
           ),
           child: Container(
             padding: const EdgeInsets.all(3),
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(14), shape: BoxShape.rectangle, color: Colors.white),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              shape: BoxShape.rectangle,
+              color: Colors.white,
+            ),
             child: Container(
               height: 75,
               width: 75,
@@ -138,21 +185,37 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [decoration.colorScheme.primary, decoration.colorScheme.primary.withValues(alpha: 0.8)],
+                  colors: [
+                    decoration.colorScheme.primary,
+                    decoration.colorScheme.primary.withValues(alpha: 0.8),
+                  ],
                 ),
-                image: DecorationImage(image: AssetImage(Graphics.instance.logo), fit: BoxFit.cover, opacity: 0.9),
+                image: DecorationImage(
+                  image: AssetImage(Graphics.instance.logo),
+                  fit: BoxFit.cover,
+                  opacity: 0.9,
+                ),
               ),
             ),
           ),
         ),
         Text(
           "Welcome Back",
-          style: TextStyle(fontSize: 22, color: Colors.grey.shade900, fontWeight: FontWeight.w800, letterSpacing: -0.2),
+          style: TextStyle(
+            fontSize: 22,
+            color: Colors.grey.shade900,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.2,
+          ),
         ),
         const SizedBox(height: 6),
         Text(
           "Sign in to access your professional dashboard",
-          style: TextStyle(fontSize: 13, color: Colors.grey.shade600, fontWeight: FontWeight.w400),
+          style: TextStyle(
+            fontSize: 13,
+            color: Colors.grey.shade600,
+            fontWeight: FontWeight.w400,
+          ),
         ),
       ],
     );
@@ -164,24 +227,42 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
       children: [
         Text(
           "Phone Number",
-          style: TextStyle(fontSize: 13, color: Colors.grey.shade800, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            fontSize: 13,
+            color: Colors.grey.shade800,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(14),
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2))],
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.03),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: TextFormField(
             controller: ctrl.txtPhoneNumber,
             keyboardType: TextInputType.phone,
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: Colors.grey.shade800),
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey.shade800,
+            ),
             decoration: InputDecoration(
               hintText: "Enter Phone number",
               hintStyle: TextStyle(fontSize: 14, color: Colors.grey.shade500),
               prefixIcon: Container(
                 margin: const EdgeInsets.all(10),
-                child: Icon(Icons.phone_android_rounded, size: 20, color: Colors.grey.shade600),
+                child: Icon(
+                  Icons.phone_android_rounded,
+                  size: 20,
+                  color: Colors.grey.shade600,
+                ),
               ),
               filled: true,
               fillColor: Colors.white,
@@ -195,9 +276,15 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide(color: decoration.colorScheme.primary, width: 2),
+                borderSide: BorderSide(
+                  color: decoration.colorScheme.primary,
+                  width: 2,
+                ),
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 16,
+              ),
             ),
             onChanged: (value) => ctrl.update(),
             // onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
@@ -217,9 +304,18 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [decoration.colorScheme.primary, decoration.colorScheme.primary.withValues(alpha: 0.9)],
+            colors: [
+              decoration.colorScheme.primary,
+              decoration.colorScheme.primary.withValues(alpha: 0.9),
+            ],
           ),
-          boxShadow: [BoxShadow(color: decoration.colorScheme.primary.withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 8))],
+          boxShadow: [
+            BoxShadow(
+              color: decoration.colorScheme.primary.withValues(alpha: 0.3),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
         child: Material(
           color: Colors.transparent,
@@ -232,16 +328,30 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
                   ? SizedBox(
                       width: 26,
                       height: 26,
-                      child: CircularProgressIndicator(strokeWidth: 3, valueColor: AlwaysStoppedAnimation(Colors.white.withValues(alpha: 0.9))),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 3,
+                        valueColor: AlwaysStoppedAnimation(
+                          Colors.white.withValues(alpha: 0.9),
+                        ),
+                      ),
                     )
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.login_rounded, color: Colors.white, size: 22),
+                        Icon(
+                          Icons.login_rounded,
+                          color: Colors.white,
+                          size: 22,
+                        ),
                         const SizedBox(width: 12),
                         Text(
-                          "SIGN IN",
-                          style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.w700, letterSpacing: 1.0),
+                          "SIGNn IN",
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 1.0,
+                          ),
                         ),
                       ],
                     ),
@@ -260,7 +370,10 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text("By signing in, you agree to our", style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+            Text(
+              "By signing in, you agree to our",
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+            ),
             const SizedBox(height: 4),
             Wrap(
               alignment: WrapAlignment.center,
@@ -269,40 +382,78 @@ class _SignInScreenState extends State<SignInScreen> with TickerProviderStateMix
                 GestureDetector(
                   onTap: () {
                     final url = StringConstants.termsCondition;
-                    debugPrint("🔗 Trying to launch URL: '$url'");
+                    debugPrint(
+                      "🔗 Trying to launch Terms of Service URL: '$url'",
+                    );
 
                     if (url.isEmpty) {
                       debugPrint("❌ URL is empty!");
+                      Fluttertoast.showToast(
+                        msg: "Terms of Service URL not available",
+                      );
+                      return;
                     }
 
-                    AppUrl.urlLaunch(url: url);
+                    AppUrl.urlLaunch(
+                      url: url,
+                      notLaunchMsg:
+                          "Unable to open Terms of Service. Please visit our website directly.",
+                      errorMsg: "Failed to open Terms of Service",
+                    );
                   },
                   child: Text(
                     "Terms of Service",
-                    style: TextStyle(fontSize: 12, color: decoration.colorScheme.primary, fontWeight: FontWeight.w600, decoration: TextDecoration.underline),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: decoration.colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                      decoration: TextDecoration.underline,
+                    ),
                   ),
                 ),
-                Text(" and ", style: TextStyle(fontSize: 12, color: Colors.grey.shade600)),
+                Text(
+                  " and ",
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                ),
                 GestureDetector(
                   onTap: () {
                     final url = StringConstants.privacyPolicy;
-                    debugPrint("🔗 Trying to launch URL: '$url'");
+                    debugPrint(
+                      "🔗 Trying to launch Privacy Policy URL: '$url'",
+                    );
 
                     if (url.isEmpty) {
                       debugPrint("❌ URL is empty!");
+                      Fluttertoast.showToast(
+                        msg: "Privacy Policy URL not available",
+                      );
+                      return;
                     }
 
-                    AppUrl.urlLaunch(url: url);
+                    AppUrl.urlLaunch(
+                      url: url,
+                      notLaunchMsg:
+                          "Unable to open Privacy Policy. Please visit our website directly.",
+                      errorMsg: "Failed to open Privacy Policy",
+                    );
                   },
                   child: Text(
                     "Privacy Policy",
-                    style: TextStyle(fontSize: 12, color: decoration.colorScheme.primary, fontWeight: FontWeight.w600, decoration: TextDecoration.underline),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: decoration.colorScheme.primary,
+                      fontWeight: FontWeight.w600,
+                      decoration: TextDecoration.underline,
+                    ),
                   ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
-            Text("© 2024 OnTrip. All rights reserved.", style: TextStyle(fontSize: 11, color: Colors.grey.shade500)),
+            Text(
+              "© 2024 OnTrip. All rights reserved.",
+              style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
+            ),
           ],
         ),
       ),

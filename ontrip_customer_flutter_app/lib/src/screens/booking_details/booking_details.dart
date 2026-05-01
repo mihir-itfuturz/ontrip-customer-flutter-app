@@ -6,26 +6,62 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: Colors.grey.shade50,
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        title: Text("Trip Details", style: AppTextStyle.bold.copyWith(fontSize: 18)),
+        title: Text(
+          "Trip Details",
+          style: AppTextStyle.bold.copyWith(
+            fontSize: 20,
+            color: const Color(0xFF1E293B),
+          ),
+        ),
         centerTitle: true,
-        leading: const CustomBackBtn(),
+        leading: Container(
+          margin: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF1F5F9),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.arrow_back,
+            color: const Color(0xFF64748B),
+            size: 20,
+          ),
+        ),
         actions: [
-          _buildActionBtn(Icons.chat_bubble_outline, const Color(0xFF1E293B), () {
-            final packageId = controller.booking.value?.package?.id;
-            final coverImage = controller.booking.value?.package?.coverImage;
-            if (packageId != null) {
-              Get.toNamed(RouteNames.communityChat, arguments: {"packageId": packageId, "coverImage": coverImage});
-            } else {
-              warningToast("Community not available for this trip");
-            }
-          }),
-          // const SizedBox(width: 8),
-          // _buildActionBtn(Icons.local_activity_outlined, Constant.instance.primary, () {}),
-          const SizedBox(width: 16),
+          Container(
+            margin: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xFFF1F5F9),
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              icon: Icon(
+                Icons.chat_bubble_outline,
+                color: const Color(0xFF64748B),
+                size: 20,
+              ),
+              onPressed: () {
+                final packageId = controller.booking.value?.package?.id;
+                final coverImage =
+                    controller.booking.value?.package?.coverImage;
+                if (packageId != null) {
+                  Get.toNamed(
+                    RouteNames.communityChat,
+                    arguments: {
+                      "packageId": packageId,
+                      "coverImage": coverImage,
+                    },
+                  );
+                } else {
+                  warningToast("Community not available for this trip");
+                }
+              },
+            ),
+          ),
+          const SizedBox(width: 8),
         ],
       ),
       body: Obx(() {
@@ -42,11 +78,7 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(booking),
-              // _buildItinerarySection(booking),
-              // _buildInclusions(booking),
-              // _buildExclusions(booking),
-              // _buildSupportCard(booking),
+              _buildModernHeader(booking),
               Expanded(child: _buildTabSection(booking)),
             ],
           ),
@@ -94,11 +126,17 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
                     margin: const EdgeInsets.only(right: 10),
                     padding: const EdgeInsets.symmetric(horizontal: 18),
                     decoration: BoxDecoration(
-                      color: isSelected ? Constant.instance.primary : Colors.white,
+                      color: isSelected
+                          ? Constant.instance.primary
+                          : Colors.white,
                       borderRadius: BorderRadius.circular(14),
                       boxShadow: [
                         BoxShadow(
-                          color: isSelected ? Constant.instance.primary.withValues(alpha: 0.28) : Colors.black.withValues(alpha: 0.04),
+                          color: isSelected
+                              ? Constant.instance.primary.withValues(
+                                  alpha: 0.28,
+                                )
+                              : Colors.black.withValues(alpha: 0.04),
                           blurRadius: isSelected ? 12 : 8,
                           offset: Offset(0, isSelected ? 4 : 2),
                         ),
@@ -107,11 +145,22 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(tabs[index]["icon"] as IconData, size: 15, color: isSelected ? Colors.white : Colors.grey.shade500),
+                        Icon(
+                          tabs[index]["icon"] as IconData,
+                          size: 15,
+                          color: isSelected
+                              ? Colors.white
+                              : Colors.grey.shade500,
+                        ),
                         const SizedBox(width: 6),
                         Text(
                           tabs[index]["label"] as String,
-                          style: AppTextStyle.bold.copyWith(fontSize: 13, color: isSelected ? Colors.white : Colors.grey.shade600),
+                          style: AppTextStyle.bold.copyWith(
+                            fontSize: 13,
+                            color: isSelected
+                                ? Colors.white
+                                : Colors.grey.shade600,
+                          ),
                         ),
                       ],
                     ),
@@ -124,7 +173,10 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
           // IndexedStack(index: controller.selectedTab.value, children: contents),
           Expanded(
             child: SingleChildScrollView(
-              child: IndexedStack(index: controller.selectedTab.value, children: contents),
+              child: IndexedStack(
+                index: controller.selectedTab.value,
+                children: contents,
+              ),
             ),
           ),
           const SizedBox(height: 20),
@@ -143,12 +195,146 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(12),
-            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 10, offset: const Offset(0, 2))],
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
           child: Icon(icon, color: iconColor, size: 20),
         ),
       ),
     );
+  }
+
+  Widget _buildModernHeader(Booking booking) {
+    final package = booking.package;
+    final coverImage = package?.coverImage ?? "";
+
+    return Container(
+      width: double.infinity,
+      height: 200,
+      margin: const EdgeInsets.only(bottom: 20),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: CustomNetworkImage(
+                imageUrl: coverImage.startsWith("http")
+                    ? coverImage
+                    : "https://ontrip.itfuturz.in/$coverImage",
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    Colors.black.withValues(alpha: 0.7),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 16,
+            right: 16,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: _getStatusColor(
+                  booking.bookingStatus?.toUpperCase() ?? "BOOKED",
+                ),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Text(
+                booking.bookingStatus?.toUpperCase() ?? "BOOKED",
+                style: AppTextStyle.bold.copyWith(
+                  color: Colors.white,
+                  fontSize: 11,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 16,
+            left: 16,
+            right: 16,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  booking.whitelabelPackage?.customTitle ??
+                      package?.title ??
+                      "Trip Details",
+                  style: AppTextStyle.bold.copyWith(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black.withValues(alpha: 0.5),
+                        blurRadius: 8,
+                      ),
+                    ],
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.location_on_outlined,
+                      color: Colors.white.withValues(alpha: 0.9),
+                      size: 16,
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        package?.destination ?? "Unknown Location",
+                        style: AppTextStyle.medium.copyWith(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          fontSize: 14,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getStatusColor(String? status) {
+    switch (status?.toLowerCase()) {
+      case 'confirmed':
+      case 'booked':
+        return const Color(0xFF10B981);
+      case 'pending':
+        return const Color(0xFFF59E0B);
+      case 'cancelled':
+        return const Color(0xFFEF4444);
+      case 'completed':
+        return const Color(0xFF6366F1);
+      default:
+        return const Color(0xFF64748B);
+    }
   }
 
   Widget _buildHeader(Booking booking) {
@@ -160,20 +346,33 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
       height: 280,
       decoration: BoxDecoration(
         color: Colors.grey.shade200,
-        borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(32), bottomRight: Radius.circular(32)),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(32),
+          bottomRight: Radius.circular(32),
+        ),
       ),
       child: ClipRRect(
-        borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(32), bottomRight: Radius.circular(32)),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(32),
+          bottomRight: Radius.circular(32),
+        ),
         child: Stack(
           children: [
-            Positioned.fill(child: CustomNetworkImage(imageUrl: "https://ontrip.itfuturz.in/$coverImage")),
+            Positioned.fill(
+              child: CustomNetworkImage(
+                imageUrl: "https://ontrip.itfuturz.in/$coverImage",
+              ),
+            ),
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, Colors.black.withValues(alpha: 0.8)],
+                    colors: [
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.8),
+                    ],
                   ),
                 ),
               ),
@@ -186,21 +385,48 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(color: Constant.instance.primary, borderRadius: BorderRadius.circular(6)),
-                    child: Text(booking.bookingStatus?.toUpperCase() ?? "BOOKED", style: AppTextStyle.bold.copyWith(color: Colors.white, fontSize: 10)),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Constant.instance.primary,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      booking.bookingStatus?.toUpperCase() ?? "BOOKED",
+                      style: AppTextStyle.bold.copyWith(
+                        color: Colors.white,
+                        fontSize: 10,
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    booking.whitelabelPackage?.customTitle ?? package?.title ?? "Trip Details",
-                    style: AppTextStyle.bold.copyWith(color: Colors.white, fontSize: 24),
+                    booking.whitelabelPackage?.customTitle ??
+                        package?.title ??
+                        "Trip Details",
+                    style: AppTextStyle.bold.copyWith(
+                      color: Colors.white,
+                      fontSize: 24,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.location_on, color: Colors.white, size: 14),
+                      const Icon(
+                        Icons.location_on,
+                        color: Colors.white,
+                        size: 14,
+                      ),
                       const SizedBox(width: 8),
-                      Text(package?.destination ?? "Exploring", style: AppTextStyle.medium.copyWith(color: Colors.white.withValues(alpha: 0.9), fontSize: 14)),
+                      Text(
+                        package?.destination ?? "Exploring",
+                        style: AppTextStyle.medium.copyWith(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          fontSize: 14,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -220,7 +446,13 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
           children: [
             Icon(icon, size: 48, color: Colors.grey.shade300),
             const SizedBox(height: 12),
-            Text(message, style: AppTextStyle.medium.copyWith(fontSize: 14, color: Colors.grey.shade400)),
+            Text(
+              message,
+              style: AppTextStyle.medium.copyWith(
+                fontSize: 14,
+                color: Colors.grey.shade400,
+              ),
+            ),
           ],
         ),
       ),
@@ -234,7 +466,11 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
     final agencyPhone = agencyCustomer?.phone;
     final hasPhone = agencyPhone != null && agencyPhone.isNotEmpty;
     final hasEmail = agencyEmail != null && agencyEmail.isNotEmpty;
-    if (agencyCustomer == null) return _buildEmptyState(Icons.headset_mic_outlined, "No support contact available");
+    if (agencyCustomer == null)
+      return _buildEmptyState(
+        Icons.headset_mic_outlined,
+        "No support contact available",
+      );
 
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 12, 20, 20),
@@ -242,23 +478,42 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 16, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("SUPPORT & ASSISTANCE", style: AppTextStyle.bold.copyWith(fontSize: 11, color: Constant.instance.primary, letterSpacing: 1.5)),
+          Text(
+            "SUPPORT & ASSISTANCE",
+            style: AppTextStyle.bold.copyWith(
+              fontSize: 11,
+              color: Constant.instance.primary,
+              letterSpacing: 1.5,
+            ),
+          ),
           const SizedBox(height: 16),
           Row(
             children: [
               Container(
                 height: 52,
                 width: 52,
-                decoration: BoxDecoration(color: Constant.instance.primary.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(14)),
+                decoration: BoxDecoration(
+                  color: Constant.instance.primary.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(14),
+                ),
                 child: Center(
                   child: Text(
                     agencyName.isNotEmpty ? agencyName[0].toUpperCase() : "S",
-                    style: AppTextStyle.bold.copyWith(color: Constant.instance.primary, fontSize: 22),
+                    style: AppTextStyle.bold.copyWith(
+                      color: Constant.instance.primary,
+                      fontSize: 22,
+                    ),
                   ),
                 ),
               ),
@@ -267,9 +522,21 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(agencyName, style: AppTextStyle.bold.copyWith(fontSize: 15, color: const Color(0xFF1E293B))),
+                    Text(
+                      agencyName,
+                      style: AppTextStyle.bold.copyWith(
+                        fontSize: 15,
+                        color: const Color(0xFF1E293B),
+                      ),
+                    ),
                     const SizedBox(height: 2),
-                    Text("Your Travel Agent", style: AppTextStyle.medium.copyWith(fontSize: 12, color: const Color(0xFF94A3B8))),
+                    Text(
+                      "Your Travel Agent",
+                      style: AppTextStyle.medium.copyWith(
+                        fontSize: 12,
+                        color: const Color(0xFF94A3B8),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -287,14 +554,31 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
                   Container(
                     height: 36,
                     width: 36,
-                    decoration: BoxDecoration(color: const Color(0xFFEEFDF4), borderRadius: BorderRadius.circular(10)),
-                    child: const Icon(Icons.call_outlined, color: Color(0xFF16A34A), size: 18),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEEFDF4),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.call_outlined,
+                      color: Color(0xFF16A34A),
+                      size: 18,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text(agencyPhone, style: AppTextStyle.medium.copyWith(fontSize: 14, color: const Color(0xFF1E293B))),
+                    child: Text(
+                      agencyPhone,
+                      style: AppTextStyle.medium.copyWith(
+                        fontSize: 14,
+                        color: const Color(0xFF1E293B),
+                      ),
+                    ),
                   ),
-                  const Icon(Icons.chevron_right, color: Color(0xFFCBD5E1), size: 18),
+                  const Icon(
+                    Icons.chevron_right,
+                    color: Color(0xFFCBD5E1),
+                    size: 18,
+                  ),
                 ],
               ),
             ),
@@ -302,24 +586,49 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
           // Email Row
           if (hasEmail)
             GestureDetector(
-              onTap: () => AppUrl.mail(email: agencyEmail, subject: "Trip Enquiry"),
+              onTap: () =>
+                  AppUrl.mail(email: agencyEmail, subject: "Trip Enquiry"),
               child: Row(
                 children: [
                   Container(
                     height: 36,
                     width: 36,
-                    decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(10)),
-                    child: const Icon(Icons.mail_outline, color: Color(0xFF3B82F6), size: 18),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEFF6FF),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.mail_outline,
+                      color: Color(0xFF3B82F6),
+                      size: 18,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text(agencyEmail, style: AppTextStyle.medium.copyWith(fontSize: 14, color: const Color(0xFF1E293B))),
+                    child: Text(
+                      agencyEmail,
+                      style: AppTextStyle.medium.copyWith(
+                        fontSize: 14,
+                        color: const Color(0xFF1E293B),
+                      ),
+                    ),
                   ),
-                  const Icon(Icons.chevron_right, color: Color(0xFFCBD5E1), size: 18),
+                  const Icon(
+                    Icons.chevron_right,
+                    color: Color(0xFFCBD5E1),
+                    size: 18,
+                  ),
                 ],
               ),
             ),
-          if (!hasPhone && !hasEmail) Text("Contact details not available", style: AppTextStyle.medium.copyWith(fontSize: 13, color: const Color(0xFF94A3B8))),
+          if (!hasPhone && !hasEmail)
+            Text(
+              "Contact details not available",
+              style: AppTextStyle.medium.copyWith(
+                fontSize: 13,
+                color: const Color(0xFF94A3B8),
+              ),
+            ),
         ],
       ),
     );
@@ -327,26 +636,50 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
 
   Widget _buildInclusions(Booking booking) {
     final inclusions = booking.package?.inclusions ?? [];
-    if (inclusions.isEmpty) return _buildEmptyState(Icons.check_circle_outline, "No inclusions listed for this package");
+    if (inclusions.isEmpty)
+      return _buildEmptyState(
+        Icons.check_circle_outline,
+        "No inclusions listed for this package",
+      );
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(32)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(32),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("PACKAGE INCLUSIONS", style: AppTextStyle.bold.copyWith(fontSize: 12, color: Colors.green, letterSpacing: 1.5)),
+          Text(
+            "PACKAGE INCLUSIONS",
+            style: AppTextStyle.bold.copyWith(
+              fontSize: 12,
+              color: Colors.green,
+              letterSpacing: 1.5,
+            ),
+          ),
           const SizedBox(height: 20),
           ...inclusions.map(
             (item) => Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: Row(
                 children: [
-                  const Icon(Icons.check_circle_outline, color: Colors.green, size: 20),
+                  const Icon(
+                    Icons.check_circle_outline,
+                    color: Colors.green,
+                    size: 20,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text(item, style: AppTextStyle.medium.copyWith(fontSize: 15, color: Colors.grey.shade700)),
+                    child: Text(
+                      item,
+                      style: AppTextStyle.medium.copyWith(
+                        fontSize: 15,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -359,26 +692,50 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
 
   Widget _buildExclusions(Booking booking) {
     final exclusions = booking.package?.exclusions ?? [];
-    if (exclusions.isEmpty) return _buildEmptyState(Icons.cancel_outlined, "No exclusions listed for this package");
+    if (exclusions.isEmpty)
+      return _buildEmptyState(
+        Icons.cancel_outlined,
+        "No exclusions listed for this package",
+      );
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(32)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(32),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("PACKAGE EXCLUSIONS", style: AppTextStyle.bold.copyWith(fontSize: 12, color: Colors.red, letterSpacing: 1.5)),
+          Text(
+            "PACKAGE EXCLUSIONS",
+            style: AppTextStyle.bold.copyWith(
+              fontSize: 12,
+              color: Colors.red,
+              letterSpacing: 1.5,
+            ),
+          ),
           const SizedBox(height: 20),
           ...exclusions.map(
             (item) => Padding(
               padding: const EdgeInsets.only(bottom: 16),
               child: Row(
                 children: [
-                  const Icon(Icons.cancel_outlined, color: Colors.red, size: 20),
+                  const Icon(
+                    Icons.cancel_outlined,
+                    color: Colors.red,
+                    size: 20,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text(item.toString(), style: AppTextStyle.medium.copyWith(fontSize: 15, color: Colors.grey.shade700)),
+                    child: Text(
+                      item.toString(),
+                      style: AppTextStyle.medium.copyWith(
+                        fontSize: 15,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -391,7 +748,11 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
 
   Widget _buildItinerarySection(Booking booking) {
     final itinerary = booking.package?.itinerary ?? [];
-    if (itinerary.isEmpty) return _buildEmptyState(Icons.map_outlined, "No itinerary available for this trip");
+    if (itinerary.isEmpty)
+      return _buildEmptyState(
+        Icons.map_outlined,
+        "No itinerary available for this trip",
+      );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -411,21 +772,44 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
                   onTap: () => controller.onDayChange(index),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
-                    margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                    margin: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 8,
+                    ),
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     decoration: BoxDecoration(
-                      color: isSelected ? Constant.instance.primary : Colors.white,
+                      color: isSelected
+                          ? Constant.instance.primary
+                          : Colors.white,
                       borderRadius: BorderRadius.circular(16),
-                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 5)],
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.03),
+                          blurRadius: 5,
+                        ),
+                      ],
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
                           "DAY",
-                          style: AppTextStyle.bold.copyWith(fontSize: 10, color: isSelected ? Colors.white.withValues(alpha: 0.7) : Colors.grey.shade400),
+                          style: AppTextStyle.bold.copyWith(
+                            fontSize: 10,
+                            color: isSelected
+                                ? Colors.white.withValues(alpha: 0.7)
+                                : Colors.grey.shade400,
+                          ),
                         ),
-                        Text("${index + 1}", style: AppTextStyle.bold.copyWith(fontSize: 18, color: isSelected ? Colors.white : Colors.grey.shade800)),
+                        Text(
+                          "${index + 1}",
+                          style: AppTextStyle.bold.copyWith(
+                            fontSize: 18,
+                            color: isSelected
+                                ? Colors.white
+                                : Colors.grey.shade800,
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -445,25 +829,37 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
               children: [
                 Container(
                   padding: const EdgeInsets.all(32),
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(32)),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(32),
+                  ),
                   child: Column(
                     children: [
                       Text(
                         dayData.title ?? "Day ${dayData.day}",
                         textAlign: TextAlign.center,
-                        style: AppTextStyle.bold.copyWith(fontSize: 24, color: Colors.grey.shade900),
+                        style: AppTextStyle.bold.copyWith(
+                          fontSize: 24,
+                          color: Colors.grey.shade900,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         dayData.description ?? "",
                         textAlign: TextAlign.center,
-                        style: AppTextStyle.medium.copyWith(fontSize: 14, color: Colors.grey.shade500, height: 1.5),
+                        style: AppTextStyle.medium.copyWith(
+                          fontSize: 14,
+                          color: Colors.grey.shade500,
+                          height: 1.5,
+                        ),
                       ),
                     ],
                   ),
                 ),
                 const SizedBox(height: 20),
-                ...(dayData.experiences ?? []).map((exp) => _buildExperienceCard(exp)),
+                ...(dayData.experiences ?? []).map(
+                  (exp) => _buildExperienceCard(exp),
+                ),
               ],
             ),
           );
@@ -476,15 +872,26 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
     final image = exp.images?.isNotEmpty == true ? exp.images![0] : "";
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(32)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(32),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Image
           if (image.isNotEmpty)
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-              child: CustomNetworkImage(imageUrl: image.startsWith("http") ? image : "https://ontrip.itfuturz.in/$image", height: 180, width: double.infinity),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(32),
+              ),
+              child: CustomNetworkImage(
+                imageUrl: image.startsWith("http")
+                    ? image
+                    : "https://ontrip.itfuturz.in/$image",
+                height: 180,
+                width: double.infinity,
+              ),
             ),
           Padding(
             padding: const EdgeInsets.all(24),
@@ -494,26 +901,49 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF1F5F9),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       child: Row(
                         children: [
-                          const Icon(Icons.access_time, size: 14, color: Colors.blueAccent),
+                          const Icon(
+                            Icons.access_time,
+                            size: 14,
+                            color: Colors.blueAccent,
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             "${exp.startTime}${exp.endTime != null && exp.endTime!.isNotEmpty ? ' — ${exp.endTime}' : ''}",
-                            style: AppTextStyle.bold.copyWith(fontSize: 12, color: Colors.grey.shade800),
+                            style: AppTextStyle.bold.copyWith(
+                              fontSize: 12,
+                              color: Colors.grey.shade800,
+                            ),
                           ),
                         ],
                       ),
                     ),
                     const Spacer(),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(color: const Color(0xFFE0E7FF), borderRadius: BorderRadius.circular(10)),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE0E7FF),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       child: Text(
                         exp.category?.toUpperCase() ?? "ACTIVITY",
-                        style: AppTextStyle.bold.copyWith(fontSize: 10, color: Colors.blueAccent, letterSpacing: 0.5),
+                        style: AppTextStyle.bold.copyWith(
+                          fontSize: 10,
+                          color: Colors.blueAccent,
+                          letterSpacing: 0.5,
+                        ),
                       ),
                     ),
                   ],
@@ -525,9 +955,22 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(exp.name ?? "Event", style: AppTextStyle.bold.copyWith(fontSize: 20, color: Colors.grey.shade900)),
+                          Text(
+                            exp.name ?? "Event",
+                            style: AppTextStyle.bold.copyWith(
+                              fontSize: 20,
+                              color: Colors.grey.shade900,
+                            ),
+                          ),
                           const SizedBox(height: 8),
-                          Text(exp.description ?? "", style: AppTextStyle.medium.copyWith(fontSize: 13, color: Colors.grey.shade500, height: 1.4)),
+                          Text(
+                            exp.description ?? "",
+                            style: AppTextStyle.medium.copyWith(
+                              fontSize: 13,
+                              color: Colors.grey.shade500,
+                              height: 1.4,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -539,9 +982,18 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
-                          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)],
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                            ),
+                          ],
                         ),
-                        child: const Icon(Icons.call, color: Colors.blueGrey, size: 20),
+                        child: const Icon(
+                          Icons.call,
+                          color: Colors.blueGrey,
+                          size: 20,
+                        ),
                       ),
                     ),
                   ],
@@ -566,11 +1018,25 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("YOUR EXPERIENCE", style: AppTextStyle.bold.copyWith(fontSize: 14, color: Colors.grey.shade400, letterSpacing: 1.2)),
+            Text(
+              "YOUR EXPERIENCE",
+              style: AppTextStyle.bold.copyWith(
+                fontSize: 14,
+                color: Colors.grey.shade400,
+                letterSpacing: 1.2,
+              ),
+            ),
             const SizedBox(height: 16),
             _buildManageUserReview(ctrl),
             const SizedBox(height: 32),
-            Text("GUEST FEEDBACK", style: AppTextStyle.bold.copyWith(fontSize: 14, color: Colors.grey.shade400, letterSpacing: 1.2)),
+            Text(
+              "GUEST FEEDBACK",
+              style: AppTextStyle.bold.copyWith(
+                fontSize: 14,
+                color: Colors.grey.shade400,
+                letterSpacing: 1.2,
+              ),
+            ),
             const SizedBox(height: 16),
             if (reviews.isNotEmpty)
               Container(
@@ -579,25 +1045,47 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
                 decoration: BoxDecoration(
                   color: Constant.instance.primary.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: Constant.instance.primary.withValues(alpha: 0.1)),
+                  border: Border.all(
+                    color: Constant.instance.primary.withValues(alpha: 0.1),
+                  ),
                 ),
                 child: Row(
                   children: [
                     _buildRatingSummaryItem("Package", avgPackage),
-                    Container(height: 40, width: 1, color: Colors.grey.shade300, margin: const EdgeInsets.symmetric(horizontal: 20)),
+                    Container(
+                      height: 40,
+                      width: 1,
+                      color: Colors.grey.shade300,
+                      margin: const EdgeInsets.symmetric(horizontal: 20),
+                    ),
                     _buildRatingSummaryItem("Overall", avgOverall),
                     const Spacer(),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text("$total", style: AppTextStyle.bold.copyWith(fontSize: 18, color: Constant.instance.primary)),
-                        Text("Reviews", style: AppTextStyle.medium.copyWith(fontSize: 12, color: Colors.grey.shade500)),
+                        Text(
+                          "$total",
+                          style: AppTextStyle.bold.copyWith(
+                            fontSize: 18,
+                            color: Constant.instance.primary,
+                          ),
+                        ),
+                        Text(
+                          "Reviews",
+                          style: AppTextStyle.medium.copyWith(
+                            fontSize: 12,
+                            color: Colors.grey.shade500,
+                          ),
+                        ),
                       ],
                     ),
                   ],
                 ),
               ),
-            if (reviews.isEmpty) _buildTripEmptyState(Icons.star_outline, "No reviews yet") else ...reviews.map((r) => _buildTripReviewCard(r)),
+            if (reviews.isEmpty)
+              _buildTripEmptyState(Icons.star_outline, "No reviews yet")
+            else
+              ...reviews.map((r) => _buildTripReviewCard(r)),
           ],
         ),
       );
@@ -610,7 +1098,13 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 20, offset: const Offset(0, 10))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -618,12 +1112,29 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(ctrl.userReview.value == null ? "How was your trip?" : "Your Review", style: AppTextStyle.bold.copyWith(fontSize: 16)),
+              Text(
+                ctrl.userReview.value == null
+                    ? "How was your trip?"
+                    : "Your Review",
+                style: AppTextStyle.bold.copyWith(fontSize: 16),
+              ),
               if (ctrl.userReview.value != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(color: Colors.green.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
-                  child: Text("SUBMITTED", style: AppTextStyle.bold.copyWith(color: Colors.green, fontSize: 10)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    "SUBMITTED",
+                    style: AppTextStyle.bold.copyWith(
+                      color: Colors.green,
+                      fontSize: 10,
+                    ),
+                  ),
                 ),
             ],
           ),
@@ -633,10 +1144,18 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
               mainAxisSize: MainAxisSize.min,
               children: List.generate(5, (index) {
                 return GestureDetector(
-                  onTap: () => ctrl.userReview.value == null ? ctrl.userRating.value = index + 1.0 : null,
+                  onTap: () => ctrl.userReview.value == null
+                      ? ctrl.userRating.value = index + 1.0
+                      : null,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Icon(Icons.star_rounded, size: 36, color: index < ctrl.userRating.value ? Colors.amber : Colors.grey.shade300),
+                    child: Icon(
+                      Icons.star_rounded,
+                      size: 36,
+                      color: index < ctrl.userRating.value
+                          ? Colors.amber
+                          : Colors.grey.shade300,
+                    ),
                   ),
                 );
               }),
@@ -649,11 +1168,17 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
             readOnly: ctrl.userReview.value != null,
             decoration: InputDecoration(
               hintText: "Share your experience with others...",
-              hintStyle: AppTextStyle.medium.copyWith(fontSize: 14, color: Colors.grey.shade400),
+              hintStyle: AppTextStyle.medium.copyWith(
+                fontSize: 14,
+                color: Colors.grey.shade400,
+              ),
               filled: true,
               fillColor: Colors.grey.shade300,
               contentPadding: const EdgeInsets.all(16),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide.none,
+              ),
             ),
           ),
           if (ctrl.userReview.value == null) ...[
@@ -663,16 +1188,32 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
               width: double.infinity,
               height: 52,
               child: ElevatedButton(
-                onPressed: ctrl.isReviewLoading.value ? null : () => ctrl.submitReview(),
+                onPressed: ctrl.isReviewLoading.value
+                    ? null
+                    : () => ctrl.submitReview(),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Constant.instance.primary,
                   foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
                   elevation: 0,
                 ),
                 child: ctrl.isReviewLoading.value
-                    ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                    : Text(ctrl.userReview.value == null ? "Submit Review" : "Update Review", style: AppTextStyle.bold.copyWith(fontSize: 16)),
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Text(
+                        ctrl.userReview.value == null
+                            ? "Submit Review"
+                            : "Update Review",
+                        style: AppTextStyle.bold.copyWith(fontSize: 16),
+                      ),
               ),
             ),
           ],
@@ -685,7 +1226,13 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: AppTextStyle.medium.copyWith(fontSize: 12, color: Colors.grey.shade500)),
+        Text(
+          label,
+          style: AppTextStyle.medium.copyWith(
+            fontSize: 12,
+            color: Colors.grey.shade500,
+          ),
+        ),
         const SizedBox(height: 4),
         Row(
           children: [
@@ -705,7 +1252,13 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 10, offset: const Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -715,31 +1268,62 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
               Container(
                 width: 40,
                 height: 40,
-                decoration: BoxDecoration(color: Constant.instance.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: Constant.instance.primary.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
                 alignment: Alignment.center,
-                child: Text(review.customerName?[0].toUpperCase() ?? "U", style: AppTextStyle.bold.copyWith(color: Constant.instance.primary, fontSize: 16)),
+                child: Text(
+                  review.customerName?[0].toUpperCase() ?? "U",
+                  style: AppTextStyle.bold.copyWith(
+                    color: Constant.instance.primary,
+                    fontSize: 16,
+                  ),
+                ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(review.customerName ?? "Guest User", style: AppTextStyle.bold.copyWith(fontSize: 15)),
+                    Text(
+                      review.customerName ?? "Guest User",
+                      style: AppTextStyle.bold.copyWith(fontSize: 15),
+                    ),
                     if (review.createdAt != null)
-                      Text(AppDateFormat.monthDayYear(review.createdAt!), style: AppTextStyle.medium.copyWith(fontSize: 11, color: Colors.grey.shade400)),
+                      Text(
+                        AppDateFormat.monthDayYear(review.createdAt!),
+                        style: AppTextStyle.medium.copyWith(
+                          fontSize: 11,
+                          color: Colors.grey.shade400,
+                        ),
+                      ),
                   ],
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(color: Colors.amber.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.amber.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 child: Row(
                   children: [
-                    const Icon(Icons.star_rounded, color: Colors.amber, size: 16),
+                    const Icon(
+                      Icons.star_rounded,
+                      color: Colors.amber,
+                      size: 16,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       "${(review.packageRating ?? review.overallRating ?? 0.0).toInt()}",
-                      style: AppTextStyle.bold.copyWith(fontSize: 13, color: Colors.amber.shade800),
+                      style: AppTextStyle.bold.copyWith(
+                        fontSize: 13,
+                        color: Colors.amber.shade800,
+                      ),
                     ),
                   ],
                 ),
@@ -750,8 +1334,18 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
             const SizedBox(height: 16),
             Container(
               padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(color: Colors.grey.shade50, borderRadius: BorderRadius.circular(16)),
-              child: Text(review.comment!, style: AppTextStyle.medium.copyWith(fontSize: 13, color: Colors.grey.shade700, height: 1.5)),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Text(
+                review.comment!,
+                style: AppTextStyle.medium.copyWith(
+                  fontSize: 13,
+                  color: Colors.grey.shade700,
+                  height: 1.5,
+                ),
+              ),
             ),
           ],
         ],
@@ -778,7 +1372,10 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -787,11 +1384,19 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
               Container(
                 height: 40,
                 width: 40,
-                decoration: BoxDecoration(color: Constant.instance.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: Constant.instance.primary.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
                 child: Center(
                   child: Text(
-                    review.customerName?.isNotEmpty == true ? review.customerName![0].toUpperCase() : "U",
-                    style: AppTextStyle.bold.copyWith(color: Constant.instance.primary, fontSize: 16),
+                    review.customerName?.isNotEmpty == true
+                        ? review.customerName![0].toUpperCase()
+                        : "U",
+                    style: AppTextStyle.bold.copyWith(
+                      color: Constant.instance.primary,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ),
@@ -800,9 +1405,17 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(review.customerName ?? "User", style: AppTextStyle.bold.copyWith(fontSize: 14, color: const Color(0xFF1E293B))),
                     Text(
-                      AppDateFormat.notification3(review.createdAt ?? DateTime.now()),
+                      review.customerName ?? "User",
+                      style: AppTextStyle.bold.copyWith(
+                        fontSize: 14,
+                        color: const Color(0xFF1E293B),
+                      ),
+                    ),
+                    Text(
+                      AppDateFormat.notification3(
+                        review.createdAt ?? DateTime.now(),
+                      ),
                       // style: AppDateFormat.notification3(review.createdAt ?? DateTime.now()),
                     ),
                   ],
@@ -811,13 +1424,26 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
               Row(
                 children: List.generate(
                   5,
-                  (index) => Icon(index < (review.overallRating ?? 0) ? Icons.star : Icons.star_border, color: Colors.amber, size: 14),
+                  (index) => Icon(
+                    index < (review.overallRating ?? 0)
+                        ? Icons.star
+                        : Icons.star_border,
+                    color: Colors.amber,
+                    size: 14,
+                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
-          Text(review.comment ?? "", style: AppTextStyle.medium.copyWith(fontSize: 14, color: const Color(0xFF475569), height: 1.5)),
+          Text(
+            review.comment ?? "",
+            style: AppTextStyle.medium.copyWith(
+              fontSize: 14,
+              color: const Color(0xFF475569),
+              height: 1.5,
+            ),
+          ),
         ],
       ),
     );
@@ -832,7 +1458,10 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         child: Container(
           padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(24)),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+          ),
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -841,7 +1470,13 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Write a review", style: AppTextStyle.bold.copyWith(fontSize: 20, color: const Color(0xFF1E293B))),
+                    Text(
+                      "Write a review",
+                      style: AppTextStyle.bold.copyWith(
+                        fontSize: 20,
+                        color: const Color(0xFF1E293B),
+                      ),
+                    ),
                     IconButton(
                       onPressed: () => Get.back(),
                       icon: const Icon(Icons.close, color: Color(0xFF94A3B8)),
@@ -853,19 +1488,32 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
                 Center(
                   child: Column(
                     children: [
-                      Text("How was your experience?", style: AppTextStyle.bold.copyWith(fontSize: 15, color: const Color(0xFF1E293B))),
+                      Text(
+                        "How was your experience?",
+                        style: AppTextStyle.bold.copyWith(
+                          fontSize: 15,
+                          color: const Color(0xFF1E293B),
+                        ),
+                      ),
                       const SizedBox(height: 16),
                       Obx(
                         () => Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: List.generate(5, (index) {
                             return GestureDetector(
-                              onTap: () => controller.userRating.value = index + 1.0,
+                              onTap: () =>
+                                  controller.userRating.value = index + 1.0,
                               child: Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 4),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                ),
                                 child: Icon(
-                                  index < controller.userRating.value ? Icons.star : Icons.star_border,
-                                  color: index < controller.userRating.value ? Colors.amber : Colors.grey.shade300,
+                                  index < controller.userRating.value
+                                      ? Icons.star
+                                      : Icons.star_border,
+                                  color: index < controller.userRating.value
+                                      ? Colors.amber
+                                      : Colors.grey.shade300,
                                   size: 32,
                                 ),
                               ),
@@ -877,7 +1525,13 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                Text("Comments (optional)", style: AppTextStyle.bold.copyWith(fontSize: 12, color: const Color(0xFF64748B))),
+                Text(
+                  "Comments (optional)",
+                  style: AppTextStyle.bold.copyWith(
+                    fontSize: 12,
+                    color: const Color(0xFF64748B),
+                  ),
+                ),
                 const SizedBox(height: 8),
                 Container(
                   decoration: BoxDecoration(
@@ -889,8 +1543,12 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
                     controller: controller.reviewCommentCtrl,
                     maxLines: 4,
                     decoration: InputDecoration(
-                      hintText: "Tell us more about your experience (max 500 words)...",
-                      hintStyle: AppTextStyle.medium.copyWith(fontSize: 14, color: const Color(0xFF94A3B8)),
+                      hintText:
+                          "Tell us more about your experience (max 500 words)...",
+                      hintStyle: AppTextStyle.medium.copyWith(
+                        fontSize: 14,
+                        color: const Color(0xFF94A3B8),
+                      ),
                       contentPadding: const EdgeInsets.all(16),
                       border: InputBorder.none,
                     ),
@@ -902,7 +1560,12 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
                     Expanded(
                       child: TextButton(
                         onPressed: () => Get.back(),
-                        child: Text("Cancel", style: AppTextStyle.bold.copyWith(color: const Color(0xFF64748B))),
+                        child: Text(
+                          "Cancel",
+                          style: AppTextStyle.bold.copyWith(
+                            color: const Color(0xFF64748B),
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -916,10 +1579,18 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
                             backgroundColor: const Color(0xFF312E81),
                             foregroundColor: Colors.white,
                             padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             elevation: 0,
                           ),
-                          child: Text("Submit", style: AppTextStyle.bold.copyWith(fontSize: 15, color: Constant.instance.white)),
+                          child: Text(
+                            "Submit",
+                            style: AppTextStyle.bold.copyWith(
+                              fontSize: 15,
+                              color: Constant.instance.white,
+                            ),
+                          ),
                         ),
                       ),
                     ),

@@ -9,18 +9,33 @@ class LogoutDialog extends StatefulWidget {
   State<LogoutDialog> createState() => _LogoutDialogState();
 }
 
-class _LogoutDialogState extends State<LogoutDialog> with TickerProviderStateMixin {
+class _LogoutDialogState extends State<LogoutDialog>
+    with TickerProviderStateMixin {
   late AnimationController _animationController, _iconController;
-  late Animation<double> _scaleAnimation, _fadeAnimation, _iconRotationAnimation;
+  late Animation<double> _scaleAnimation,
+      _fadeAnimation,
+      _iconRotationAnimation;
 
   @override
   void initState() {
     super.initState();
-    _animationController = AnimationController(duration: const Duration(milliseconds: 350), vsync: this);
-    _iconController = AnimationController(duration: const Duration(milliseconds: 800), vsync: this);
-    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(CurvedAnimation(parent: _animationController, curve: Curves.elasticOut));
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _animationController, curve: Curves.easeInOut));
-    _iconRotationAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _iconController, curve: Curves.bounceOut));
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 350),
+      vsync: this,
+    );
+    _iconController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+    _iconRotationAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _iconController, curve: Curves.bounceOut),
+    );
     _animationController.forward();
     Future.delayed(const Duration(milliseconds: 100), () {
       _iconController.forward();
@@ -54,7 +69,13 @@ class _LogoutDialogState extends State<LogoutDialog> with TickerProviderStateMix
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(28),
-                        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.12), blurRadius: 20, offset: const Offset(0, 8))],
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.12),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -70,19 +91,40 @@ class _LogoutDialogState extends State<LogoutDialog> with TickerProviderStateMix
                                   height: 80,
                                   decoration: BoxDecoration(
                                     gradient: LinearGradient(
-                                      colors: [const Color(0xFF2196F3).withValues(alpha: 0.1), const Color(0xFF1976D2).withValues(alpha: 0.15)],
+                                      colors: [
+                                        const Color(
+                                          0xFF2196F3,
+                                        ).withValues(alpha: 0.1),
+                                        const Color(
+                                          0xFF1976D2,
+                                        ).withValues(alpha: 0.15),
+                                      ],
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                     ),
                                     borderRadius: BorderRadius.circular(24),
-                                    border: Border.all(color: const Color(0xFF2196F3).withValues(alpha: 0.2), width: 2),
+                                    border: Border.all(
+                                      color: const Color(
+                                        0xFF2196F3,
+                                      ).withValues(alpha: 0.2),
+                                      width: 2,
+                                    ),
                                   ),
                                   child: Center(
                                     child: Container(
                                       width: 50,
                                       height: 50,
-                                      decoration: BoxDecoration(color: const Color(0xFF2196F3).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(16)),
-                                      child: Icon(Icons.logout_rounded, size: 28, color: const Color(0xFF2196F3)),
+                                      decoration: BoxDecoration(
+                                        color: const Color(
+                                          0xFF2196F3,
+                                        ).withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(16),
+                                      ),
+                                      child: Icon(
+                                        Icons.logout_rounded,
+                                        size: 28,
+                                        color: const Color(0xFF2196F3),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -95,7 +137,12 @@ class _LogoutDialogState extends State<LogoutDialog> with TickerProviderStateMix
                             child: Text(
                               'Log Out?',
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Colors.grey.shade800, height: 1.3),
+                              style: TextStyle(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.grey.shade800,
+                                height: 1.3,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -104,7 +151,12 @@ class _LogoutDialogState extends State<LogoutDialog> with TickerProviderStateMix
                             child: Text(
                               'Are you sure you want to log out of your account?',
                               textAlign: TextAlign.center,
-                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400, color: Colors.grey.shade600, height: 1.4),
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w400,
+                                color: Colors.grey.shade600,
+                                height: 1.4,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 32),
@@ -118,7 +170,10 @@ class _LogoutDialogState extends State<LogoutDialog> with TickerProviderStateMix
                                     decoration: BoxDecoration(
                                       color: Colors.grey.shade100,
                                       borderRadius: BorderRadius.circular(16),
-                                      border: Border.all(color: Colors.grey.shade300, width: 1),
+                                      border: Border.all(
+                                        color: Colors.grey.shade300,
+                                        width: 1,
+                                      ),
                                     ),
                                     child: Material(
                                       color: Colors.transparent,
@@ -136,7 +191,10 @@ class _LogoutDialogState extends State<LogoutDialog> with TickerProviderStateMix
                                             style: TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.w600,
-                                              color: controller.isLoadingForLogout ? Colors.grey.shade400 : Colors.grey.shade700,
+                                              color:
+                                                  controller.isLoadingForLogout
+                                                  ? Colors.grey.shade400
+                                                  : Colors.grey.shade700,
                                             ),
                                           ),
                                         ),
@@ -152,15 +210,29 @@ class _LogoutDialogState extends State<LogoutDialog> with TickerProviderStateMix
                                     decoration: BoxDecoration(
                                       gradient: LinearGradient(
                                         colors: controller.isLoadingForLogout
-                                            ? [Colors.grey.shade400, Colors.grey.shade500]
-                                            : [const Color(0xFF2196F3), const Color(0xFF1976D2)],
+                                            ? [
+                                                Colors.grey.shade400,
+                                                Colors.grey.shade500,
+                                              ]
+                                            : [
+                                                const Color(0xFF2196F3),
+                                                const Color(0xFF1976D2),
+                                              ],
                                         begin: Alignment.topLeft,
                                         end: Alignment.bottomRight,
                                       ),
                                       borderRadius: BorderRadius.circular(16),
                                       boxShadow: controller.isLoadingForLogout
                                           ? null
-                                          : [BoxShadow(color: const Color(0xFF2196F3).withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 4))],
+                                          : [
+                                              BoxShadow(
+                                                color: const Color(
+                                                  0xFF2196F3,
+                                                ).withValues(alpha: 0.3),
+                                                blurRadius: 8,
+                                                offset: const Offset(0, 4),
+                                              ),
+                                            ],
                                     ),
                                     child: Material(
                                       color: Colors.transparent,
@@ -169,44 +241,77 @@ class _LogoutDialogState extends State<LogoutDialog> with TickerProviderStateMix
                                             ? null
                                             : () async {
                                                 HapticFeedback.mediumImpact();
-                                                final isLogOut = await controller.onLogout();
-                                                debugPrint("TOKEN : ${getStorage(AppSession.token)}");
-                                                backScreen();
+                                                final isLogOut =
+                                                    await controller.onLogout();
+                                                debugPrint(
+                                                  "TOKEN : ${getStorage(AppSession.token)}",
+                                                );
+
                                                 if (isLogOut) {
-                                                  successToast("LogOut successfully");
-                                                  await Get.deleteAll(force: true);
+                                                  successToast(
+                                                    "LogOut successfully",
+                                                  );
+                                                  await Get.deleteAll(
+                                                    force: true,
+                                                  );
                                                   preBinderControllers();
-                                                  pushNReplace(path: RouteNames.signIn);
+                                                  pushNReplace(
+                                                    path: RouteNames.signIn,
+                                                  );
                                                 } else {
-                                                  errorToast("Failed to logout");
+                                                  errorToast(
+                                                    "Failed to logout",
+                                                  );
                                                 }
                                               },
                                         borderRadius: BorderRadius.circular(16),
                                         child: Center(
                                           child: controller.isLoadingForLogout
                                               ? Row(
-                                                  mainAxisSize: MainAxisSize.min,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
                                                   children: [
                                                     SizedBox(
                                                       width: 20,
                                                       height: 20,
-                                                      child: CircularProgressIndicator(strokeWidth: 2, valueColor: AlwaysStoppedAnimation<Color>(Colors.white)),
+                                                      child: CircularProgressIndicator(
+                                                        strokeWidth: 2,
+                                                        valueColor:
+                                                            AlwaysStoppedAnimation<
+                                                              Color
+                                                            >(Colors.white),
+                                                      ),
                                                     ),
                                                     const SizedBox(width: 12),
                                                     Text(
                                                       "Logging Out...",
-                                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        color: Colors.white,
+                                                      ),
                                                     ),
                                                   ],
                                                 )
                                               : Row(
-                                                  mainAxisSize: MainAxisSize.min,
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
                                                   children: [
-                                                    Icon(Icons.logout_rounded, size: 20, color: Colors.white),
+                                                    Icon(
+                                                      Icons.logout_rounded,
+                                                      size: 20,
+                                                      color: Colors.white,
+                                                    ),
                                                     const SizedBox(width: 8),
                                                     Text(
                                                       "Log Out",
-                                                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+                                                      style: TextStyle(
+                                                        fontSize: 16,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        color: Colors.white,
+                                                      ),
                                                     ),
                                                   ],
                                                 ),

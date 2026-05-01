@@ -9,9 +9,12 @@ class AuthenticationController extends GetxService {
 
   Future<void> fetchProfile() async {
     try {
-      final response = await ApiManager.instance.call(endPoint: BACKEND.profileUpdate, type: ApiType.get);
+      final response = await ApiManager.call(
+        endPoint: BACKEND.profileUpdate,
+        type: ApiType.get,
+      );
 
-      if (response.status == 200 || response.status == 1) {
+      if (response.status == 1 || response.status == 200) {
         if (response.data != null && response.data['customer'] != null) {
           userAuthData.assignAll(response.data['customer']);
         }

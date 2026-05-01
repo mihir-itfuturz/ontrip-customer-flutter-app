@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import '../../../../../app_export.dart';
 
 class HomeController extends GetxController {
@@ -31,7 +32,10 @@ class HomeController extends GetxController {
       isLoading = true;
       update();
       token = getStorage(AppSession.token) ?? "";
-      await Future.wait([fetchBookings(), Get.find<AuthenticationController>().fetchProfile()]);
+      await Future.wait([
+        fetchBookings(),
+        Get.find<AuthenticationController>().fetchProfile(),
+      ]);
       _loadLastViewedBooking();
     } finally {
       isLoading = false;
@@ -42,7 +46,9 @@ class HomeController extends GetxController {
   void _loadLastViewedBooking() {
     final lastId = GetStorage().read('last_viewed_booking_id');
     if (lastId != null) {
-      final lastBooking = bookings.firstWhereOrNull((b) => b.bookingId == lastId);
+      final lastBooking = bookings.firstWhereOrNull(
+        (b) => b.bookingId == lastId,
+      );
       if (lastBooking != null) {
         setBooking(lastBooking);
         return;
@@ -64,9 +70,13 @@ class HomeController extends GetxController {
   Future<void> fetchUserReview(String? bookingId) async {
     if (bookingId == null) return;
     try {
-      final response = await ApiManager.instance.call(endPoint: BACKEND.bookingReview(bookingId), type: ApiType.get);
+      final response = await ApiManager.call(
+        endPoint: BACKEND.bookingReview(bookingId),
+        type: ApiType.get,
+      );
 
-      if (response.status == 200 || response.status == 1) {
+      if ((response.status == 1 || response.status == 200) &&
+          response.success == true) {
         if (response.data["review"] != null) {
           userReview.value = Review.fromJson(response.data["review"]);
           userRating.value = userReview.value?.packageRating ?? 0.0;
@@ -96,13 +106,18 @@ class HomeController extends GetxController {
     try {
       isReviewLoading.value = true;
       update();
-      final response = await ApiManager.instance.call(
-        endPoint: "${BACKEND.bookingReview}$bookingId",
+      final response = await ApiManager.call(
+        endPoint: BACKEND.bookingReview(bookingId),
         type: ApiType.post,
-        body: {"packageRating": userRating.value, "overallRating": userRating.value, "comment": reviewCommentCtrl.text.trim()},
+        body: {
+          "packageRating": userRating.value,
+          "overallRating": userRating.value,
+          "comment": reviewCommentCtrl.text.trim(),
+        },
       );
 
-      if (response.status == 200 || response.status == 1) {
+      if ((response.status == 1 || response.status == 200) &&
+          response.success == true) {
         successToast("Review submitted successfully");
         fetchUserReview(bookingId);
         fetchReviews(selectedBooking.value?.package?.id);
@@ -112,6 +127,8 @@ class HomeController extends GetxController {
     } catch (e) {
       debugPrint("Error submitting review: $e");
     } finally {
+      reviewCommentCtrl.clear();
+      userRating.value = 0.0;
       isReviewLoading.value = false;
       update();
     }
@@ -119,9 +136,18 @@ class HomeController extends GetxController {
 
   Future<void> fetchBookings() async {
     try {
-      final response = await ApiManager.instance.call(endPoint: BACKEND.bookings, type: ApiType.get);
-      if (response.status == 200 || response.status == 1) {
+      final response = await ApiManager.call(
+        endPoint: BACKEND.bookings,
+        type: ApiType.get,
+      );
+      log('=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=');
+      log(response.status.toString());
+      log(response.data.toString());
+      if ((response.status == 1 || response.status == 200) &&
+          response.success == true) {
         final bookingData = BookingResponseData.fromJson(response.data);
+        log('=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=');
+        log(bookingData.bookings.toString());
         bookings.assignAll(bookingData.bookings ?? []);
       }
     } catch (e) {
@@ -137,8 +163,12 @@ class HomeController extends GetxController {
   Future<void> fetchReviews(String? packageId) async {
     if (packageId == null) return;
     try {
-      final response = await ApiManager.instance.call(endPoint: "${BACKEND.packageReviews(packageId)}?page=1&limit=5", type: ApiType.get);
-      if (response.status == 200 || response.status == 1) {
+      final response = await ApiManager.call(
+        endPoint: "${BACKEND.packageReviews(packageId)}?page=1&limit=5",
+        type: ApiType.get,
+      );
+      if ((response.status == 1 || response.status == 200) &&
+          response.success == true) {
         reviewResponse.value = ReviewResponse.fromJson(response.data);
       }
     } catch (e) {

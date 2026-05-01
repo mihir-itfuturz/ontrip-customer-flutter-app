@@ -5,33 +5,32 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<SettingsCtrl>(
-      init: SettingsCtrl(),
-      builder: (controller) {
-        return Scaffold(
-          backgroundColor: const Color(0xFFF8FAFC),
-          appBar: AppBar(
-            title: Text("Settings", style: AppTextStyle.bold.copyWith(fontSize: 20)),
-            centerTitle: true,
-            backgroundColor: Colors.white,
-            elevation: 0,
-            leading: const CustomBackBtn(),
-          ),
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                const SizedBox(height: 20),
-                _buildProfileCard(controller),
-                const SizedBox(height: 30),
-                _buildMenuSection(controller),
-                const SizedBox(height: 40),
-                _buildFooter(),
-                const SizedBox(height: 20),
-              ],
-            ),
-          ),
-        );
-      },
+    final controller = Get.find<SettingsCtrl>();
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        title: Text(
+          "Settings",
+          style: AppTextStyle.bold.copyWith(fontSize: 20),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: const CustomBackBtn(),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 20),
+            _buildProfileCard(controller),
+            const SizedBox(height: 30),
+            _buildMenuSection(controller),
+            const SizedBox(height: 40),
+            _buildFooter(),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
     );
   }
 
@@ -49,7 +48,13 @@ class SettingsScreen extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 15, offset: const Offset(0, 5))],
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 15,
+              offset: const Offset(0, 5),
+            ),
+          ],
         ),
         child: Column(
           children: [
@@ -62,10 +67,19 @@ class SettingsScreen extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: Constant.instance.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
-                    border: Border.all(color: Constant.instance.primary, width: 2),
+                    border: Border.all(
+                      color: Constant.instance.primary,
+                      width: 2,
+                    ),
                   ),
                   child: Center(
-                    child: Text(name[0].toUpperCase(), style: AppTextStyle.bold.copyWith(color: Constant.instance.primary, fontSize: 40)),
+                    child: Text(
+                      name[0].toUpperCase(),
+                      style: AppTextStyle.bold.copyWith(
+                        color: Constant.instance.primary,
+                        fontSize: 40,
+                      ),
+                    ),
                   ),
                 ),
                 Positioned(
@@ -73,8 +87,15 @@ class SettingsScreen extends StatelessWidget {
                   bottom: 0,
                   child: Container(
                     padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(color: Colors.green, shape: BoxShape.circle),
-                    child: const Icon(Icons.check, color: Colors.white, size: 16),
+                    decoration: const BoxDecoration(
+                      color: Colors.green,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.check,
+                      color: Colors.white,
+                      size: 16,
+                    ),
                   ),
                 ),
               ],
@@ -82,13 +103,29 @@ class SettingsScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Text(name, style: AppTextStyle.bold.copyWith(fontSize: 22)),
             const SizedBox(height: 4),
-            Text(email, style: AppTextStyle.medium.copyWith(color: Colors.grey.shade600, fontSize: 14)),
+            Text(
+              email,
+              style: AppTextStyle.medium.copyWith(
+                color: Colors.grey.shade600,
+                fontSize: 14,
+              ),
+            ),
             if (phone.isNotEmpty) ...[
               const SizedBox(height: 4),
-              Text("+91 $phone", style: AppTextStyle.medium.copyWith(color: Colors.grey.shade600, fontSize: 14)),
+              Text(
+                "+91 $phone",
+                style: AppTextStyle.medium.copyWith(
+                  color: Colors.grey.shade600,
+                  fontSize: 14,
+                ),
+              ),
             ],
             const SizedBox(height: 24),
-            CustomBtn(text: "EDIT PROFILE", onTap: controller.navigateToEditProfile, prefix: Icon(Icons.edit_outlined)),
+            CustomBtn(
+              text: "EDIT PROFILE",
+              onTap: controller.navigateToEditProfile,
+              prefix: Icon(Icons.edit_outlined),
+            ),
           ],
         ),
       );
@@ -101,7 +138,13 @@ class SettingsScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 15, offset: const Offset(0, 5))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -120,11 +163,25 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
           _buildDivider(),
-          _buildMenuItem(icon: Icons.description_outlined, title: "Terms & Conditions", onTap: controller.openTermsAndConditions),
+          _buildMenuItem(
+            icon: Icons.description_outlined,
+            title: "Terms of Service",
+            onTap: controller.openTermsAndConditions,
+          ),
           _buildDivider(),
-          _buildMenuItem(icon: Icons.privacy_tip_outlined, title: "Privacy Policy", onTap: controller.openPrivacyPolicy),
+          _buildMenuItem(
+            icon: Icons.privacy_tip_outlined,
+            title: "Privacy Policy",
+            onTap: controller.openPrivacyPolicy,
+          ),
           _buildDivider(),
-          _buildMenuItem(icon: Icons.logout_rounded, title: "Logout", onTap: controller.logout, color: Colors.red.shade600, showChevron: false),
+          _buildMenuItem(
+            icon: Icons.logout_rounded,
+            title: "Logout",
+            onTap: controller.logout,
+            color: Colors.red.shade600,
+            showChevron: false,
+          ),
           _buildDivider(),
           _buildMenuItem(
             icon: Icons.delete_forever_outlined,
@@ -138,17 +195,41 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuItem({required IconData icon, required String title, required VoidCallback onTap, Color? color, bool showChevron = true, Widget? trailing}) {
+  Widget _buildMenuItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    Color? color,
+    bool showChevron = true,
+    Widget? trailing,
+  }) {
     return ListTile(
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       leading: Container(
         padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(color: (color ?? Constant.instance.primary).withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+        decoration: BoxDecoration(
+          color: (color ?? Constant.instance.primary).withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(10),
+        ),
         child: Icon(icon, color: color ?? Constant.instance.primary, size: 22),
       ),
-      title: Text(title, style: AppTextStyle.medium.copyWith(fontSize: 16, color: color ?? Colors.grey.shade800)),
-      trailing: trailing ?? (showChevron ? Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey.shade400) : null),
+      title: Text(
+        title,
+        style: AppTextStyle.medium.copyWith(
+          fontSize: 16,
+          color: color ?? Colors.grey.shade800,
+        ),
+      ),
+      trailing:
+          trailing ??
+          (showChevron
+              ? Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: Colors.grey.shade400,
+                )
+              : null),
     );
   }
 
@@ -159,9 +240,21 @@ class SettingsScreen extends StatelessWidget {
   Widget _buildFooter() {
     return Column(
       children: [
-        Text("Version 1.0.0", style: AppTextStyle.medium.copyWith(color: Colors.grey.shade400, fontSize: 12)),
+        Text(
+          "Version 1.0.0",
+          style: AppTextStyle.medium.copyWith(
+            color: Colors.grey.shade400,
+            fontSize: 12,
+          ),
+        ),
         const SizedBox(height: 8),
-        Text("Made with ❤️ by OnTrip", style: AppTextStyle.medium.copyWith(color: Colors.grey.shade400, fontSize: 12)),
+        Text(
+          "Made with ❤️ by OnTrip",
+          style: AppTextStyle.medium.copyWith(
+            color: Colors.grey.shade400,
+            fontSize: 12,
+          ),
+        ),
       ],
     );
   }

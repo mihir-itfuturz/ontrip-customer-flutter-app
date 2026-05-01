@@ -4,13 +4,18 @@ class CustomBottomNavBar extends StatefulWidget {
   final int currentIndex;
   final ValueChanged<int> onTabChange;
 
-  const CustomBottomNavBar({super.key, required this.currentIndex, required this.onTabChange});
+  const CustomBottomNavBar({
+    super.key,
+    required this.currentIndex,
+    required this.onTabChange,
+  });
 
   @override
   State<CustomBottomNavBar> createState() => _CustomBottomNavBarState();
 }
 
-class _CustomBottomNavBarState extends State<CustomBottomNavBar> with TickerProviderStateMixin {
+class _CustomBottomNavBarState extends State<CustomBottomNavBar>
+    with TickerProviderStateMixin {
   late List<AnimationController> _animationControllers;
 
   final List<NavItem> _navItems = [
@@ -51,7 +56,13 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> with TickerProv
   }
 
   void _initAnimations() {
-    _animationControllers = List.generate(_navItems.length, (index) => AnimationController(duration: const Duration(milliseconds: 300), vsync: this));
+    _animationControllers = List.generate(
+      _navItems.length,
+      (index) => AnimationController(
+        duration: const Duration(milliseconds: 300),
+        vsync: this,
+      ),
+    );
     if (widget.currentIndex < _animationControllers.length) {
       _animationControllers[widget.currentIndex].forward();
     }
@@ -78,171 +89,250 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> with TickerProv
 
   // @override
   // Widget build(BuildContext context) {
-  //   return Container(
-  //     decoration: BoxDecoration(
-  //       color: Colors.white,
-  //       borderRadius: const BorderRadius.only(topLeft: Radius.circular(25), topRight: Radius.circular(25)),
-  //       boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 20, offset: const Offset(0, -5), spreadRadius: 0)],
-  //     ),
-  //     child: SafeArea(
-  //       child: ClipRRect(
-  //         borderRadius: const BorderRadius.only(topLeft: Radius.circular(25), topRight: Radius.circular(25)),
-  //         child: Padding(
-  //           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-  //           child: Row(
-  //             mainAxisAlignment: MainAxisAlignment.spaceAround,
-  //             children: List.generate(_navItems.length, (index) {
-  //               return _buildNavItem(index);
-  //             }),
-  //           ),
+  //   return SafeArea(
+  //     child: Container(
+  //       padding: const EdgeInsets.only(bottom: 10),
+  //       alignment: Alignment.bottomCenter,
+  //       child: Container(
+  //         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+  //         decoration: BoxDecoration(
+  //           color: Colors.white70, // Dark capsule background
+  //           borderRadius: BorderRadius.circular(100),
+  //           boxShadow: [
+  //             BoxShadow(
+  //               color: Colors.black.withOpacity(0.3),
+  //               blurRadius: 20,
+  //               offset: const Offset(0, 10),
+  //             ),
+  //           ],
+  //         ),
+  //         child: Row(
+  //           mainAxisSize: MainAxisSize.min, // Essential to keep the "pill" look
+  //           children: List.generate(_navItems.length, (index) {
+  //             return _buildPillNavItem(index);
+  //           }),
   //         ),
   //       ),
   //     ),
   //   );
   // }
 
+  // Widget _buildPillNavItem(int index) {
+  //   final isActive = widget.currentIndex == index;
+  //   final item = _navItems[index];
+
+  //   return GestureDetector(
+  //     onTap: () => widget.onTabChange(index),
+  //     behavior: HitTestBehavior.opaque,
+  //     child: AnimatedContainer(
+  //       duration: const Duration(milliseconds: 300),
+  //       curve: Curves.easeInOut,
+  //       margin: const EdgeInsets.symmetric(horizontal: 4),
+  //       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+  //       decoration: BoxDecoration(
+  //         // Active item gets the green pill background
+  //         color: isActive ? item.activeColor : Colors.transparent,
+  //         borderRadius: BorderRadius.circular(100),
+  //       ),
+  //       child: Row(
+  //         mainAxisSize: MainAxisSize.min,
+  //         children: [
+  //           SvgPicture.asset(
+  //             isActive ? item.activeIconAsset! : item.iconAsset!,
+  //             width: 20,
+  //             height: 20,
+  //             // Icon is black on green background, white on black background
+  //             colorFilter: ColorFilter.mode(
+  //               isActive ? Colors.white : Colors.black,
+  //               BlendMode.srcIn,
+  //             ),
+  //           ),
+
+  //           // This handles the sliding text expansion
+  //           AnimatedSize(
+  //             duration: const Duration(milliseconds: 300),
+  //             curve: Curves.easeInOut,
+  //             child: SizedBox(
+  //               width: isActive ? null : 0,
+  //               child: isActive
+  //                   ? Padding(
+  //                       padding: const EdgeInsets.only(left: 8.0),
+  //                       child: Text(
+  //                         item.label,
+  //                         style: const TextStyle(
+  //                           color: Colors.white,
+  //                           fontWeight: FontWeight.bold,
+  //                           fontSize: 14,
+  //                         ),
+  //                       ),
+  //                     )
+  //                   : const SizedBox.shrink(),
+  //             ),
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+
+  //=======
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      bottom: true,
-      child: Padding(
-        padding: const EdgeInsets.all(0),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-          decoration: BoxDecoration(
-            color: Constant.instance.grey200,
-            borderRadius: BorderRadius.only(topRight: Radius.circular(40), topLeft: Radius.circular(40)),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: List.generate(_navItems.length, (index) {
-              return _buildMinimalNavItem(index);
-            }),
-          ),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10, right: 40, left: 40, top: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white70, // Dark capsule background
+          borderRadius: BorderRadius.circular(100),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: List.generate(_navItems.length, (index) {
+            return _buildNavItem(index);
+          }),
         ),
       ),
     );
   }
 
-  Widget _buildMinimalNavItem(int index) {
+  Widget _buildNavItem(int index) {
+    // final isActive = widget.currentIndex == index;
+    // final item = _navItems[index];
+    // return Expanded(
+    //   child: GestureDetector(
+    //     onTap: () => widget.onTabChange(index),
+    //     behavior: HitTestBehavior.opaque,
+    //     child: AnimatedBuilder(
+    //       animation: _animationControllers[index],
+    //       builder: (context, child) {
+    //         return Container(
+    //           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+    //           decoration: BoxDecoration(
+    //             color: isActive
+    //                 ? item.activeColor.withValues(alpha: 0.1)
+    //                 : Colors.transparent,
+    //             borderRadius: BorderRadius.circular(20),
+    //           ),
+    //           child: Column(
+    //             mainAxisSize: MainAxisSize.min,
+    //             children: [
+    //               AnimatedContainer(
+    //                 duration: const Duration(milliseconds: 250),
+    //                 curve: Curves.easeOutCubic,
+    //                 width: 35,
+    //                 height: 35,
+    //                 decoration: BoxDecoration(shape: BoxShape.rectangle),
+    //                 child: _buildIcon(item, isActive),
+    //               ),
+    //               const SizedBox(height: 4),
+    //               AnimatedDefaultTextStyle(
+    //                 duration: const Duration(milliseconds: 200),
+    //                 style: TextStyle(
+    //                   fontSize: isActive ? 11 : 10,
+    //                   fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+    //                   color: isActive ? item.activeColor : Colors.grey.shade600,
+    //                 ),
+    //                 child: AnimatedOpacity(
+    //                   opacity: isActive ? 1.0 : 0.7,
+    //                   duration: const Duration(milliseconds: 200),
+    //                   child: Text(
+    //                     item.label,
+    //                     maxLines: 1,
+    //                     overflow: TextOverflow.ellipsis,
+    //                     textAlign: TextAlign.center,
+    //                   ),
+    //                 ),
+    //               ),
+    //             ],
+    //           ),
+    //         );
+    //       },
+    //     ),
+    //   ),
+    // );
+
     final isActive = widget.currentIndex == index;
     final item = _navItems[index];
 
     return GestureDetector(
       onTap: () => widget.onTabChange(index),
       behavior: HitTestBehavior.opaque,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AnimatedScale(
-            scale: isActive ? 1.1 : 1.0,
-            duration: const Duration(milliseconds: 200),
-            child: SvgPicture.asset(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          // Active item gets the green pill background
+          color: isActive ? item.activeColor : Colors.transparent,
+          borderRadius: BorderRadius.circular(100),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SvgPicture.asset(
               isActive ? item.activeIconAsset! : item.iconAsset!,
-              width: 24,
-              height: 24,
-              colorFilter: ColorFilter.mode(isActive ? Constant.instance.primary : Colors.grey, BlendMode.srcIn),
+              width: 20,
+              height: 20,
+              // Icon is black on green background, white on black background
+              colorFilter: ColorFilter.mode(
+                isActive ? Colors.white : Colors.black,
+                BlendMode.srcIn,
+              ),
             ),
-          ),
 
-          const SizedBox(height: 6),
-
-          /// Label (like image – subtle)
-          AnimatedDefaultTextStyle(
-            duration: const Duration(milliseconds: 200),
-            style: TextStyle(fontSize: 11, fontWeight: isActive ? FontWeight.w600 : FontWeight.w400, color: isActive ? Constant.instance.primary : Colors.grey),
-            child: Text(item.label),
-          ),
-          const SizedBox(height: 4),
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                height: 2,
-                width: isActive ? 10 : 0,
-                decoration: BoxDecoration(
-                  color: Constant.instance.primary,
-                  borderRadius: BorderRadius.only(topRight: Radius.circular(12), topLeft: Radius.circular(12)),
-                ),
+            // This handles the sliding text expansion
+            AnimatedSize(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+              child: SizedBox(
+                width: isActive ? null : 0,
+                child: isActive
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Text(
+                          item.label,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
               ),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                height: 4,
-                width: isActive ? 30 : 0,
-                decoration: BoxDecoration(color: Constant.instance.primary, borderRadius: BorderRadius.circular(10)),
-              ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  // Widget _buildNavItem(int index) {
-  //   final isActive = widget.currentIndex == index;
-  //   final item = _navItems[index];
-  //   return Expanded(
-  //     child: GestureDetector(
-  //       onTap: () => widget.onTabChange(index),
-  //       behavior: HitTestBehavior.opaque,
-  //       child: AnimatedBuilder(
-  //         animation: _animationControllers[index],
-  //         builder: (context, child) {
-  //           return Container(
-  //             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-  //             decoration: BoxDecoration(
-  //               color: isActive ? item.activeColor.withValues(alpha: 0.1) : Colors.transparent,
-  //               borderRadius: BorderRadius.circular(20),
-  //             ),
-  //             child: Column(
-  //               mainAxisSize: MainAxisSize.min,
-  //               children: [
-  //                 AnimatedContainer(
-  //                   duration: const Duration(milliseconds: 250),
-  //                   curve: Curves.easeOutCubic,
-  //                   width: 35,
-  //                   height: 35,
-  //                   decoration: BoxDecoration(shape: BoxShape.rectangle),
-  //                   child: _buildIcon(item, isActive),
-  //                 ),
-  //                 const SizedBox(height: 4),
-  //                 AnimatedDefaultTextStyle(
-  //                   duration: const Duration(milliseconds: 200),
-  //                   style: TextStyle(
-  //                     fontSize: isActive ? 11 : 10,
-  //                     fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
-  //                     color: isActive ? item.activeColor : Colors.grey.shade600,
-  //                   ),
-  //                   child: AnimatedOpacity(
-  //                     opacity: isActive ? 1.0 : 0.7,
-  //                     duration: const Duration(milliseconds: 200),
-  //                     child: Text(item.label, maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
-  //                   ),
-  //                 ),
-  //               ],
-  //             ),
-  //           );
-  //         },
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // Widget _buildIcon(NavItem item, bool isActive) {
-  //   final iconSize = isActive ? 25.0 : 20.0;
-  //   return AnimatedScale(
-  //     scale: isActive ? 1.1 : 1.0,
-  //     duration: const Duration(milliseconds: 200),
-  //     child: SvgPicture.asset(
-  //       isActive ? item.activeIconAsset! : item.iconAsset!,
-  //       width: iconSize,
-  //       height: iconSize,
-  //       colorFilter: ColorFilter.mode(isActive ? item.activeColor : Colors.grey.shade400, BlendMode.srcIn),
-  //     ),
-  //   );
-  // }
+  Widget _buildIcon(NavItem item, bool isActive) {
+    final iconSize = isActive ? 25.0 : 20.0;
+    return AnimatedScale(
+      scale: isActive ? 1.1 : 1.0,
+      duration: const Duration(milliseconds: 200),
+      child: SvgPicture.asset(
+        isActive ? item.activeIconAsset! : item.iconAsset!,
+        width: iconSize,
+        height: iconSize,
+        colorFilter: ColorFilter.mode(
+          isActive ? item.activeColor : Colors.grey.shade400,
+          BlendMode.srcIn,
+        ),
+      ),
+    );
+  }
 }
 
 enum NavIconType { icon, scanButton }
@@ -254,5 +344,146 @@ class NavItem {
   final Color activeColor;
   final NavIconType iconType;
 
-  NavItem({this.iconAsset, this.activeIconAsset, required this.label, required this.activeColor, required this.iconType});
+  NavItem({
+    this.iconAsset,
+    this.activeIconAsset,
+    required this.label,
+    required this.activeColor,
+    required this.iconType,
+  });
 }
+
+// import '../../app_export.dart';
+
+// class CustomBottomNavBar extends StatefulWidget {
+//   final int currentIndex;
+//   final ValueChanged<int> onTabChange;
+
+//   const CustomBottomNavBar({super.key, required this.currentIndex, required this.onTabChange});
+
+//   @override
+//   State<CustomBottomNavBar> createState() => _CustomBottomNavBarState();
+// }
+
+// class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
+//   // Keeping your existing items list
+ 
+ 
+ 
+//   final List<NavItem> _navItems = [
+//     NavItem(
+//       iconAsset: Graphics.instance.iconHome,
+//       activeIconAsset: Graphics.instance.iconHomeFill,
+//       label: 'Trip',
+//       activeColor: const Color(0xFF99C14D), // The lime green from your image
+//       iconType: NavIconType.icon,
+//     ),
+//     NavItem(
+//       iconAsset: Graphics.instance.iconHistory,
+//       activeIconAsset: Graphics.instance.iconHistory,
+//       label: 'History',
+//       activeColor: const Color(0xFF99C14D),
+//       iconType: NavIconType.icon,
+//     ),
+//     NavItem(
+//       iconAsset: Graphics.instance.iconCommunity,
+//       activeIconAsset: Graphics.instance.iconCommunity,
+//       label: 'Community',
+//       activeColor: const Color(0xFF99C14D),
+//       iconType: NavIconType.icon,
+//     ),
+//     NavItem(
+//       iconAsset: Graphics.instance.iconProfile,
+//       activeIconAsset: Graphics.instance.iconProfile,
+//       label: 'Profile',
+//       activeColor: const Color(0xFF99C14D),
+//       iconType: NavIconType.icon,
+//     ),
+//   ];
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       padding: const EdgeInsets.only(bottom: 30, left: 20, right: 20),
+//       alignment: Alignment.bottomCenter,
+//       child: Container(
+//         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+//         decoration: BoxDecoration(
+//           color: Colors.black, // Dark capsule background
+//           borderRadius: BorderRadius.circular(100),
+//           boxShadow: [
+//             BoxShadow(
+//               color: Colors.black.withOpacity(0.3),
+//               blurRadius: 20,
+//               offset: const Offset(0, 10),
+//             )
+//           ],
+//         ),
+//         child: Row(
+//           mainAxisSize: MainAxisSize.min, // Essential to keep the "pill" look
+//           children: List.generate(_navItems.length, (index) {
+//             return _buildPillNavItem(index);
+//           }),
+//         ),
+//       ),
+//     );
+//   }
+
+//   Widget _buildPillNavItem(int index) {
+//     final isActive = widget.currentIndex == index;
+//     final item = _navItems[index];
+
+//     return GestureDetector(
+//       onTap: () => widget.onTabChange(index),
+//       behavior: HitTestBehavior.opaque,
+//       child: AnimatedContainer(
+//         duration: const Duration(milliseconds: 300),
+//         curve: Curves.easeInOut,
+//         margin: const EdgeInsets.symmetric(horizontal: 4),
+//         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+//         decoration: BoxDecoration(
+//           // Active item gets the green pill background
+//           color: isActive ? item.activeColor : Colors.transparent,
+//           borderRadius: BorderRadius.circular(100),
+//         ),
+//         child: Row(
+//           mainAxisSize: MainAxisSize.min,
+//           children: [
+//             SvgPicture.asset(
+//               isActive ? item.activeIconAsset! : item.iconAsset!,
+//               width: 20,
+//               height: 20,
+//               // Icon is black on green background, white on black background
+//               colorFilter: ColorFilter.mode(
+//                 isActive ? Colors.black : Colors.white,
+//                 BlendMode.srcIn,
+//               ),
+//             ),
+            
+//             // This handles the sliding text expansion
+//             AnimatedSize(
+//               duration: const Duration(milliseconds: 300),
+//               curve: Curves.easeInOut,
+//               child: SizedBox(
+//                 width: isActive ? null : 0,
+//                 child: isActive
+//                     ? Padding(
+//                         padding: const EdgeInsets.only(left: 8.0),
+//                         child: Text(
+//                           item.label,
+//                           style: const TextStyle(
+//                             color: Colors.black,
+//                             fontWeight: FontWeight.bold,
+//                             fontSize: 14,
+//                           ),
+//                         ),
+//                       )
+//                     : const SizedBox.shrink(),
+//               ),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }

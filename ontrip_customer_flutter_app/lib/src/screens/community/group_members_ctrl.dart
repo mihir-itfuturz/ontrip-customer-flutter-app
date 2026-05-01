@@ -32,19 +32,25 @@ class GroupMembersCtrl extends GetxController {
   List<AgentMember> get filteredAgents {
     final agents = community.value?.agentMembers ?? [];
     if (searchQuery.value.isEmpty) return agents;
-    return agents.where((a) =>
-      (a.name?.toLowerCase().contains(searchQuery.value) ?? false) ||
-      (a.email?.toLowerCase().contains(searchQuery.value) ?? false)
-    ).toList();
+    return agents
+        .where(
+          (a) =>
+              (a.name?.toLowerCase().contains(searchQuery.value) ?? false) ||
+              (a.email?.toLowerCase().contains(searchQuery.value) ?? false),
+        )
+        .toList();
   }
 
   List<CustomerMember> get filteredCustomers {
     final customers = community.value?.customerMembers ?? [];
     if (searchQuery.value.isEmpty) return customers;
-    return customers.where((c) =>
-      (c.name?.toLowerCase().contains(searchQuery.value) ?? false) ||
-      (c.email?.toLowerCase().contains(searchQuery.value) ?? false)
-    ).toList();
+    return customers
+        .where(
+          (c) =>
+              (c.name?.toLowerCase().contains(searchQuery.value) ?? false) ||
+              (c.email?.toLowerCase().contains(searchQuery.value) ?? false),
+        )
+        .toList();
   }
 
   bool canTravelerSend(String? travelerId) {
@@ -76,13 +82,17 @@ class GroupMembersCtrl extends GetxController {
     allTravelersCanSend.value = false;
   }
 
-  Future<void> _sendPatch({required bool travelersCanSendGlobally, required List<String> allowList}) async {
+  Future<void> _sendPatch({
+    required bool travelersCanSendGlobally,
+    required List<String> allowList,
+  }) async {
     final communityId = community.value?.id;
     if (communityId == null) return;
     try {
       isUpdating.value = true;
-      final response = await ApiManager.instance.call(
-        endPoint: "${BACKEND.communityMessages}$communityId${BACKEND.communityMessaging}",
+      final response = await ApiManager.call(
+        endPoint:
+            "${BACKEND.communityMessages}$communityId${BACKEND.communityMessaging}",
         type: ApiType.patch,
         body: {
           "travelersCanSendGlobally": travelersCanSendGlobally,
@@ -90,7 +100,7 @@ class GroupMembersCtrl extends GetxController {
           "travelerSendAllowList": allowList,
         },
       );
-      if (response.status != 200 && response.status != 1) {
+      if (response.status != 1 && response.status != 200) {
         errorToast(response.message);
       }
     } catch (e) {

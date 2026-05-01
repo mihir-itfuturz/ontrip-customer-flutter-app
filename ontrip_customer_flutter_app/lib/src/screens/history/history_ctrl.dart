@@ -6,7 +6,7 @@ class HistoryCtrl extends GetxController {
   final RxBool isLoading = false.obs;
   final TextEditingController searchController = TextEditingController();
   final RxInt totalTrips = 0.obs;
-  
+
   Timer? _debounce;
 
   @override
@@ -32,12 +32,13 @@ class HistoryCtrl extends GetxController {
   Future<void> fetchHistory({String search = ""}) async {
     try {
       isLoading.value = true;
-      final response = await ApiManager.instance.call(
+      final response = await ApiManager.call(
         endPoint: "${BACKEND.bookings}?page=1&limit=50&search=$search",
         type: ApiType.get,
       );
 
-      if (response.status == 200 || response.status == 1) {
+      if ((response.status == 1 || response.status == 200) &&
+          response.success == true) {
         final bookingData = BookingResponseData.fromJson(response.data);
         bookings.assignAll(bookingData.bookings ?? []);
         totalTrips.value = bookingData.pagination?.total ?? bookings.length;

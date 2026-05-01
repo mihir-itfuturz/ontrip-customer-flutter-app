@@ -94,10 +94,10 @@ mixin _ConstMixin {
   final bool isDebug = kDebugMode == true && kReleaseMode == false && kProfileMode == false;
   final isAndroid = Platform.isAndroid;
 
-  final initialErrorMdg = 'Something went wrong';
+  final initialErrorMdg = 'Somethings went wrong';
   final code201Msg = 'Record created successfully';
-  final code400Msg = 'This request can\'n be processed';
-  final code404Msg = '404 Request can\'n found';
+  final code400Msg = 'This request can\'t be processed';
+  final code404Msg = '404 Request can\'t found';
   final code409Msg = 'This record already exist';
   final code500Msg = 'Internal Server error';
 }

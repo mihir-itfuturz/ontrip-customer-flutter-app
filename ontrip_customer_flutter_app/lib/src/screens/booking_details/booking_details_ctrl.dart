@@ -33,9 +33,13 @@ class BookingDetailsCtrl extends GetxController {
   Future<void> fetchBookingDetails() async {
     try {
       isLoading.value = true;
-      final response = await ApiManager.instance.call(endPoint: "${BACKEND.bookingDetail}$bookingId", type: ApiType.get);
+      final response = await ApiManager.call(
+        endPoint: "${BACKEND.bookingDetail}$bookingId",
+        type: ApiType.get,
+      );
 
-      if (response.status == 200 || response.status == 1) {
+      if ((response.status == 1 || response.status == 200) &&
+          response.success == true) {
         final data = response.data;
         if (data is Map && data.containsKey('booking')) {
           booking.value = Booking.fromJson(data['booking']);
@@ -66,8 +70,12 @@ class BookingDetailsCtrl extends GetxController {
   Future<void> fetchPackageReviews(String? packageId) async {
     if (packageId == null) return;
     try {
-      final response = await ApiManager.instance.call(endPoint: "${BACKEND.packageReviews(packageId)}?page=1&limit=5", type: ApiType.get);
-      if (response.status == 200 || response.status == 1) {
+      final response = await ApiManager.call(
+        endPoint: "${BACKEND.packageReviews(packageId)}?page=1&limit=5",
+        type: ApiType.get,
+      );
+      if ((response.status == 1 || response.status == 200) &&
+          response.success == true) {
         reviewResponse.value = ReviewResponse.fromJson(response.data);
       }
     } catch (e) {
@@ -79,8 +87,12 @@ class BookingDetailsCtrl extends GetxController {
 
   Future<void> fetchUserBookingReview() async {
     try {
-      final response = await ApiManager.instance.call(endPoint: BACKEND.bookingReview(bookingId), type: ApiType.get);
-      if (response.status == 200 || response.status == 1) {
+      final response = await ApiManager.call(
+        endPoint: BACKEND.bookingReview(bookingId),
+        type: ApiType.get,
+      );
+      if ((response.status == 1 || response.status == 200) &&
+          response.success == true) {
         if (response.data["review"] != null) {
           userReview.value = Review.fromJson(response.data["review"]);
           userRating.value = userReview.value?.packageRating ?? 0.0;
@@ -104,13 +116,18 @@ class BookingDetailsCtrl extends GetxController {
 
     try {
       isLoading.value = true;
-      final response = await ApiManager.instance.call(
+      final response = await ApiManager.call(
         endPoint: BACKEND.bookingReview(bookingId),
         type: ApiType.post,
-        body: {"packageRating": userRating.value, "overallRating": userRating.value, "comment": reviewCommentCtrl.text.trim()},
+        body: {
+          "packageRating": userRating.value,
+          "overallRating": userRating.value,
+          "comment": reviewCommentCtrl.text.trim(),
+        },
       );
 
-      if (response.status == 200 || response.status == 1) {
+      if ((response.status == 1 || response.status == 200) &&
+          response.success == true) {
         successToast("Review submitted successfully");
         Get.back(); // Close dialog
         fetchUserBookingReview(); // Refresh user review status

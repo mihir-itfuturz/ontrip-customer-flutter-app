@@ -8,7 +8,8 @@ class SettingsCtrl extends GetxController {
   void onInit() {
     super.onInit();
     authService.fetchProfile();
-    isNotificationEnabled.value = GetStorage().read(StringConstants.notificationEnabled) ?? true;
+    isNotificationEnabled.value =
+        GetStorage().read(StringConstants.notificationEnabled) ?? true;
   }
 
   void toggleNotification(bool value) {
@@ -30,7 +31,7 @@ class SettingsCtrl extends GetxController {
 
   void openTermsAndConditions() {
     // Open URL or Navigate
-    AppUrl.urlLaunch(url: StringConstants.privacyPolicy);
+    AppUrl.urlLaunch(url: StringConstants.termsCondition);
   }
 
   void openPrivacyPolicy() {

@@ -1,13 +1,42 @@
-class ApiResponse<T> {
-  final int status;
-  final String message;
-  final T? data;
+class APIResponse {
+  final dynamic message;
+  final dynamic data;
+  final int? currentPage;
+  final int? totalPages;
+  final bool? hasMore;
+  final int? status;
+  final bool? success;
+  final Map<String, dynamic>?
+  fullResponse; // Store full response for access to success field
 
-  ApiResponse({required this.status, required this.message, required this.data});
+  APIResponse({
+    this.message,
+    this.data,
+    this.currentPage,
+    this.totalPages,
+    this.hasMore,
+    this.status,
+    this.success,
+    this.fullResponse,
+  });
 
-  factory ApiResponse.fromJson(Map<String, dynamic> json) {
-    return ApiResponse(status: json['status'] ?? 0, message: json['message'] ?? '', data: json['data']);
+  factory APIResponse.fromJson(Map<String, dynamic> json) {
+    int? parseStatus(dynamic s) {
+      if (s == null) return null;
+      if (s is int) return s;
+      if (s is String) return int.tryParse(s);
+      return null;
+    }
+
+    return APIResponse(
+      message: json['message'],
+      data: json['data'] ?? json['result'],
+      currentPage: json['currentPage'],
+      totalPages: json['totalPages'],
+      hasMore: json['hasMore'],
+      status: parseStatus(json['status']),
+      success: json['success'],
+      fullResponse: json, // Store full response
+    );
   }
-
-  Map<String, dynamic> toJson() => {'status': status, 'message': message, 'data': data};
 }
