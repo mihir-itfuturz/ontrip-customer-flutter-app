@@ -6,45 +6,19 @@ class EditProfileScreen extends GetView<EditProfileCtrl> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
-          "Profile",
+          "Edit Profile",
           style: AppTextStyle.bold.copyWith(
             fontSize: 20,
             color: const Color(0xFF1E293B),
           ),
         ),
         centerTitle: true,
-        leading: Container(
-          margin: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF1F5F9),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            Icons.arrow_back,
-            color: const Color(0xFF64748B),
-            size: 20,
-          ),
-        ),
-        actions: [
-          Container(
-            margin: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              icon: Icon(Icons.edit, color: const Color(0xFF64748B), size: 20),
-              onPressed: () {
-                // TODO: Navigate to edit profile
-              },
-            ),
-          ),
-        ],
+        leading: const CustomBackBtn(),
       ),
       body: Obx(() {
         final userData = controller.authService.userAuthData;
@@ -53,123 +27,16 @@ class EditProfileScreen extends GetView<EditProfileCtrl> {
         }
 
         return SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
           child: Column(
             children: [
-              const SizedBox(height: 20),
-              // Profile Image Section
-              Container(
-                width: double.infinity,
-                height: 200,
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF1F5F9),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Container(
-                          width: double.infinity,
-                          height: double.infinity,
-                          color: Colors.grey.shade200,
-                        ),
-                      ),
-                    ),
-                    Positioned.fill(
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF64748B),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.person,
-                                color: Colors.white,
-                                size: 40,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "Profile Photo",
-                              style: AppTextStyle.medium.copyWith(
-                                fontSize: 14,
-                                color: Colors.white.withValues(alpha: 0.9),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
               const SizedBox(height: 30),
-              // Form Section
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 20,
-                      offset: const Offset(0, 10),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "PERSONAL INFORMATION",
-                          style: AppTextStyle.bold.copyWith(
-                            fontSize: 16,
-                            color: const Color(0xFF1E293B),
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.edit,
-                            color: const Color(0xFF1E293B),
-                            size: 20,
-                          ),
-                          onPressed: () {
-                            // TODO: Navigate to edit profile
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    _buildTextField(
-                      label: "PUBLIC FULL NAME",
-                      controller: controller.nameController,
-                      icon: Icons.person_outline,
-                    ),
-                    const SizedBox(height: 24),
-                    _buildTextField(
-                      label: "PRIMARY EMAIL ADDRESS",
-                      controller: controller.emailController,
-                      icon: Icons.email_outlined,
-                    ),
-                    const SizedBox(height: 40),
-                    // Actions Section
-                    _buildActionButtons(),
-                    const SizedBox(height: 40),
-                  ],
-                ),
-              ),
+              // _buildAvatarSection(userData),
+              const SizedBox(height: 30),
+              _buildFormSection(),
+              const SizedBox(height: 40),
+              _buildActionButtons(),
+              const SizedBox(height: 40),
             ],
           ),
         );
@@ -177,78 +44,79 @@ class EditProfileScreen extends GetView<EditProfileCtrl> {
     );
   }
 
-  Widget _buildAvatarHeader(String name) {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 30),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
+  Widget _buildAvatarSection(Map<String, dynamic> userData) {
+    final name = userData['name'] ?? "";
+    final profileUrl = userData['profile_pic'] ?? "";
+
+    return Center(
+      child: Stack(
+        alignment: Alignment.bottomRight,
         children: [
-          Stack(
-            alignment: Alignment.bottomRight,
-            children: [
-              Container(
-                height: 120,
-                width: 120,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Constant.instance.primary,
-                    width: 3,
-                  ),
-                  shape: BoxShape.circle,
+          Container(
+            height: 120,
+            width: 120,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white, width: 4),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
                 ),
-                child: Center(
-                  child: Text(
-                    name.isNotEmpty ? name[0].toUpperCase() : "U",
-                    style: AppTextStyle.bold.copyWith(
-                      color: Constant.instance.primary,
-                      fontSize: 50,
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(60),
+              child: profileUrl.isNotEmpty
+                  ? CustomNetworkImage(imageUrl: profileUrl)
+                  : Container(
+                      color: Constant.instance.primary.withValues(alpha: 0.1),
+                      child: Center(
+                        child: Text(
+                          name.isNotEmpty ? name[0].toUpperCase() : "U",
+                          style: AppTextStyle.bold.copyWith(
+                            color: Constant.instance.primary,
+                            fontSize: 48,
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: const BoxDecoration(
-                  color: Colors.green,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.verified_user,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
-            ],
+            ),
           ),
-          const SizedBox(height: 20),
-          Text(name, style: AppTextStyle.bold.copyWith(fontSize: 24)),
+          GestureDetector(
+            onTap: () {
+              // TODO: Implement image picker
+            },
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Constant.instance.primary,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+              child: const Icon(
+                Icons.camera_alt_rounded,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildEditForm() {
+  Widget _buildFormSection() {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(32),
+        borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -266,33 +134,35 @@ class EditProfileScreen extends GetView<EditProfileCtrl> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
-                  Icons.person_outline,
+                  Icons.person_outline_rounded,
                   color: Constant.instance.primary,
+                  size: 20,
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
               Text(
-                "IDENTITY DETAILS",
-                style: AppTextStyle.bold.copyWith(fontSize: 16),
-              ),
-              const Spacer(),
-              IconButton(
-                onPressed: controller.discardChanges,
-                icon: Icon(Icons.close, color: Colors.grey.shade400, size: 20),
+                "Personal Information",
+                style: AppTextStyle.bold.copyWith(
+                  fontSize: 16,
+                  color: const Color(0xFF1E293B),
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 30),
-          _buildTextField(
-            label: "PUBLIC FULL NAME",
-            controller: controller.nameController,
-            icon: Icons.person_outline,
-          ),
           const SizedBox(height: 24),
           _buildTextField(
-            label: "PRIMARY EMAIL ADDRESS",
+            label: "FULL NAME",
+            controller: controller.nameController,
+            icon: Icons.person_outline_rounded,
+            hint: "Enter your name",
+          ),
+          const SizedBox(height: 20),
+          _buildTextField(
+            label: "EMAIL ADDRESS",
             controller: controller.emailController,
             icon: Icons.email_outlined,
+            hint: "Enter your email",
+            keyboardType: TextInputType.emailAddress,
           ),
         ],
       ),
@@ -303,31 +173,45 @@ class EditProfileScreen extends GetView<EditProfileCtrl> {
     required String label,
     required TextEditingController controller,
     required IconData icon,
+    String? hint,
+    TextInputType? keyboardType,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: AppTextStyle.bold.copyWith(
-            fontSize: 10,
-            color: Colors.grey.shade400,
-            letterSpacing: 1.2,
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Text(
+            label,
+            style: AppTextStyle.bold.copyWith(
+              fontSize: 11,
+              color: Colors.grey.shade400,
+              letterSpacing: 1.1,
+            ),
           ),
         ),
-        const SizedBox(height: 8),
         Container(
           decoration: BoxDecoration(
             color: const Color(0xFFF8FAFC),
             borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey.shade100),
           ),
           child: TextField(
             controller: controller,
-            style: AppTextStyle.bold.copyWith(fontSize: 16),
+            keyboardType: keyboardType,
+            style: AppTextStyle.semiBold.copyWith(
+              fontSize: 15,
+              color: const Color(0xFF334155),
+            ),
             decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: AppTextStyle.medium.copyWith(
+                fontSize: 15,
+                color: Colors.grey.shade400,
+              ),
               prefixIcon: Icon(
                 icon,
-                color: Constant.instance.primary.withValues(alpha: 0.5),
+                color: Constant.instance.primary.withValues(alpha: 0.6),
                 size: 20,
               ),
               border: InputBorder.none,
@@ -349,16 +233,14 @@ class EditProfileScreen extends GetView<EditProfileCtrl> {
         children: [
           Expanded(
             child: CustomBtn(
-              bgColor: Constant.instance.white,
+              bgColor: Colors.white,
               style: TextStyle(
-                color: Constant.instance.primary,
+                color: Colors.grey.shade600,
                 fontWeight: FontWeight.w700,
               ),
-              height: 50,
+              height: 54,
               text: "DISCARD",
               onTap: controller.discardChanges,
-              // isLoading: controller.isLoading.value,
-              // prefix: Icon(Icons.save_outlined),
             ),
           ),
           const SizedBox(width: 16),
@@ -366,11 +248,11 @@ class EditProfileScreen extends GetView<EditProfileCtrl> {
             flex: 2,
             child: Obx(() {
               return CustomBtn(
-                height: 50,
+                height: 54,
                 text: "SAVE CHANGES",
                 onTap: controller.saveChanges,
                 isLoading: controller.isLoading.value,
-                prefix: Icon(Icons.save_outlined),
+                prefix: const Icon(Icons.check_circle_outline_rounded, color: Colors.white, size: 20),
               );
             }),
           ),
@@ -379,3 +261,4 @@ class EditProfileScreen extends GetView<EditProfileCtrl> {
     );
   }
 }
+

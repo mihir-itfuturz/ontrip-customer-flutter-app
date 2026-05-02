@@ -12,7 +12,7 @@ class StringConstants {
   static String directShareMsg =
       "Hello Sir, \nMy name is #sender \nyou can see my digital visiting card from the below link \n#link \nRegards \n#sender \nDownload the App from the below link to make your own visiting card \n#appLink";
   static const termsCondition = 'https://ontrip.itfuturz.in/#/terms';
-  static const privacyPolicy = 'https://ontrip.itfuturz.in/#/privacy';
+  static const privacyPolicy = 'https://ontrip.itfuturz.in/#/privacy-policy';
   static const contactMail = 'info@itfuturz.com';
   static const appScriptWebUrl =
       'https://script.google.com/macros/s/AKfycbx9rWy7bPBf2HxFqiMYYnhvHSmApz54WU2tIkvEfqek7xjN0qifH7BsioJMMRIlP_wrEA/exec';
