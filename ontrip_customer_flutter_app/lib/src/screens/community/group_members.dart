@@ -13,139 +13,64 @@ class GroupMembersScreen extends StatelessWidget {
           appBar: AppBar(
             backgroundColor: Colors.white,
             elevation: 0,
-            leading: const CustomBackBtn(),
-            title: Text("Group members", style: AppTextStyle.bold.copyWith(fontSize: 18, color: const Color(0xFF1E293B))),
+            surfaceTintColor: Colors.white,
+            shadowColor: Colors.black.withValues(alpha: 0.1),
+            scrolledUnderElevation: 8,
+            leading: Container(
+              margin: const EdgeInsets.all(8),
+              child: const CustomBackBtn(),
+            ),
+            title: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Constant.instance.primary,
+                        Constant.instance.primary.withValues(alpha: 0.8),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.group_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  "Group Members",
+                  style: AppTextStyle.bold.copyWith(
+                    fontSize: 20,
+                    color: const Color(0xFF1E293B),
+                  ),
+                ),
+              ],
+            ),
             centerTitle: false,
           ),
           body: Column(
             children: [
-              // Search Bar
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                child: Container(
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFE2E8F0)),
-                  ),
-                  child: TextField(
-                    controller: controller.searchController,
-                    decoration: InputDecoration(
-                      hintText: "Search members",
-                      hintStyle: AppTextStyle.medium.copyWith(color: const Color(0xFFB0BEC5), fontSize: 13),
-                      prefixIcon: const Icon(Icons.search, color: Color(0xFFB0BEC5), size: 18),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 13),
-                    ),
-                  ),
-                ),
-              ),
-
+              _buildHeader(controller),
+              _buildSearchBar(controller),
               Expanded(
                 child: Obx(() {
-                  // read searchQuery to trigger rebuilds
                   final _ = controller.searchQuery.value;
                   return ListView(
                     padding: const EdgeInsets.only(bottom: 40),
                     children: [
-                      // ── TRAVELER MESSAGING SECTION ──
-                      SizedBox(height: 12),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Text("TRAVELER MESSAGING", style: AppTextStyle.bold.copyWith(fontSize: 11, color: const Color(0xFF475569), letterSpacing: 1.0)),
-                            // const SizedBox(height: 6),
-                            // Text(
-                            //   "Control who can send text and photos in this chat (all travelers or selected only).",
-                            //   style: AppTextStyle.medium.copyWith(fontSize: 12, color: const Color(0xFF94A3B8)),
-                            // ),
-                            RichText(
-                              text: TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: "Your agent manage who can send messages in this group.",
-                                    style: AppTextStyle.medium.copyWith(fontSize: 12, color: const Color(0xFF64748B)),
-                                  ),
-                                  // TextSpan(
-                                  //   text: "Turn the switch on to allow everyone again.",
-                                  //   style: AppTextStyle.medium.copyWith(fontSize: 12, color: const Color(0xFF4338CA)),
-                                  // ),
-                                ],
-                              ),
-                            ),
-                            // const SizedBox(height: 12),
-                            // Toggle Row
-                            // Container(
-                            //   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                            //   decoration: BoxDecoration(
-                            //     color: Colors.white,
-                            //     borderRadius: BorderRadius.circular(12),
-                            //     border: Border.all(color: const Color(0xFFE2E8F0)),
-                            //   ),
-                            //   child: Row(
-                            //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            //     children: [
-                            //       Text("All travelers can send", style: AppTextStyle.medium.copyWith(fontSize: 14, color: const Color(0xFF1E293B))),
-                            //       Obx(
-                            //         () => controller.isUpdating.value
-                            //             ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                            //             : Checkbox(
-                            //                 value: controller.allTravelersCanSend.value,
-                            //                 activeColor: const Color(0xFF4338CA),
-                            //                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                            //                 onChanged: (val) => controller.toggleGlobal(val ?? false),
-                            //               ),
-                            //       ),
-                            //     ],
-                            //   ),
-                            // ),
-                            // Info Text when global is OFF
-                            // if (!controller.allTravelersCanSend.value) ...[
-                            //   const SizedBox(height: 8),
-                            //   RichText(
-                            //     text: TextSpan(
-                            //       children: [
-                            //         TextSpan(
-                            //           text: "Only travelers with \"Can send\" below may post. ",
-                            //           style: AppTextStyle.medium.copyWith(fontSize: 12, color: const Color(0xFF64748B)),
-                            //         ),
-                            //         TextSpan(
-                            //           text: "Turn the switch on to allow everyone again.",
-                            //           style: AppTextStyle.medium.copyWith(fontSize: 12, color: const Color(0xFF4338CA)),
-                            //         ),
-                            //       ],
-                            //     ),
-                            //   ),
-                            // ],
-                          ],
-                        ),
-                      ),
-
-                      // ── AGENTS SECTION ──
-                      SizedBox(height: 20),
-                      if (controller.filteredAgents.isNotEmpty) ...[
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                          child: Text("Agents", style: AppTextStyle.medium.copyWith(fontSize: 13, color: const Color(0xFF64748B))),
-                        ),
-                        ...controller.filteredAgents.map((agent) => _buildAgentTile(agent)),
-                      ],
-
-                      SizedBox(height: 20),
-                      if (controller.filteredCustomers.isNotEmpty) ...[
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                          child: Text("Travelers", style: AppTextStyle.medium.copyWith(fontSize: 13, color: const Color(0xFF64748B))),
-                        ),
-                        ...controller.filteredCustomers.map((member) => _buildTravelerTile(member, controller)),
-                      ],
+                      _buildInfoSection(),
+                      _buildAgentsSection(controller),
+                      _buildTravelersSection(controller),
                     ],
                   );
                 }),
               ),
+              SizedBox(height: 50,)
             ],
           ),
         );
@@ -157,72 +82,199 @@ class GroupMembersScreen extends StatelessWidget {
     final roleLabel = _formatRole(agent.role);
     final roleColor = _roleColor(agent.role);
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
-      child: Row(
-        children: [
-          _buildAvatar(agent.name, const Color(0xFF4338CA)),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(agent.name ?? "Unknown", style: AppTextStyle.bold.copyWith(fontSize: 14, color: const Color(0xFF1E293B))),
-                const SizedBox(height: 2),
-                Text(agent.email ?? "", style: AppTextStyle.medium.copyWith(fontSize: 12, color: const Color(0xFF94A3B8))),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(color: roleColor.withValues(alpha: 0.08), borderRadius: BorderRadius.circular(8)),
-            child: Text(roleLabel, style: AppTextStyle.bold.copyWith(fontSize: 11, color: roleColor)),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            _buildAvatar(agent.name, roleColor),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        agent.name ?? "Unknown",
+                        style: AppTextStyle.bold.copyWith(
+                          fontSize: 16,
+                          color: const Color(0xFF1E293B),
+                        ),
+                      ),
+
+                      // SizedBox(width: 10,),
+                      Spacer(),
+                       Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: roleColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: roleColor.withValues(alpha: 0.2),
+                ),
+              ),
+              child: Text(
+                roleLabel,
+                style: AppTextStyle.bold.copyWith(
+                  fontSize: 12,
+                  color: roleColor,
+                ),
+              ),
+            ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    agent.email ?? "",
+                    style: AppTextStyle.medium.copyWith(
+                      fontSize: 14,
+                      color: const Color(0xFF64748B),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // SizedBox(width: 10,),
+            // Container(
+            //   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            //   decoration: BoxDecoration(
+            //     color: roleColor.withValues(alpha: 0.1),
+            //     borderRadius: BorderRadius.circular(12),
+            //     border: Border.all(
+            //       color: roleColor.withValues(alpha: 0.2),
+            //     ),
+            //   ),
+            //   child: Text(
+            //     roleLabel,
+            //     style: AppTextStyle.bold.copyWith(
+            //       fontSize: 12,
+            //       color: roleColor,
+            //     ),
+            //   ),
+            // ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildTravelerTile(CustomerMember member, GroupMembersCtrl controller) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
-      child: Row(
-        children: [
-          _buildAvatar(member.name, const Color(0xFF0F172A)),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(member.name ?? "Unknown", style: AppTextStyle.bold.copyWith(fontSize: 14, color: const Color(0xFF1E293B))),
-                const SizedBox(height: 2),
-                Text(member.email ?? "", style: AppTextStyle.medium.copyWith(fontSize: 12, color: const Color(0xFF94A3B8))),
-              ],
-            ),
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
-          // Badge scoped inside its own Obx
-          // Obx(() {
-          //   final canSend = controller.canTravelerSend(member.id);
-          //   return GestureDetector(
-          //     onTap: controller.isUpdating.value ? null : () => controller.toggleTraveler(member),
-          //     child: AnimatedContainer(
-          //       duration: const Duration(milliseconds: 200),
-          //       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
-          //       decoration: BoxDecoration(
-          //         color: canSend ? const Color(0xFF4338CA).withValues(alpha: 0.1) : const Color(0xFFF1F5F9),
-          //         borderRadius: BorderRadius.circular(20),
-          //       ),
-          //       child: Text(
-          //         canSend ? "Can send" : "Muted",
-          //         style: AppTextStyle.bold.copyWith(fontSize: 12, color: canSend ? const Color(0xFF4338CA) : const Color(0xFF94A3B8)),
-          //       ),
-          //     ),
-          //   );
-          // }),
         ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            _buildAvatar(member.name, Constant.instance.green2),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        member.name ?? "Unknown",
+                        style: AppTextStyle.bold.copyWith(
+                          fontSize: 16,
+                          color: const Color(0xFF1E293B),
+                        ),
+                      ),
+                      Spacer(),
+                      Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: Constant.instance.green2.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Constant.instance.green2.withValues(alpha: 0.2),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.verified_user_rounded,
+                    size: 14,
+                    color: Constant.instance.green2,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    "Traveler",
+                    style: AppTextStyle.bold.copyWith(
+                      fontSize: 12,
+                      color: Constant.instance.green2,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    member.email ?? "",
+                    style: AppTextStyle.medium.copyWith(
+                      fontSize: 14,
+                      color: const Color(0xFF64748B),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Container(
+            //   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            //   decoration: BoxDecoration(
+            //     color: Constant.instance.green2.withValues(alpha: 0.1),
+            //     borderRadius: BorderRadius.circular(12),
+            //     border: Border.all(
+            //       color: Constant.instance.green2.withValues(alpha: 0.2),
+            //     ),
+            //   ),
+            //   child: Row(
+            //     mainAxisSize: MainAxisSize.min,
+            //     children: [
+            //       Icon(
+            //         Icons.verified_user_rounded,
+            //         size: 14,
+            //         color: Constant.instance.green2,
+            //       ),
+            //       const SizedBox(width: 4),
+            //       Text(
+            //         "Traveler",
+            //         style: AppTextStyle.bold.copyWith(
+            //           fontSize: 12,
+            //           color: Constant.instance.green2,
+            //         ),
+            //       ),
+            //     ],
+            //   ),
+            // ),
+          ],
+        ),
       ),
     );
   }
@@ -230,12 +282,339 @@ class GroupMembersScreen extends StatelessWidget {
   Widget _buildAvatar(String? name, Color color) {
     final initial = (name?.isNotEmpty == true) ? name![0].toUpperCase() : "?";
     return Container(
-      height: 40,
-      width: 40,
-      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
-      child: Center(
-        child: Text(initial, style: AppTextStyle.bold.copyWith(fontSize: 15, color: color)),
+      height: 48,
+      width: 48,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            color,
+            color.withValues(alpha: 0.8),
+          ],
+        ),
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
+      child: Center(
+        child: Text(
+          initial,
+          style: AppTextStyle.bold.copyWith(
+            fontSize: 18,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(GroupMembersCtrl controller) {
+    return Obx(() {
+      final totalAgents = controller.filteredAgents.length;
+      final totalTravelers = controller.filteredCustomers.length;
+      final totalMembers = totalAgents + totalTravelers;
+      
+      return Container(
+        margin: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: _buildStatItem(
+                icon: Icons.people_rounded,
+                label: "Total Members",
+                value: totalMembers.toString(),
+                color: Constant.instance.primary,
+              ),
+            ),
+            Container(
+              width: 1,
+              height: 40,
+              color: const Color(0xFFE2E8F0),
+            ),
+            Expanded(
+              child: _buildStatItem(
+                icon: Icons.support_agent_rounded,
+                label: "Agents",
+                value: totalAgents.toString(),
+                color: Constant.instance.orange,
+              ),
+            ),
+            Container(
+              width: 1,
+              height: 40,
+              color: const Color(0xFFE2E8F0),
+            ),
+            Expanded(
+              child: _buildStatItem(
+                icon: Icons.luggage_rounded,
+                label: "Travelers",
+                value: totalTravelers.toString(),
+                color: Constant.instance.green2,
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildStatItem({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+  }) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(
+            icon,
+            color: color,
+            size: 20,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          style: AppTextStyle.bold.copyWith(
+            fontSize: 18,
+            color: const Color(0xFF1E293B),
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: AppTextStyle.medium.copyWith(
+            fontSize: 12,
+            color: const Color(0xFF64748B),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSearchBar(GroupMembersCtrl controller) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: TextField(
+          controller: controller.searchController,
+          style: AppTextStyle.medium.copyWith(
+            fontSize: 15,
+            color: const Color(0xFF1E293B),
+          ),
+          decoration: InputDecoration(
+            hintText: "Search members by name or email...",
+            hintStyle: AppTextStyle.medium.copyWith(
+              color: const Color(0xFF94A3B8),
+              fontSize: 15,
+            ),
+            prefixIcon: Container(
+              padding: const EdgeInsets.all(12),
+              child: Icon(
+                Icons.search_rounded,
+                color: Constant.instance.primary.withValues(alpha: 0.7),
+                size: 20,
+              ),
+            ),
+            border: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 16,
+              horizontal: 20,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoSection() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Constant.instance.primary.withValues(alpha: 0.05),
+            Constant.instance.primary.withValues(alpha: 0.02),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Constant.instance.primary.withValues(alpha: 0.1),
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Constant.instance.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              Icons.info_outline_rounded,
+              color: Constant.instance.primary,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              "Your agent manages who can send messages in this group.",
+              style: AppTextStyle.medium.copyWith(
+                fontSize: 14,
+                color: const Color(0xFF64748B),
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAgentsSection(GroupMembersCtrl controller) {
+    if (controller.filteredAgents.isEmpty) return const SizedBox.shrink();
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Constant.instance.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.support_agent_rounded,
+                  color: Constant.instance.orange,
+                  size: 16,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                "Agents",
+                style: AppTextStyle.semiBold.copyWith(
+                  fontSize: 16,
+                  color: const Color(0xFF1E293B),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Constant.instance.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  "${controller.filteredAgents.length}",
+                  style: AppTextStyle.bold.copyWith(
+                    fontSize: 12,
+                    color: Constant.instance.orange,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        ...controller.filteredAgents.map((agent) => _buildAgentTile(agent)),
+        const SizedBox(height: 24),
+      ],
+    );
+  }
+
+  Widget _buildTravelersSection(GroupMembersCtrl controller) {
+    if (controller.filteredCustomers.isEmpty) return const SizedBox.shrink();
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: Constant.instance.green2.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.luggage_rounded,
+                  color: Constant.instance.green2,
+                  size: 16,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                "Travelers",
+                style: AppTextStyle.semiBold.copyWith(
+                  fontSize: 16,
+                  color: const Color(0xFF1E293B),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: Constant.instance.green2.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  "${controller.filteredCustomers.length}",
+                  style: AppTextStyle.bold.copyWith(
+                    fontSize: 12,
+                    color: Constant.instance.green2,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        ...controller.filteredCustomers.map((member) => _buildTravelerTile(member, controller)),
+      ],
     );
   }
 

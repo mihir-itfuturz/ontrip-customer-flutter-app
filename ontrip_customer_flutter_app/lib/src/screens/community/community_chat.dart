@@ -60,41 +60,63 @@ class CommunityChatScreen extends StatelessWidget {
       titleSpacing: 0,
       backgroundColor: Colors.white,
       elevation: 0,
+      surfaceTintColor: Colors.white,
+      shadowColor: Colors.black.withValues(alpha: 0.1),
+      scrolledUnderElevation: 8,
       leadingWidth: 100,
-
       leading: Row(
         children: [
           IconButton(
             onPressed: () => Get.back(),
-            icon: const Icon(
-              Icons.arrow_back_ios_new,
-              size: 20,
-              color: Color(0xFF1E293B),
+            icon: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.arrow_back_ios_new,
+                size: 16,
+                color: Color(0xFF1E293B),
+              ),
             ),
           ),
-          // const SizedBox(width: 5),
           Container(
-            height: 40,
-            width: 40,
+            height: 44,
+            width: 44,
             decoration: BoxDecoration(
-              color: const Color(0xFFF1F5F9),
-              borderRadius: BorderRadius.circular(12),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Constant.instance.primary,
+                  Constant.instance.primary.withValues(alpha: 0.8),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: [
+                BoxShadow(
+                  color: Constant.instance.primary.withValues(alpha: 0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Obx(() {
               final img = controller.coverImage.value;
               return ClipRRect(
-                borderRadius: BorderRadius.circular(50),
+                borderRadius: BorderRadius.circular(14),
                 child: img != null && img.isNotEmpty
                     ? CustomNetworkImage(
                         imageUrl: "${AppNetworkConstants.baseURL}$img",
-                        height: 45,
-                        width: 45,
+                        height: 44,
+                        width: 44,
                         fit: BoxFit.cover,
                       )
                     : const Icon(
-                        Icons.forum_outlined,
-                        color: Color(0xFF4338CA),
-                        size: 24,
+                        Icons.forum_rounded,
+                        color: Colors.white,
+                        size: 20,
                       ),
               );
             }),
@@ -115,16 +137,31 @@ class CommunityChatScreen extends StatelessWidget {
                   Text(
                     title,
                     style: AppTextStyle.bold.copyWith(
-                      fontSize: 16,
+                      fontSize: 17,
                       color: const Color(0xFF1E293B),
+                      height: 1.2,
                     ),
                   ),
-                  Text(
-                    "$participants participants",
-                    style: AppTextStyle.medium.copyWith(
-                      fontSize: 12,
-                      color: const Color(0xFF64748B),
-                    ),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: Constant.instance.green2,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        "$participants participants",
+                        style: AppTextStyle.medium.copyWith(
+                          fontSize: 13,
+                          color: const Color(0xFF64748B),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -143,26 +180,31 @@ class CommunityChatScreen extends StatelessWidget {
               }
             },
             child: Container(
-              padding: const EdgeInsets.all(6),
+              padding: const EdgeInsets.all(8),
+              margin: const EdgeInsets.only(right: 4),
               decoration: BoxDecoration(
                 color: controller.notificationEnabled.value
-                    ? (Constant.instance.primary).withValues(alpha: 0.2)
-                    : Constant.instance.grey.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(10),
+                    ? Constant.instance.primary.withValues(alpha: 0.15)
+                    : const Color(0xFFF1F5F9),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: controller.notificationEnabled.value
+                      ? Constant.instance.primary.withValues(alpha: 0.2)
+                      : const Color(0xFFE2E8F0),
+                ),
               ),
               child: Icon(
                 controller.notificationEnabled.value
-                    ? Icons.notifications_active_outlined
-                    : Icons.notifications_off_outlined,
+                    ? Icons.notifications_active_rounded
+                    : Icons.notifications_off_rounded,
                 color: controller.notificationEnabled.value
                     ? Constant.instance.primary
-                    : Constant.instance.grey,
-                size: 20,
+                    : const Color(0xFF64748B),
+                size: 18,
               ),
             ),
           ),
         ),
-        const SizedBox(width: 6),
         GestureDetector(
           onTap: () {
             final community = controller.community.value;
@@ -173,19 +215,22 @@ class CommunityChatScreen extends StatelessWidget {
             }
           },
           child: Container(
-            padding: const EdgeInsets.all(6),
+            padding: const EdgeInsets.all(8),
+            margin: const EdgeInsets.only(right: 4),
             decoration: BoxDecoration(
-              color: (Constant.instance.orange).withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(10),
+              color: Constant.instance.orange.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Constant.instance.orange.withValues(alpha: 0.2),
+              ),
             ),
             child: Icon(
-              Icons.group_outlined,
+              Icons.group_rounded,
               color: Constant.instance.orange,
-              size: 20,
+              size: 18,
             ),
           ),
         ),
-        const SizedBox(width: 6),
         GestureDetector(
           onTap: () {
             final community = controller.community.value;
@@ -196,20 +241,22 @@ class CommunityChatScreen extends StatelessWidget {
             }
           },
           child: Container(
-            padding: const EdgeInsets.all(6),
+            padding: const EdgeInsets.all(8),
+            margin: const EdgeInsets.only(right: 16),
             decoration: BoxDecoration(
-              color: (Constant.instance.apple).withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(10),
+              color: Constant.instance.apple.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Constant.instance.apple.withValues(alpha: 0.2),
+              ),
             ),
             child: Icon(
-              Icons.image_outlined,
+              Icons.image_rounded,
               color: Constant.instance.apple,
-              size: 20,
+              size: 18,
             ),
           ),
         ),
-
-        const SizedBox(width: 10),
       ],
     );
   }
@@ -224,7 +271,7 @@ class CommunityChatScreen extends StatelessWidget {
         : "";
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 16),
       child: Column(
         crossAxisAlignment: isMe
             ? CrossAxisAlignment.end
@@ -232,12 +279,12 @@ class CommunityChatScreen extends StatelessWidget {
         children: [
           if (!isMe)
             Padding(
-              padding: const EdgeInsets.only(left: 4, bottom: 4),
+              padding: const EdgeInsets.only(left: 52, bottom: 6),
               child: Text(
                 message.senderName,
-                style: AppTextStyle.bold.copyWith(
-                  fontSize: 11,
-                  color: const Color(0xFF64748B),
+                style: AppTextStyle.semiBold.copyWith(
+                  fontSize: 12,
+                  color: Constant.instance.primary,
                 ),
               ),
             ),
@@ -249,54 +296,77 @@ class CommunityChatScreen extends StatelessWidget {
             children: [
               if (!isMe) ...[
                 _buildAvatar(message.senderName, isMe: false),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
               ],
               Flexible(
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 10,
+                    horizontal: 16,
+                    vertical: 12,
                   ),
                   decoration: BoxDecoration(
-                    color: isMe ? const Color(0xFF4338CA) : Colors.white,
+                    gradient: isMe
+                        ? LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Constant.instance.primary,
+                              Constant.instance.primary.withValues(alpha: 0.8),
+                            ],
+                          )
+                        : null,
+                    color: isMe ? null : Colors.white,
                     borderRadius: BorderRadius.only(
-                      topLeft: const Radius.circular(16),
-                      topRight: const Radius.circular(16),
-                      bottomLeft: Radius.circular(isMe ? 16 : 4),
-                      bottomRight: Radius.circular(isMe ? 4 : 16),
+                      topLeft: const Radius.circular(20),
+                      topRight: const Radius.circular(20),
+                      bottomLeft: Radius.circular(isMe ? 20 : 6),
+                      bottomRight: Radius.circular(isMe ? 6 : 20),
                     ),
-                    boxShadow: isMe
-                        ? []
-                        : [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.04),
-                              blurRadius: 4,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
+                    boxShadow: [
+                      BoxShadow(
+                        color: isMe
+                            ? Constant.instance.primary.withValues(alpha: 0.2)
+                            : Colors.black.withValues(alpha: 0.08),
+                        blurRadius: isMe ? 12 : 8,
+                        offset: Offset(0, isMe ? 4 : 2),
+                      ),
+                    ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildMessageContent(message, isMe),
-                      const SizedBox(height: 4),
-                      Text(
-                        time,
-                        style: AppTextStyle.medium.copyWith(
-                          fontSize: 10,
-                          color: isMe
-                              ? Colors.white.withValues(alpha: 0.7)
-                              : const Color(0xFF94A3B8),
-                        ),
+                      const SizedBox(height: 6),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            time,
+                            style: AppTextStyle.medium.copyWith(
+                              fontSize: 11,
+                              color: isMe
+                                  ? Colors.white.withValues(alpha: 0.8)
+                                  : const Color(0xFF94A3B8),
+                            ),
+                          ),
+                          if (isMe) ...[
+                            const SizedBox(width: 6),
+                            Icon(
+                              Icons.done_all_rounded,
+                              size: 14,
+                              color: Colors.white.withValues(alpha: 0.8),
+                            ),
+                          ],
+                        ],
                       ),
                     ],
                   ),
                 ),
               ),
               if (isMe)
-                const SizedBox(width: 32), // Padding on right for self messages
+                const SizedBox(width: 40),
               if (!isMe)
-                const SizedBox(width: 32), // Padding on left for others
+                const SizedBox(width: 40),
             ],
           ),
         ],
@@ -306,18 +376,38 @@ class CommunityChatScreen extends StatelessWidget {
 
   Widget _buildAvatar(String name, {required bool isMe}) {
     return Container(
-      height: 24,
-      width: 24,
+      height: 36,
+      width: 36,
       decoration: BoxDecoration(
-        color: isMe ? const Color(0xFF4338CA) : const Color(0xFFE2E8F0),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: isMe
+              ? [
+                  Constant.instance.primary,
+                  Constant.instance.primary.withValues(alpha: 0.8),
+                ]
+              : [
+                  Constant.instance.orange,
+                  Constant.instance.orange.withValues(alpha: 0.8),
+                ],
+        ),
         shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: (isMe ? Constant.instance.primary : Constant.instance.orange)
+                .withValues(alpha: 0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Center(
         child: Text(
           name.isNotEmpty ? name[0].toUpperCase() : "?",
           style: AppTextStyle.bold.copyWith(
-            fontSize: 10,
-            color: isMe ? Colors.white : const Color(0xFF64748B),
+            fontSize: 14,
+            color: Colors.white,
           ),
         ),
       ),
@@ -357,8 +447,9 @@ class CommunityChatScreen extends StatelessWidget {
     return Text(
       message.content ?? "",
       style: AppTextStyle.medium.copyWith(
-        fontSize: 14,
+        fontSize: 15,
         color: isMe ? Colors.white : const Color(0xFF1E293B),
+        height: 1.4,
       ),
     );
   }
@@ -388,23 +479,36 @@ class CommunityChatScreen extends StatelessWidget {
             isVideo: false,
             isMe: isMe,
           ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: CustomNetworkImage(
-              imageUrl: imageUrl,
-              width: 220,
-              height: 220,
-              fit: BoxFit.cover,
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: CustomNetworkImage(
+                imageUrl: imageUrl,
+                width: 240,
+                height: 240,
+                fit: BoxFit.cover,
+              ),
             ),
           ),
         ),
         if (message.content?.isNotEmpty == true) ...[
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Text(
             message.content!,
             style: AppTextStyle.medium.copyWith(
-              fontSize: 14,
+              fontSize: 15,
               color: isMe ? Colors.white : const Color(0xFF1E293B),
+              height: 1.4,
             ),
           ),
         ],
@@ -418,94 +522,123 @@ class CommunityChatScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                width: 220,
-                height: 220,
-                color: Colors.black12,
-                child: message.videoUrl != null
-                    ? CustomNetworkImage(
-                        imageUrl: videoUrl,
-                        width: 220,
-                        height: 220,
-                        fit: BoxFit.cover,
-                      )
-                    : const Center(
-                        child: Icon(
-                          Icons.video_library,
-                          size: 50,
-                          color: Colors.white70,
-                        ),
-                      ),
+        Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
               ),
-            ),
-            if (isMe)
-              Positioned(
-                bottom: 8,
-                left: 8,
+            ],
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(16),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
-                  ),
+                  width: 240,
+                  height: 240,
                   decoration: BoxDecoration(
-                    color: Constant.instance.primary,
-                    borderRadius: BorderRadius.circular(20),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.black.withValues(alpha: 0.3),
+                        Colors.black.withValues(alpha: 0.6),
+                      ],
+                    ),
                   ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.person_rounded, color: Colors.white, size: 12),
-                      SizedBox(width: 4),
-                      Text(
-                        "My Video",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
+                  child: message.videoUrl != null
+                      ? CustomNetworkImage(
+                          imageUrl: videoUrl,
+                          width: 240,
+                          height: 240,
+                          fit: BoxFit.cover,
+                        )
+                      : const Center(
+                          child: Icon(
+                            Icons.video_library_rounded,
+                            size: 60,
+                            color: Colors.white70,
+                          ),
                         ),
+                ),
+              ),
+              if (isMe)
+                Positioned(
+                  bottom: 12,
+                  left: 12,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.7),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.person_rounded, color: Colors.white, size: 14),
+                        SizedBox(width: 4),
+                        Text(
+                          "My Video",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              GestureDetector(
+                onTap: () {
+                  if (videoUrl == null) return;
+                  Get.to(() => MediaDisplayScreen(url: videoUrl, isVideo: true));
+                },
+                onLongPress: () => _showMediaActions(
+                  message: message,
+                  mediaUrl: videoUrl,
+                  isVideo: true,
+                  isMe: isMe,
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.9),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.2),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
+                  child: Icon(
+                    Icons.play_arrow_rounded,
+                    color: Constant.instance.primary,
+                    size: 32,
+                  ),
                 ),
               ),
-            GestureDetector(
-              onTap: () {
-                if (videoUrl == null) return;
-                Get.to(() => MediaDisplayScreen(url: videoUrl, isVideo: true));
-              },
-              onLongPress: () => _showMediaActions(
-                message: message,
-                mediaUrl: videoUrl,
-                isVideo: true,
-                isMe: isMe,
-              ),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.6),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.play_arrow_rounded,
-                  color: Colors.white,
-                  size: 40,
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
         if (message.content?.isNotEmpty == true) ...[
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Text(
             message.content!,
             style: AppTextStyle.medium.copyWith(
-              fontSize: 14,
+              fontSize: 15,
               color: isMe ? Colors.white : const Color(0xFF1E293B),
+              height: 1.4,
             ),
           ),
         ],
@@ -524,9 +657,9 @@ class CommunityChatScreen extends StatelessWidget {
           color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
+              color: Colors.black.withValues(alpha: 0.08),
+              blurRadius: 24,
+              offset: const Offset(0, -8),
             ),
           ],
         ),
@@ -534,55 +667,17 @@ class CommunityChatScreen extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // ── Image Preview Strip ──
-              // if (hasImages)
-              //   SizedBox(
-              //     height: 88,
-              //     child: ListView.builder(
-              //       scrollDirection: Axis.horizontal,
-              //       padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-              //       itemCount: controller.selectedImages.length,
-              //       itemBuilder: (context, index) {
-              //         final file = controller.selectedImages[index];
-              //         return Padding(
-              //           padding: const EdgeInsets.only(right: 8),
-              //           child: Stack(
-              //             children: [
-              //               ClipRRect(
-              //                 borderRadius: BorderRadius.circular(12),
-              //                 child: Image.file(File(file.path), height: 72, width: 72, fit: BoxFit.cover),
-              //               ),
-              //               Positioned(
-              //                 top: 2,
-              //                 right: 2,
-              //                 child: GestureDetector(
-              //                   onTap: () => controller.removeImage(index),
-              //                   child: Container(
-              //                     height: 20,
-              //                     width: 20,
-              //                     decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
-              //                     child: const Icon(Icons.close, color: Colors.white, size: 12),
-              //                   ),
-              //                 ),
-              //               ),
-              //             ],
-              //           ),
-              //         );
-              //       },
-              //     ),
-              //   ),
               if (hasMedia)
-                SizedBox(
-                  height: 88,
-
+                Container(
+                  height: 100,
+                  margin: const EdgeInsets.only(top: 16),
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     itemCount:
                         controller.selectedImages.length +
                         controller.selectedVideos.length,
                     itemBuilder: (context, index) {
-                      // final file = controller. selectedImages[index];
                       final bool isImage =
                           index < controller.selectedImages.length;
                       final file = isImage
@@ -591,45 +686,54 @@ class CommunityChatScreen extends StatelessWidget {
                                 controller.selectedImages.length];
 
                       final bool isVideo = !isImage;
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8),
+                      return Container(
+                        margin: const EdgeInsets.only(right: 12),
                         child: Stack(
                           children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: isVideo
-                                  ? Stack(
-                                      alignment: Alignment.center,
-                                      children: [
-                                        Container(
-                                          height: 72,
-                                          width: 72,
-                                          padding: const EdgeInsets.all(6),
-                                          decoration: BoxDecoration(
-                                            color: Colors.black.withValues(
-                                              alpha: 0.2,
-                                            ),
-                                          ),
-                                          child: Icon(
-                                            Icons.play_arrow_rounded,
-                                            color: Colors.black.withValues(
-                                              alpha: 0.8,
-                                            ),
-                                            size: 30,
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.1),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
+                                child: isVideo
+                                    ? Container(
+                                        height: 80,
+                                        width: 80,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                            colors: [
+                                              Constant.instance.primary.withValues(alpha: 0.8),
+                                              Constant.instance.primary,
+                                            ],
                                           ),
                                         ),
-                                      ],
-                                    )
-                                  : Image.file(
-                                      File(file.path),
-                                      height: 72,
-                                      width: 72,
-                                      fit: BoxFit.cover,
-                                    ),
+                                        child: const Icon(
+                                          Icons.play_circle_filled_rounded,
+                                          color: Colors.white,
+                                          size: 32,
+                                        ),
+                                      )
+                                    : Image.file(
+                                        File(file.path),
+                                        height: 80,
+                                        width: 80,
+                                        fit: BoxFit.cover,
+                                      ),
+                              ),
                             ),
                             Positioned(
-                              top: 2,
-                              right: 2,
+                              top: 6,
+                              right: 6,
                               child: GestureDetector(
                                 onTap: () => isVideo
                                     ? controller.removeVideo(
@@ -638,105 +742,103 @@ class CommunityChatScreen extends StatelessWidget {
                                       )
                                     : controller.removeImage(index),
                                 child: Container(
-                                  height: 25,
-                                  width: 25,
-                                  decoration: const BoxDecoration(
-                                    color: Colors.black54,
+                                  height: 24,
+                                  width: 24,
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.7),
                                     shape: BoxShape.circle,
                                   ),
                                   child: const Icon(
-                                    Icons.close,
+                                    Icons.close_rounded,
                                     color: Colors.white,
-                                    size: 12,
+                                    size: 14,
                                   ),
                                 ),
                               ),
                             ),
-                            // if (isVideo)
-                            //   Positioned(
-                            //     bottom: 2,
-                            //     left: 2,
-                            //     child: Container(
-                            //       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                            //       decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(4)),
-                            //       child: const Text(
-                            //         "VIDEO",
-                            //         style: TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
-                            //       ),
-                            //     ),
-                            //   ),
-                            // Positioned(
-                            //   top: 2,
-                            //   right: 2,
-                            //   child: GestureDetector(
-                            //     onTap: () => controller.removeImage(index),
-                            //     child: Container(
-                            //       height: 20,
-                            //       width: 20,
-                            //       decoration: const BoxDecoration(color: Colors.black54, shape: BoxShape.circle),
-                            //       child: const Icon(Icons.close, color: Colors.white, size: 12),
-                            //     ),
-                            //   ),
-                            // ),
                           ],
                         ),
                       );
                     },
                   ),
                 ),
-              // ── Input Row ──
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
+                padding: const EdgeInsets.all(20),
                 child: Row(
                   children: [
                     GestureDetector(
                       onTap: controller.pickMedia,
                       child: Container(
-                        padding: const EdgeInsets.all(10),
+                        padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: hasImages
-                              ? const Color(0xFF4338CA)
-                              : const Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: const Color(0xFFE2E8F0)),
+                          gradient: hasImages
+                              ? LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    Constant.instance.primary,
+                                    Constant.instance.primary.withValues(alpha: 0.8),
+                                  ],
+                                )
+                              : null,
+                          color: hasImages ? null : const Color(0xFFF8FAFC),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: hasImages
+                                ? Colors.transparent
+                                : const Color(0xFFE2E8F0),
+                          ),
+                          boxShadow: hasImages
+                              ? [
+                                  BoxShadow(
+                                    color: Constant.instance.primary.withValues(alpha: 0.3),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ]
+                              : null,
                         ),
                         child: Icon(
-                          Icons.camera_alt_outlined,
+                          Icons.camera_alt_rounded,
                           color: hasImages
                               ? Colors.white
                               : const Color(0xFF64748B),
-                          size: 24,
+                          size: 22,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 16),
                     Expanded(
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
                         decoration: BoxDecoration(
                           color: const Color(0xFFF8FAFC),
-                          borderRadius: BorderRadius.circular(24),
+                          borderRadius: BorderRadius.circular(28),
                           border: Border.all(color: const Color(0xFFE2E8F0)),
                         ),
                         child: TextField(
                           controller: controller.messageController,
+                          style: AppTextStyle.medium.copyWith(
+                            fontSize: 15,
+                            color: const Color(0xFF1E293B),
+                          ),
                           decoration: InputDecoration(
                             hintText: hasImages
-                                ? "Caption (optional)"
-                                : "Type a message...",
+                                ? "Add a caption..."
+                                : "Type your message...",
                             hintStyle: AppTextStyle.medium.copyWith(
                               color: const Color(0xFF94A3B8),
-                              fontSize: 14,
+                              fontSize: 15,
                             ),
                             border: InputBorder.none,
                             contentPadding: const EdgeInsets.symmetric(
-                              vertical: 12,
+                              vertical: 14,
                             ),
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 16),
                     GestureDetector(
                       onTap: controller.isSending.value
                           ? null
@@ -749,10 +851,24 @@ class CommunityChatScreen extends StatelessWidget {
                               }
                             },
                       child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: const BoxDecoration(
-                          color: Color(0xFF4338CA),
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Constant.instance.primary,
+                              Constant.instance.primary.withValues(alpha: 0.8),
+                            ],
+                          ),
                           shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: Constant.instance.primary.withValues(alpha: 0.4),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
                         child: controller.isSending.value
                             ? const SizedBox(
@@ -760,7 +876,7 @@ class CommunityChatScreen extends StatelessWidget {
                                 width: 20,
                                 child: CircularProgressIndicator(
                                   color: Colors.white,
-                                  strokeWidth: 2,
+                                  strokeWidth: 2.5,
                                 ),
                               )
                             : const Icon(
