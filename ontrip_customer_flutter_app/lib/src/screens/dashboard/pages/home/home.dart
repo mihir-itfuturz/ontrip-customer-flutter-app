@@ -70,12 +70,37 @@ class _HomeScreenState extends State<HomeScreen>
               opacity: _fadeAnimation,
               child: Column(
                 children: [
-                  // Fixed Header
-                  _buildAppBar(ctrl),
+                  // Enhanced Header with gradient background
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Constant.instance.primary,
+                          Constant.instance.primary.withValues(alpha: 0.8),
+                        ],
+                      ),
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(32),
+                        bottomRight: Radius.circular(32),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Constant.instance.primary.withValues(alpha: 0.3),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: _buildAppBar(ctrl),
+                  ),
                   // Scrollable Content
                   Expanded(
                     child: RefreshIndicator(
                       onRefresh: () async => await ctrl.initialize(),
+                      color: Constant.instance.primary,
+                      backgroundColor: Colors.white,
                       child: SingleChildScrollView(
                         physics: const AlwaysScrollableScrollPhysics(),
                         child: _buildSelectedBookingDetails(ctrl),
@@ -94,7 +119,9 @@ class _HomeScreenState extends State<HomeScreen>
   Widget _buildSelectedBookingDetails(HomeController ctrl) {
     return Obx(() {
       final booking = ctrl.selectedBooking.value;
-      if (booking == null) return const SizedBox.shrink();
+      if (booking == null) {
+        return _buildEmptyBookingState();
+      }
 
       return Column(
         children: [
@@ -105,17 +132,75 @@ class _HomeScreenState extends State<HomeScreen>
     });
   }
 
+  Widget _buildEmptyBookingState() {
+    return Container(
+      margin: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(40),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Constant.instance.primary.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.luggage_outlined,
+              size: 48,
+              color: Constant.instance.primary,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            "No Active Trips",
+            style: AppTextStyle.bold.copyWith(
+              fontSize: 20,
+              color: Colors.grey.shade800,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Start planning your next adventure!",
+            textAlign: TextAlign.center,
+            style: AppTextStyle.medium.copyWith(
+              fontSize: 14,
+              color: Colors.grey.shade500,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildTripHeader(Booking booking) {
     final package = booking.package;
     final coverImage = package?.coverImage ?? "";
 
     return Container(
       width: double.infinity,
-      height: 280,
+      height: 300,
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
       decoration: BoxDecoration(
         color: Colors.grey.shade200,
         borderRadius: BorderRadius.circular(32),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 25,
+            offset: const Offset(0, 15),
+          ),
+        ],
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(32),
@@ -134,63 +219,99 @@ class _HomeScreenState extends State<HomeScreen>
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
+                      Colors.black.withValues(alpha: 0.3),
                       Colors.black.withValues(alpha: 0.8),
                     ],
+                    stops: const [0.0, 0.6, 1.0],
                   ),
                 ),
               ),
             ),
             Positioned(
-              bottom: 24,
-              left: 24,
-              right: 24,
+              bottom: 32,
+              left: 32,
+              right: 32,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
+                      horizontal: 12,
+                      vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: Constant.instance.primary,
-                      borderRadius: BorderRadius.circular(6),
+                      gradient: LinearGradient(
+                        colors: [
+                          Constant.instance.primary,
+                          Constant.instance.primary.withValues(alpha: 0.8),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Constant.instance.primary.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: Text(
                       booking.bookingStatus?.toUpperCase() ?? "BOOKED",
                       style: AppTextStyle.bold.copyWith(
                         color: Colors.white,
-                        fontSize: 10,
+                        fontSize: 11,
+                        letterSpacing: 0.5,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   Text(
                     booking.whitelabelPackage?.customTitle ??
                         package?.title ??
                         "Trip Details",
                     style: AppTextStyle.bold.copyWith(
                       color: Colors.white,
-                      fontSize: 24,
+                      fontSize: 26,
+                      height: 1.2,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withValues(alpha: 0.5),
+                          blurRadius: 10,
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.location_on,
-                        color: Colors.white,
-                        size: 14,
+                  const SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.2),
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        package?.destination ?? "Exploring",
-                        style: AppTextStyle.medium.copyWith(
-                          color: Colors.white.withValues(alpha: 0.9),
-                          fontSize: 14,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.location_on_outlined,
+                          color: Colors.white,
+                          size: 16,
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 8),
+                        Text(
+                          package?.destination ?? "Exploring",
+                          style: AppTextStyle.medium.copyWith(
+                            color: Colors.white,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -222,35 +343,39 @@ class _HomeScreenState extends State<HomeScreen>
       () => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            height: 52,
+          Container(
+            height: 60,
+            margin: const EdgeInsets.symmetric(horizontal: 16),
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
               itemCount: tabs.length,
               itemBuilder: (context, index) {
                 final isSelected = ctrl.selectedTab.value == index;
                 return GestureDetector(
                   onTap: () => ctrl.selectedTab.value = index,
                   child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 250),
+                    duration: const Duration(milliseconds: 300),
                     curve: Curves.easeInOut,
-                    margin: const EdgeInsets.only(right: 10),
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    margin: const EdgeInsets.only(right: 12, top: 8, bottom: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     decoration: BoxDecoration(
-                      color: isSelected
-                          ? Constant.instance.primary
-                          : Colors.white,
-                      borderRadius: BorderRadius.circular(14),
+                      gradient: isSelected
+                          ? LinearGradient(
+                              colors: [
+                                Constant.instance.primary,
+                                Constant.instance.primary.withValues(alpha: 0.8),
+                              ],
+                            )
+                          : null,
+                      color: isSelected ? null : Colors.white,
+                      borderRadius: BorderRadius.circular(16),
                       boxShadow: [
                         BoxShadow(
                           color: isSelected
-                              ? Constant.instance.primary.withValues(
-                                  alpha: 0.28,
-                                )
-                              : Colors.black.withValues(alpha: 0.04),
-                          blurRadius: isSelected ? 12 : 8,
-                          offset: Offset(0, isSelected ? 4 : 2),
+                              ? Constant.instance.primary.withValues(alpha: 0.3)
+                              : Colors.black.withValues(alpha: 0.05),
+                          blurRadius: isSelected ? 15 : 10,
+                          offset: Offset(0, isSelected ? 6 : 3),
                         ),
                       ],
                     ),
@@ -259,19 +384,19 @@ class _HomeScreenState extends State<HomeScreen>
                       children: [
                         Icon(
                           tabs[index]["icon"] as IconData,
-                          size: 15,
+                          size: 16,
                           color: isSelected
                               ? Colors.white
-                              : Colors.grey.shade500,
+                              : Colors.grey.shade600,
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 8),
                         Text(
                           tabs[index]["label"] as String,
                           style: AppTextStyle.bold.copyWith(
-                            fontSize: 13,
+                            fontSize: 14,
                             color: isSelected
                                 ? Colors.white
-                                : Colors.grey.shade600,
+                                : Colors.grey.shade700,
                           ),
                         ),
                       ],
@@ -281,9 +406,15 @@ class _HomeScreenState extends State<HomeScreen>
               },
             ),
           ),
-          const SizedBox(height: 12),
-          IndexedStack(index: ctrl.selectedTab.value, children: contents),
-          // const SizedBox(height: 20),
+          const SizedBox(height: 16),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: IndexedStack(
+              key: ValueKey(ctrl.selectedTab.value),
+              index: ctrl.selectedTab.value,
+              children: contents,
+            ),
+          ),
         ],
       ),
     );
@@ -296,11 +427,11 @@ class _HomeScreenState extends State<HomeScreen>
 
     return Column(
       children: [
-        SizedBox(
-          height: 80,
+        Container(
+          height: 100, // Increased height to accommodate content
+          margin: const EdgeInsets.symmetric(horizontal: 16),
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
             itemCount: itinerary.length,
             itemBuilder: (context, index) {
               return Obx(() {
@@ -310,38 +441,50 @@ class _HomeScreenState extends State<HomeScreen>
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 300),
                     margin: const EdgeInsets.symmetric(
-                      horizontal: 4,
-                      vertical: 8,
+                      horizontal: 6,
+                      vertical: 12, // Reduced vertical margin
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12), // Reduced padding
                     decoration: BoxDecoration(
-                      color: isSelected
-                          ? Constant.instance.primary
-                          : Colors.white,
-                      borderRadius: BorderRadius.circular(16),
+                      gradient: isSelected
+                          ? LinearGradient(
+                              colors: [
+                                Constant.instance.primary,
+                                Constant.instance.primary.withValues(alpha: 0.8),
+                              ],
+                            )
+                          : null,
+                      color: isSelected ? null : Colors.white,
+                      borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.03),
-                          blurRadius: 5,
+                          color: isSelected
+                              ? Constant.instance.primary.withValues(alpha: 0.3)
+                              : Colors.black.withValues(alpha: 0.05),
+                          blurRadius: isSelected ? 15 : 8,
+                          offset: Offset(0, isSelected ? 6 : 3),
                         ),
                       ],
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min, // Added to prevent overflow
                       children: [
                         Text(
                           "DAY",
                           style: AppTextStyle.bold.copyWith(
-                            fontSize: 10,
+                            fontSize: 10, // Slightly reduced font size
                             color: isSelected
-                                ? Colors.white.withValues(alpha: 0.7)
-                                : Colors.grey.shade400,
+                                ? Colors.white.withValues(alpha: 0.8)
+                                : Colors.grey.shade500,
+                            letterSpacing: 1.2,
                           ),
                         ),
+                        const SizedBox(height: 2), // Reduced spacing
                         Text(
                           "${index + 1}",
                           style: AppTextStyle.bold.copyWith(
-                            fontSize: 18,
+                            fontSize: 18, // Slightly reduced font size
                             color: isSelected
                                 ? Colors.white
                                 : Colors.grey.shade800,
@@ -363,30 +506,60 @@ class _HomeScreenState extends State<HomeScreen>
               children: [
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(28),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 20,
+                        offset: const Offset(0, 10),
+                      ),
+                    ],
                   ),
                   child: Column(
                     children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Constant.instance.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          "DAY ${dayData.day}",
+                          style: AppTextStyle.bold.copyWith(
+                            fontSize: 12,
+                            color: Constant.instance.primary,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
                       Text(
                         dayData.title ?? "Day ${dayData.day}",
-                        style: AppTextStyle.bold.copyWith(fontSize: 20),
+                        style: AppTextStyle.bold.copyWith(
+                          fontSize: 22,
+                          color: Colors.grey.shade800,
+                        ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 12),
                       Text(
                         dayData.description ?? "",
                         textAlign: TextAlign.center,
                         style: AppTextStyle.medium.copyWith(
-                          fontSize: 14,
-                          color: Colors.grey.shade500,
+                          fontSize: 15,
+                          color: Colors.grey.shade600,
+                          height: 1.5,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 ...(dayData.experiences ?? []).map(
                   (exp) => _buildTripExperience(exp, ctrl),
                 ),
@@ -401,10 +574,17 @@ class _HomeScreenState extends State<HomeScreen>
   Widget _buildTripExperience(Experience exp, HomeController ctrl) {
     final image = exp.images?.isNotEmpty == true ? exp.images![0] : "";
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
+      margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -413,77 +593,111 @@ class _HomeScreenState extends State<HomeScreen>
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(24),
               ),
-              child: CustomNetworkImage(
-                imageUrl: image.startsWith("http")
-                    ? image
-                    : "https://ontrip.itfuturz.in/$image",
-                height: 160,
-                width: double.infinity,
+              child: Stack(
+                children: [
+                  CustomNetworkImage(
+                    imageUrl: image.startsWith("http")
+                        ? image
+                        : "https://ontrip.itfuturz.in/$image",
+                    height: 180,
+                    width: double.infinity,
+                  ),
+                  Positioned(
+                    top: 16,
+                    left: 16,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        exp.category?.toUpperCase() ?? "ACTIVITY",
+                        style: AppTextStyle.bold.copyWith(
+                          fontSize: 10,
+                          color: Colors.white,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      exp.category?.toUpperCase() ?? "ACTIVITY",
-                      style: AppTextStyle.bold.copyWith(
-                        fontSize: 10,
-                        color: Constant.instance.primary,
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Constant.instance.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        "${exp.startTime} - ${exp.endTime ?? ""}",
+                        style: AppTextStyle.bold.copyWith(
+                          fontSize: 12,
+                          color: Constant.instance.primary,
+                        ),
                       ),
                     ),
-                    Text(
-                      "${exp.startTime} - ${exp.endTime ?? ""}",
-                      style: AppTextStyle.medium.copyWith(fontSize: 12),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            exp.name ?? "",
-                            style: AppTextStyle.bold.copyWith(fontSize: 16),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            exp.description ?? "",
-                            style: AppTextStyle.medium.copyWith(
-                              fontSize: 13,
-                              color: Colors.grey.shade500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 8),
                     if (exp.vendor?.phone?.isNotEmpty == true)
                       GestureDetector(
                         onTap: () => ctrl.callVendor(exp.vendor?.phone),
                         child: Container(
-                          padding: const EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: Constant.instance.primary.withValues(
-                              alpha: 0.1,
+                            gradient: LinearGradient(
+                              colors: [
+                                Constant.instance.primary,
+                                Constant.instance.primary.withValues(alpha: 0.8),
+                              ],
                             ),
                             shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Constant.instance.primary.withValues(alpha: 0.3),
+                                blurRadius: 8,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
                           ),
-                          child: Icon(
+                          child: const Icon(
                             Icons.call,
-                            color: Constant.instance.primary,
+                            color: Colors.white,
                             size: 18,
                           ),
                         ),
                       ),
                   ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  exp.name ?? "",
+                  style: AppTextStyle.bold.copyWith(
+                    fontSize: 18,
+                    color: Colors.grey.shade800,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  exp.description ?? "",
+                  style: AppTextStyle.medium.copyWith(
+                    fontSize: 14,
+                    color: Colors.grey.shade600,
+                    height: 1.5,
+                  ),
                 ),
               ],
             ),
@@ -497,27 +711,83 @@ class _HomeScreenState extends State<HomeScreen>
     final inclusions = booking.package?.inclusions ?? [];
     return Container(
       margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "INCLUSIONS",
-            style: AppTextStyle.bold.copyWith(color: Colors.green),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.green.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.check_circle_outline,
+                  color: Colors.green,
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "INCLUSIONS",
+                  style: AppTextStyle.bold.copyWith(
+                    color: Colors.green,
+                    fontSize: 12,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           ...inclusions.map(
-            (item) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+            (item) => Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.green.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.green.withValues(alpha: 0.1),
+                ),
+              ),
               child: Row(
                 children: [
-                  const Icon(Icons.check_circle, color: Colors.green, size: 16),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(item)),
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.green,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.check,
+                      color: Colors.white,
+                      size: 12,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      item,
+                      style: AppTextStyle.medium.copyWith(
+                        fontSize: 14,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -531,27 +801,83 @@ class _HomeScreenState extends State<HomeScreen>
     final exclusions = booking.package?.exclusions ?? [];
     return Container(
       margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "EXCLUSIONS",
-            style: AppTextStyle.bold.copyWith(color: Colors.red),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.red.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.cancel_outlined,
+                  color: Colors.red,
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "EXCLUSIONS",
+                  style: AppTextStyle.bold.copyWith(
+                    color: Colors.red,
+                    fontSize: 12,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           ...exclusions.map(
-            (item) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+            (item) => Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.red.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.red.withValues(alpha: 0.1),
+                ),
+              ),
               child: Row(
                 children: [
-                  const Icon(Icons.cancel, color: Colors.red, size: 16),
-                  const SizedBox(width: 8),
-                  Expanded(child: Text(item.toString())),
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 12,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      item.toString(),
+                      style: AppTextStyle.medium.copyWith(
+                        fontSize: 14,
+                        color: Colors.grey.shade700,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -567,48 +893,198 @@ class _HomeScreenState extends State<HomeScreen>
       return _buildTripEmptyState(Icons.headset_mic, "No support contact");
     return Container(
       margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Constant.instance.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.headset_mic_outlined,
+                  color: Constant.instance.primary,
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "SUPPORT CONTACT",
+                  style: AppTextStyle.bold.copyWith(
+                    color: Constant.instance.primary,
+                    fontSize: 12,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
           Row(
             children: [
-              CircleAvatar(
-                backgroundColor: Constant.instance.primary.withValues(
-                  alpha: 0.1,
-                ),
-                child: Text(agency.name?[0] ?? "S"),
-              ),
-              const SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(agency.name ?? "Support"),
-                  Text(
-                    "Travel Agent",
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
+              Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Constant.instance.primary,
+                      Constant.instance.primary.withValues(alpha: 0.8),
+                    ],
                   ),
-                ],
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Constant.instance.primary.withValues(alpha: 0.3),
+                      blurRadius: 15,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Text(
+                    agency.name?[0].toUpperCase() ?? "S",
+                    style: AppTextStyle.bold.copyWith(
+                      color: Colors.white,
+                      fontSize: 24,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      agency.name ?? "Support",
+                      style: AppTextStyle.bold.copyWith(
+                        fontSize: 18,
+                        color: Colors.grey.shade800,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        "Travel Agent",
+                        style: AppTextStyle.medium.copyWith(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           if (agency.phone?.isNotEmpty == true)
-            ListTile(
-              leading: Icon(Icons.phone),
-              title: Text(agency.phone!),
-              onTap: () =>
-                  AppUrl.call("tel:${agency.phone}", mobile: agency.phone!),
+            Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.phone,
+                    color: Colors.green,
+                    size: 20,
+                  ),
+                ),
+                title: Text(
+                  agency.phone!,
+                  style: AppTextStyle.medium.copyWith(
+                    fontSize: 16,
+                    color: Colors.grey.shade800,
+                  ),
+                ),
+                subtitle: Text(
+                  "Tap to call",
+                  style: AppTextStyle.medium.copyWith(
+                    fontSize: 12,
+                    color: Colors.grey.shade500,
+                  ),
+                ),
+                onTap: () =>
+                    AppUrl.call("tel:${agency.phone}", mobile: agency.phone!),
+              ),
             ),
           if (agency.email?.isNotEmpty == true)
-            ListTile(
-              leading: Icon(Icons.email),
-              title: Text(agency.email!),
-              onTap: () =>
-                  AppUrl.mail(email: agency.email!, subject: "Trip Enquiry"),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey.shade200),
+              ),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.email,
+                    color: Colors.blue,
+                    size: 20,
+                  ),
+                ),
+                title: Text(
+                  agency.email!,
+                  style: AppTextStyle.medium.copyWith(
+                    fontSize: 16,
+                    color: Colors.grey.shade800,
+                  ),
+                ),
+                subtitle: Text(
+                  "Tap to email",
+                  style: AppTextStyle.medium.copyWith(
+                    fontSize: 12,
+                    color: Colors.grey.shade500,
+                  ),
+                ),
+                onTap: () =>
+                    AppUrl.mail(email: agency.email!, subject: "Trip Enquiry"),
+              ),
             ),
         ],
       ),
@@ -703,15 +1179,22 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _buildManageUserReview(HomeController ctrl) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(28),
       decoration: BoxDecoration(
-        color: Colors.white,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white,
+            Colors.grey.shade50,
+          ],
+        ),
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 25,
+            offset: const Offset(0, 15),
           ),
         ],
       ),
@@ -721,107 +1204,181 @@ class _HomeScreenState extends State<HomeScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                ctrl.userReview.value == null
-                    ? "How was your trip?"
-                    : "Your Review",
-                style: AppTextStyle.bold.copyWith(fontSize: 16),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    ctrl.userReview.value == null
+                        ? "How was your trip?"
+                        : "Your Review",
+                    style: AppTextStyle.bold.copyWith(
+                      fontSize: 18,
+                      color: Colors.grey.shade800,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    ctrl.userReview.value == null
+                        ? "Share your experience with others"
+                        : "Thank you for your feedback!",
+                    style: AppTextStyle.medium.copyWith(
+                      fontSize: 14,
+                      color: Colors.grey.shade500,
+                    ),
+                  ),
+                ],
               ),
               if (ctrl.userReview.value != null)
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
+                    horizontal: 12,
+                    vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    "SUBMITTED",
-                    style: AppTextStyle.bold.copyWith(
-                      color: Colors.green,
-                      fontSize: 10,
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.green,
+                        Colors.green.withValues(alpha: 0.8),
+                      ],
                     ),
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.green.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.check_circle,
+                        color: Colors.white,
+                        size: 14,
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        "SUBMITTED",
+                        style: AppTextStyle.bold.copyWith(
+                          color: Colors.white,
+                          fontSize: 11,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           Center(
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: List.generate(5, (index) {
-                return GestureDetector(
-                  onTap: () => ctrl.userReview.value == null
-                      ? ctrl.userRating.value = index + 1.0
-                      : null,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
-                    child: Icon(
-                      Icons.star_rounded,
-                      size: 36,
-                      color: index < ctrl.userRating.value
-                          ? Colors.amber
-                          : Colors.grey.shade300,
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.amber.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: List.generate(5, (index) {
+                  return GestureDetector(
+                    onTap: () => ctrl.userReview.value == null
+                        ? ctrl.userRating.value = index + 1.0
+                        : null,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Icon(
+                        Icons.star_rounded,
+                        size: 40,
+                        color: index < ctrl.userRating.value
+                            ? Colors.amber
+                            : Colors.grey.shade300,
+                      ),
                     ),
-                  ),
-                );
-              }),
+                  );
+                }),
+              ),
             ),
           ),
-          const SizedBox(height: 20),
-          TextField(
-            controller: ctrl.reviewCommentCtrl,
-            maxLines: 3,
-            readOnly: ctrl.userReview.value != null,
-            decoration: InputDecoration(
-              hintText: "Share your experience with others...",
-              hintStyle: AppTextStyle.medium.copyWith(
-                fontSize: 14,
-                color: Colors.grey.shade400,
+          const SizedBox(height: 24),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: TextField(
+              controller: ctrl.reviewCommentCtrl,
+              maxLines: 4,
+              readOnly: ctrl.userReview.value != null,
+              decoration: InputDecoration(
+                hintText: "Share your experience with others...",
+                hintStyle: AppTextStyle.medium.copyWith(
+                  fontSize: 14,
+                  color: Colors.grey.shade400,
+                ),
+                filled: false,
+                contentPadding: const EdgeInsets.all(20),
+                border: InputBorder.none,
               ),
-              filled: true,
-              fillColor: Colors.grey.shade300,
-              contentPadding: const EdgeInsets.all(16),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide.none,
+              style: AppTextStyle.medium.copyWith(
+                fontSize: 14,
+                color: Colors.grey.shade700,
               ),
             ),
           ),
           if (ctrl.userReview.value == null) ...[
-            const SizedBox(height: 20),
+            const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
-              height: 52,
+              height: 56,
               child: ElevatedButton(
                 onPressed: ctrl.isReviewLoading.value
                     ? null
                     : () => ctrl.submitReview(),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Constant.instance.primary,
+                  backgroundColor: Colors.transparent,
                   foregroundColor: Colors.white,
+                  shadowColor: Colors.transparent,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
                   elevation: 0,
+                ).copyWith(
+                  backgroundColor: WidgetStateProperty.all(Colors.transparent),
                 ),
-                child: ctrl.isReviewLoading.value
-                    ? const SizedBox(
-                        height: 20,
-                        width: 20,
-                        child: CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        ),
-                      )
-                    : Text(
-                        ctrl.userReview.value == null
-                            ? "Submit Review"
-                            : "Update Review",
-                        style: AppTextStyle.bold.copyWith(fontSize: 16),
-                      ),
+                child: Ink(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Constant.instance.primary,
+                        Constant.instance.primary.withValues(alpha: 0.8),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Container(
+                    alignment: Alignment.center,
+                    child: ctrl.isReviewLoading.value
+                        ? const SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : Text(
+                            "Submit Review",
+                            style: AppTextStyle.bold.copyWith(
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                  ),
+                ),
               ),
             ),
           ],
@@ -855,16 +1412,16 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _buildTripReviewCard(Review review) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 15,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -874,36 +1431,45 @@ class _HomeScreenState extends State<HomeScreen>
           Row(
             children: [
               Container(
-                width: 40,
-                height: 40,
+                width: 48,
+                height: 48,
                 decoration: BoxDecoration(
-                  color: Constant.instance.primary.withValues(alpha: 0.1),
+                  gradient: LinearGradient(
+                    colors: [
+                      Constant.instance.primary,
+                      Constant.instance.primary.withValues(alpha: 0.8),
+                    ],
+                  ),
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
                 child: Text(
                   review.customerName?[0].toUpperCase() ?? "U",
                   style: AppTextStyle.bold.copyWith(
-                    color: Constant.instance.primary,
-                    fontSize: 16,
+                    color: Colors.white,
+                    fontSize: 18,
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       review.customerName ?? "Guest User",
-                      style: AppTextStyle.bold.copyWith(fontSize: 15),
+                      style: AppTextStyle.bold.copyWith(
+                        fontSize: 16,
+                        color: Colors.grey.shade800,
+                      ),
                     ),
+                    const SizedBox(height: 4),
                     if (review.createdAt != null)
                       Text(
                         AppDateFormat.monthDayYear(review.createdAt!),
                         style: AppTextStyle.medium.copyWith(
-                          fontSize: 11,
-                          color: Colors.grey.shade400,
+                          fontSize: 12,
+                          color: Colors.grey.shade500,
                         ),
                       ),
                   ],
@@ -911,26 +1477,39 @@ class _HomeScreenState extends State<HomeScreen>
               ),
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
+                  horizontal: 12,
+                  vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.amber.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.amber,
+                      Colors.amber.withValues(alpha: 0.8),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.amber.withValues(alpha: 0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     const Icon(
                       Icons.star_rounded,
-                      color: Colors.amber,
+                      color: Colors.white,
                       size: 16,
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 6),
                     Text(
                       "${(review.packageRating ?? review.overallRating ?? 0.0).toInt()}",
                       style: AppTextStyle.bold.copyWith(
-                        fontSize: 13,
-                        color: Colors.amber.shade800,
+                        fontSize: 14,
+                        color: Colors.white,
                       ),
                     ),
                   ],
@@ -939,19 +1518,20 @@ class _HomeScreenState extends State<HomeScreen>
             ],
           ),
           if (review.comment?.isNotEmpty == true) ...[
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 color: Colors.grey.shade50,
                 borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey.shade200),
               ),
               child: Text(
                 review.comment!,
                 style: AppTextStyle.medium.copyWith(
-                  fontSize: 13,
+                  fontSize: 14,
                   color: Colors.grey.shade700,
-                  height: 1.5,
+                  height: 1.6,
                 ),
               ),
             ),
@@ -963,13 +1543,43 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _buildTripEmptyState(IconData icon, String msg) {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(40),
+      child: Container(
+        margin: const EdgeInsets.all(40),
+        padding: const EdgeInsets.all(32),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
         child: Column(
           children: [
-            Icon(icon, size: 40, color: Colors.grey.shade300),
-            const SizedBox(height: 12),
-            Text(msg, style: TextStyle(color: Colors.grey)),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: 48,
+                color: Colors.grey.shade400,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              msg,
+              textAlign: TextAlign.center,
+              style: AppTextStyle.medium.copyWith(
+                fontSize: 16,
+                color: Colors.grey.shade600,
+              ),
+            ),
           ],
         ),
       ),
@@ -1298,57 +1908,103 @@ class _HomeScreenState extends State<HomeScreen>
 
       return Container(
         width: double.infinity,
-        color: Colors.transparent, // Background is clean white/transparent
-        padding: const EdgeInsets.fromLTRB(24, 60, 24, 20),
+        padding: const EdgeInsets.fromLTRB(24, 50, 24, 20),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 8),
-                  // Greeting Line 1
-                  Text(
-                    "Good Morning,",
-                    style: AppTextStyle.bold.copyWith(
-                      color: Colors.grey.shade400,
-                      fontSize: 28,
-                      height: 1.1,
-                    ),
-                  ),
-                  // Greeting Line 2 (Name + Emoji)
+                  // Greeting with emoji
                   Row(
                     children: [
                       Text(
-                        name,
+                        "${getGreetingText()}, ",
                         style: AppTextStyle.bold.copyWith(
-                          color: Colors.black,
-                          fontSize: 28,
-                          height: 1.1,
+                          color: Colors.white.withValues(alpha: 0.9),
+                          fontSize: 17,
+                          height: 1.2,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      const Text("👋", style: TextStyle(fontSize: 28)),
+                      Text(
+                        getGreetingEmoji(),
+                        style: const TextStyle(fontSize: 18),
+                      ),
                     ],
                   ),
+                  const SizedBox(height: 3),
+                  // User name
+                  Text(
+                    name,
+                    style: AppTextStyle.bold.copyWith(
+                      color: Colors.white,
+                      fontSize: 25,
+                      height: 1.1,
+                      shadows: [
+                        Shadow(
+                          color: Colors.black.withValues(alpha: 0.2),
+                          blurRadius: 10,
+                        ),
+                      ],
+                    ),
+                  ),
+                  // const SizedBox(height: 8),
+                  // // Subtitle
+                  // Container(
+                  //   padding: const EdgeInsets.symmetric(
+                  //     horizontal: 12,
+                  //     vertical: 6,
+                  //   ),
+                  //   decoration: BoxDecoration(
+                  //     color: Colors.white.withValues(alpha: 0.2),
+                  //     borderRadius: BorderRadius.circular(8),
+                  //   ),
+                  //   child: Text(
+                  //     "Your Travel Dashboard",
+                  //     style: AppTextStyle.medium.copyWith(
+                  //       color: Colors.white.withValues(alpha: 0.9),
+                  //       fontSize: 12,
+                  //       letterSpacing: 0.5,
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
-            // Profile Image (Matches the top-right placement)
+            // Enhanced Profile Avatar
             Container(
               decoration: BoxDecoration(
-                color: Constant.instance.white,
+                color: Colors.white,
                 shape: BoxShape.circle,
-                border: Border.all(color: Constant.instance.primary, width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 15,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
-              padding: const EdgeInsets.all(12),
-              child: Center(
-                child: Text(
-                  name.substring(0, 1).toUpperCase(),
-                  style: AppTextStyle.bold.copyWith(
-                    color: Constant.instance.primary,
-                    fontSize: 35,
+              padding: const EdgeInsets.all(3),
+              child: Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Constant.instance.primary,
+                      Constant.instance.primary.withValues(alpha: 0.8),
+                    ],
+                  ),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: Text(
+                    name.substring(0, 1).toUpperCase(),
+                    style: AppTextStyle.bold.copyWith(
+                      color: Colors.white,
+                      fontSize: 24,
+                    ),
                   ),
                 ),
               ),

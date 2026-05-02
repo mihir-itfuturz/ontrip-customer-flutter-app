@@ -236,7 +236,7 @@ class _CommunityScreenState extends State<CommunityScreen>
                     children: [
                       Text(
                         title,
-                        maxLines: 2,
+                        maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyle.bold.copyWith(
                           fontSize: 17,
