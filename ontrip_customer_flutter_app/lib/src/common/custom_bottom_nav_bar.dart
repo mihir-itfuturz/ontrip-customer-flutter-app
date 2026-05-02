@@ -181,7 +181,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
   Widget build(BuildContext context) {
     return SafeArea(
       child: Container(
-        margin: const EdgeInsets.only(bottom: 10, right: 40, left: 40, top: 10),
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
         decoration: BoxDecoration(
           color: Colors.white70, // Dark capsule background
@@ -270,7 +270,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
         margin: const EdgeInsets.symmetric(horizontal: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           // Active item gets the green pill background
           color: isActive ? item.activeColor : Colors.transparent,
@@ -290,27 +290,26 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
               ),
             ),
 
-            // This handles the sliding text expansion
-            AnimatedSize(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-              child: SizedBox(
-                width: isActive ? null : 0,
-                child: isActive
-                    ? Padding(
-                        padding: const EdgeInsets.only(left: 8.0),
-                        child: Text(
-                          item.label,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                        ),
-                      )
-                    : const SizedBox.shrink(),
+            if (isActive)
+              Flexible(
+                child: AnimatedSize(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 8.0),
+                    child: Text(
+                      item.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ),
               ),
-            ),
           ],
         ),
       ),
