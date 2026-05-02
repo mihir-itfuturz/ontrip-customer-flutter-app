@@ -38,4 +38,9 @@ class SettingsCtrl extends GetxController {
     // Open URL or Navigate
     AppUrl.urlLaunch(url: StringConstants.privacyPolicy);
   }
+
+  void contactsupport() {
+    // Open URL or Navigate
+    AppUrl.urlLaunch(url: StringConstants.contactsupport);
+  }
 }

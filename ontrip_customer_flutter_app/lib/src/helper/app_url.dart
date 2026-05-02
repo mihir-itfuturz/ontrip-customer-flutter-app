@@ -13,13 +13,24 @@ class AppUrl {
     try {
       final uri = Uri.parse(url);
       debugPrint('🔗 Attempting to launch URL: $url');
-      final willLaunch = await canLaunchUrl(uri);
-      if (willLaunch) {
-        await launchUrl(
+      
+      // Try to launch directly first, as canLaunchUrl is often restricted by Android package visibility
+      bool launched = await launchUrl(
+        uri,
+        mode: mode,
+        webViewConfiguration: webViewConfiguration,
+      );
+
+      if (!launched) {
+        // Fallback to external application if the first attempt failed
+        debugPrint('⚠️ Initial launch failed, trying external application fallback...');
+        launched = await launchUrl(
           uri,
-          mode: mode,
-          webViewConfiguration: webViewConfiguration,
+          mode: LaunchMode.externalApplication,
         );
+      }
+
+      if (launched) {
         debugPrint('✅ Successfully launched URL: $url');
       } else {
         debugPrint('❌ Cannot launch URL: $url');
@@ -30,6 +41,7 @@ class AppUrl {
       Fluttertoast.showToast(msg: errorMsg);
     }
   }
+
 
   static Future<void> urlLaunch({
     required String url,
