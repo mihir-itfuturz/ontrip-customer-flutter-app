@@ -47,70 +47,127 @@ class _HistoryScreenState extends State<HistoryScreen>
       backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
         bottom: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeader(controller),
-            const SizedBox(height: 16),
-            _buildSearchAndStats(controller),
-            const SizedBox(height: 10),
-            Expanded(
-              child: Obx(() {
-                if (controller.isLoading.value && controller.bookings.isEmpty) {
-                  return const Center(child: CustomLoadingIndicator());
-                }
-                if (controller.bookings.isEmpty) {
-                  return const Center(
-                    child: NoDataComponent(text: "No journeys found"),
-                  );
-                }
-                return RefreshIndicator(
-                  onRefresh: controller.fetchHistory,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 10,
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(controller),
+              // _buildStatsSection(controller),
+              SizedBox(height: 20,),
+              _buildSearchAndFilters(controller),
+              Expanded(
+                child: Obx(() {
+                  if (controller.isLoading.value && controller.bookings.isEmpty) {
+                    return const Center(child: CustomLoadingIndicator());
+                  }
+                  if (controller.bookings.isEmpty) {
+                    return _buildEmptyState();
+                  }
+                  return RefreshIndicator(
+                    onRefresh: controller.fetchHistory,
+                    color: Constant.instance.primary,
+                    backgroundColor: Colors.white,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      itemCount: controller.bookings.length,
+                      itemBuilder: (context, index) {
+                        return AnimatedContainer(
+                          duration: Duration(milliseconds: 300 + (index * 100)),
+                          curve: Curves.easeOutBack,
+                          child: _buildBookingCard(
+                            controller.bookings[index],
+                            controller,
+                            index,
+                          ),
+                        );
+                      },
                     ),
-                    itemCount: controller.bookings.length,
-                    itemBuilder: (context, index) {
-                      return _buildBookingCard(
-                        controller.bookings[index],
-                        controller,
-                      );
-                    },
-                  ),
-                );
-              }),
-            ),
-          ],
+                  );
+                }),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
   Widget _buildHeader(HistoryCtrl controller) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Your Journeys",
-            style: AppTextStyle.bold.copyWith(
-              fontSize: 28,
-              color: const Color(0xFF0F172A),
-              letterSpacing: -0.5,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            "Relive your memories and plan for the next one.",
-            style: AppTextStyle.medium.copyWith(
-              fontSize: 14,
-              color: const Color(0xFF64748B),
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Constant.instance.primary,
+            Constant.instance.primary.withValues(alpha: 0.8),
+          ],
+        ),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(32),
+          bottomRight: Radius.circular(32),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Constant.instance.primary.withValues(alpha: 0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(
+                    Icons.history_rounded,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Your Journeys",
+                        style: AppTextStyle.bold.copyWith(
+                          fontSize: 25,
+                          color: Colors.white,
+                          letterSpacing: -0.8,
+                          height: 1.1,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "Relive your memories and plan for the next one",
+                        style: AppTextStyle.medium.copyWith(
+                          fontSize: 13,
+                          color: Colors.white.withValues(alpha: 0.9),
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -183,7 +240,7 @@ class _HistoryScreenState extends State<HistoryScreen>
     );
   }
 
-  Widget _buildBookingCard(Booking booking, HistoryCtrl controller) {
+  Widget _buildBookingCard(Booking booking, HistoryCtrl controller, int index) {
     final package = booking.package;
     final coverImage = package?.coverImage ?? "";
     final title =
@@ -201,12 +258,17 @@ class _HistoryScreenState extends State<HistoryScreen>
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 20,
             offset: const Offset(0, 8),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -216,15 +278,29 @@ class _HistoryScreenState extends State<HistoryScreen>
           // Image Section
           Stack(
             children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(28),
-                ),
-                child: SizedBox(
-                  height: 180,
-                  width: double.infinity,
-                  child: CustomNetworkImage(
-                    imageUrl: "${'https://ontrip.itfuturz.in/'}$coverImage",
+              Hero(
+                tag: 'history_image_$index',
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(24),
+                  ),
+                  child: Container(
+                    height: 200,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          Colors.black.withValues(alpha: 0.1),
+                        ],
+                      ),
+                    ),
+                    child: CustomNetworkImage(
+                      imageUrl: "${'https://ontrip.itfuturz.in/'}$coverImage",
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
@@ -234,15 +310,23 @@ class _HistoryScreenState extends State<HistoryScreen>
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
-                    vertical: 6,
+                    vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: _getStatusColor(status).withValues(alpha: 0.9),
-                    borderRadius: BorderRadius.circular(10),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        _getStatusColor(status),
+                        _getStatusColor(status).withValues(alpha: 0.8),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 4,
+                        color: _getStatusColor(status).withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
                       ),
                     ],
                   ),
@@ -250,8 +334,32 @@ class _HistoryScreenState extends State<HistoryScreen>
                     status.toUpperCase(),
                     style: AppTextStyle.bold.copyWith(
                       color: Colors.white,
-                      fontSize: 10,
+                      fontSize: 11,
+                      letterSpacing: 0.5,
                     ),
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 16,
+                right: 16,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.favorite_border_rounded,
+                    size: 20,
+                    color: Constant.instance.primary,
                   ),
                 ),
               ),
@@ -259,72 +367,112 @@ class _HistoryScreenState extends State<HistoryScreen>
           ),
 
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(24),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    Icon(
-                      Icons.airplane_ticket_outlined,
-                      size: 14,
-                      color: Constant.instance.primary,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      bookingId,
-                      style: AppTextStyle.bold.copyWith(
-                        fontSize: 12,
-                        color: Constant.instance.primary,
-                        letterSpacing: 0.5,
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Constant.instance.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.confirmation_number_rounded,
+                            size: 14,
+                            color: Constant.instance.primary,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            bookingId,
+                            style: AppTextStyle.bold.copyWith(
+                              fontSize: 12,
+                              color: Constant.instance.primary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 12),
                 Text(
                   title,
                   style: AppTextStyle.bold.copyWith(
-                    fontSize: 18,
+                    fontSize: 20,
                     color: const Color(0xFF1E293B),
+                    height: 1.2,
                   ),
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 Row(
                   children: [
-                    _buildInfoItem(Icons.calendar_today_outlined, travelDate),
+                    Expanded(
+                      child: _buildInfoItem(
+                        Icons.calendar_today_rounded,
+                        travelDate,
+                        Constant.instance.primary,
+                      ),
+                    ),
                     const SizedBox(width: 16),
-                    _buildInfoItem(Icons.location_on_outlined, destination),
+                    Expanded(
+                      child: _buildInfoItem(
+                        Icons.location_on_rounded,
+                        destination,
+                        Constant.instance.orange,
+                      ),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
                 GestureDetector(
                   onTap: () => controller.navigateToDetails(booking.bookingId!),
                   child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF8FAFC),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Constant.instance.primary,
+                          Constant.instance.primary.withValues(alpha: 0.8),
+                        ],
+                      ),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Constant.instance.primary.withValues(alpha: 0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          "View Trip",
+                          "View Trip Details",
                           style: AppTextStyle.bold.copyWith(
-                            fontSize: 14,
-                            color: const Color(0xFF475569),
+                            fontSize: 16,
+                            color: Colors.white,
                           ),
                         ),
-                        const SizedBox(width: 4),
+                        const SizedBox(width: 8),
                         const Icon(
-                          Icons.chevron_right,
+                          Icons.arrow_forward_rounded,
                           size: 18,
-                          color: Color(0xFF64748B),
+                          color: Colors.white,
                         ),
                       ],
                     ),
@@ -338,19 +486,255 @@ class _HistoryScreenState extends State<HistoryScreen>
     );
   }
 
-  Widget _buildInfoItem(IconData icon, String label) {
-    return Row(
+  Widget _buildInfoItem(IconData icon, String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: color.withValues(alpha: 0.2),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              label,
+              style: AppTextStyle.medium.copyWith(
+                fontSize: 13,
+                color: const Color(0xFF64748B),
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStatsSection(HistoryCtrl controller) {
+    return Obx(() {
+      final totalTrips = controller.totalTrips.value;
+      final completedTrips = controller.bookings
+          .where((booking) => booking.bookingStatus?.toLowerCase() == 'completed')
+          .length;
+      final upcomingTrips = controller.bookings
+          .where((booking) => booking.bookingStatus?.toLowerCase() == 'confirmed')
+          .length;
+      
+      return Container(
+        margin: const EdgeInsets.fromLTRB(20, 20, 20, 16),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: _buildStatItem(
+                icon: Icons.flight_takeoff_rounded,
+                label: "Total Trips",
+                value: totalTrips.toString(),
+                color: Constant.instance.primary,
+              ),
+            ),
+            Container(
+              width: 1,
+              height: 40,
+              color: const Color(0xFFE2E8F0),
+            ),
+            Expanded(
+              child: _buildStatItem(
+                icon: Icons.check_circle_rounded,
+                label: "Completed",
+                value: completedTrips.toString(),
+                color: Constant.instance.green2,
+              ),
+            ),
+            Container(
+              width: 1,
+              height: 40,
+              color: const Color(0xFFE2E8F0),
+            ),
+            Expanded(
+              child: _buildStatItem(
+                icon: Icons.schedule_rounded,
+                label: "Upcoming",
+                value: upcomingTrips.toString(),
+                color: Constant.instance.orange,
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildStatItem({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+  }) {
+    return Column(
       children: [
-        Icon(icon, size: 14, color: const Color(0xFF94A3B8)),
-        const SizedBox(width: 6),
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(
+            icon,
+            color: color,
+            size: 20,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          style: AppTextStyle.bold.copyWith(
+            fontSize: 18,
+            color: const Color(0xFF1E293B),
+          ),
+        ),
+        const SizedBox(height: 2),
         Text(
           label,
           style: AppTextStyle.medium.copyWith(
-            fontSize: 13,
+            fontSize: 12,
             color: const Color(0xFF64748B),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildSearchAndFilters(HistoryCtrl controller) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: TextField(
+          controller: controller.searchController,
+          onChanged: controller.onSearchChanged,
+          style: AppTextStyle.medium.copyWith(
+            fontSize: 15,
+            color: const Color(0xFF1E293B),
+          ),
+          decoration: InputDecoration(
+            hintText: "Search by Booking ID or Destination...",
+            hintStyle: AppTextStyle.medium.copyWith(
+              color: const Color(0xFF94A3B8),
+              fontSize: 15,
+            ),
+            prefixIcon: Container(
+              padding: const EdgeInsets.all(12),
+              child: Icon(
+                Icons.search_rounded,
+                color: Constant.instance.primary.withValues(alpha: 0.7),
+                size: 20,
+              ),
+            ),
+            border: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 16,
+              horizontal: 20,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Constant.instance.primary.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.luggage_rounded,
+                size: 64,
+                color: Constant.instance.primary,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              "No Journeys Yet",
+              style: AppTextStyle.bold.copyWith(
+                fontSize: 24,
+                color: const Color(0xFF1E293B),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              "Your travel history will appear here once you start booking trips with us.",
+              textAlign: TextAlign.center,
+              style: AppTextStyle.medium.copyWith(
+                fontSize: 16,
+                color: const Color(0xFF64748B),
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 32),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 12,
+              ),
+              decoration: BoxDecoration(
+                color: Constant.instance.primary,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Constant.instance.primary.withValues(alpha: 0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Text(
+                "Start Your Journey",
+                style: AppTextStyle.semiBold.copyWith(
+                  fontSize: 16,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
