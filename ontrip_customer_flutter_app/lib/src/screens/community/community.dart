@@ -46,37 +46,122 @@ class _CommunityScreenState extends State<CommunityScreen>
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(),
+              _buildStatsSection(controller),
+              Expanded(
+                child: Obx(() {
+                  if (controller.isLoading.value) {
+                    return const Center(child: CustomLoadingIndicator());
+                  }
+                  if (controller.bookings.isEmpty) {
+                    return _buildEmptyState();
+                  }
+                  return RefreshIndicator(
+                    onRefresh: controller.fetchBookings,
+                    color: Constant.instance.primary,
+                    backgroundColor: Colors.white,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      itemCount: controller.bookings.length,
+                      itemBuilder: (context, index) {
+                        return AnimatedContainer(
+                          duration: Duration(milliseconds: 300 + (index * 100)),
+                          curve: Curves.easeOutBack,
+                          child: _buildBookingTile(
+                            controller.bookings[index],
+                            controller,
+                            index,
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                }),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Constant.instance.primary,
+            Constant.instance.primary.withValues(alpha: 0.8),
+          ],
+        ),
+        borderRadius: const BorderRadius.only(
+          bottomLeft: Radius.circular(32),
+          bottomRight: Radius.circular(32),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Constant.instance.primary.withValues(alpha: 0.2),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeader(),
-            Expanded(
-              child: Obx(() {
-                if (controller.isLoading.value) {
-                  return const Center(child: CustomLoadingIndicator());
-                }
-                if (controller.bookings.isEmpty) {
-                  return Center(
-                    child: NoDataComponent(text: "No active trips found"),
-                  );
-                }
-                return RefreshIndicator(
-                  onRefresh: controller.fetchBookings,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 10,
-                    ),
-                    itemCount: controller.bookings.length,
-                    itemBuilder: (context, index) {
-                      return _buildBookingTile(
-                        controller.bookings[index],
-                        controller,
-                      );
-                    },
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                );
-              }),
+                  child: const Icon(
+                    Icons.groups_rounded,
+                    color: Colors.white,
+                    size: 28,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Community",
+                        style: AppTextStyle.bold.copyWith(
+                          fontSize: 27,
+                          color: Colors.white,
+                          letterSpacing: -0.8,
+                          height: 1.1,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "Connect with fellow travelers and experts",
+                        style: AppTextStyle.medium.copyWith(
+                          fontSize: 13,
+                          color: Colors.white.withValues(alpha: 0.9),
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -84,34 +169,7 @@ class _CommunityScreenState extends State<CommunityScreen>
     );
   }
 
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 40, 24, 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Community",
-            style: AppTextStyle.bold.copyWith(
-              fontSize: 28,
-              color: const Color(0xFF0F172A),
-              letterSpacing: -0.5,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            "Connect with fellow travelers and experts.",
-            style: AppTextStyle.medium.copyWith(
-              fontSize: 14,
-              color: const Color(0xFF64748B),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBookingTile(Booking booking, CommunityCtrl controller) {
+  Widget _buildBookingTile(Booking booking, CommunityCtrl controller, int index) {
     final package = booking.package;
     final title =
         booking.whitelabelPackage?.customTitle ??
@@ -121,65 +179,305 @@ class _CommunityScreenState extends State<CommunityScreen>
     final coverImage = package?.coverImage ?? "";
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF1F0FF).withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: const Color(0xFF4338CA).withValues(alpha: 0.1),
-        ),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF4338CA).withValues(alpha: 0.08),
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: () => controller.navigateToChat(package?.id, coverImage),
-          borderRadius: BorderRadius.circular(20),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          borderRadius: BorderRadius.circular(24),
+          child: Container(
+            padding: const EdgeInsets.all(20),
             child: Row(
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
-                  child: CustomNetworkImage(
-                    imageUrl: "https://ontrip.itfuturz.in/$coverImage",
-                    height: 52,
-                    width: 52,
-                    fit: BoxFit.cover,
+                Hero(
+                  tag: 'community_image_$index',
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Constant.instance.primary.withValues(alpha: 0.2),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: CustomNetworkImage(
+                        imageUrl: "https://ontrip.itfuturz.in/$coverImage",
+                        height: 64,
+                        width: 64,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: 20),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         title,
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: AppTextStyle.bold.copyWith(
-                          fontSize: 15,
-                          color: const Color(0xFF2D2C74),
+                          fontSize: 17,
+                          color: const Color(0xFF1E293B),
+                          height: 1.3,
                         ),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        destination,
-                        style: AppTextStyle.medium.copyWith(
-                          fontSize: 13,
-                          color: const Color(0xFF94A3B8),
-                        ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.location_on_rounded,
+                            size: 16,
+                            color: Constant.instance.primary.withValues(alpha: 0.7),
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              destination,
+                              style: AppTextStyle.medium.copyWith(
+                                fontSize: 14,
+                                color: const Color(0xFF64748B),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
+                      // const SizedBox(height: 8),
+                      // Container(
+                      //   padding: const EdgeInsets.symmetric(
+                      //     horizontal: 12,
+                      //     vertical: 6,
+                      //   ),
+                      //   decoration: BoxDecoration(
+                      //     color: Constant.instance.primary.withValues(alpha: 0.1),
+                      //     borderRadius: BorderRadius.circular(20),
+                      //   ),
+                      //   child: Row(
+                      //     mainAxisSize: MainAxisSize.min,
+                      //     // children: [
+                      //     //   Icon(
+                      //     //     Icons.chat_bubble_rounded,
+                      //     //     size: 14,
+                      //     //     color: Constant.instance.primary,
+                      //     //   ),
+                      //     //   const SizedBox(width: 6),
+                      //     //   // Text(
+                      //     //   //   "Join Chat",
+                      //     //   //   style: AppTextStyle.semiBold.copyWith(
+                      //     //   //     fontSize: 12,
+                      //     //   //     color: Constant.instance.primary,
+                      //     //   //   ),
+                      //     //   // ),
+                      //     // ],
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
-                const Icon(
-                  Icons.chevron_right,
-                  color: Color(0xFFCBD5E1),
-                  size: 20,
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: Constant.instance.primary,
+                    size: 16,
+                  ),
                 ),
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatsSection(CommunityCtrl controller) {
+    return Obx(() {
+      final activeTrips = controller.bookings.length;
+      return Container(
+        margin: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: _buildStatItem(
+                icon: Icons.groups_rounded,
+                label: "Active Trips",
+                value: activeTrips.toString(),
+                color: Constant.instance.primary,
+              ),
+            ),
+            Container(
+              width: 1,
+              height: 40,
+              color: const Color(0xFFE2E8F0),
+            ),
+            Expanded(
+              child: _buildStatItem(
+                icon: Icons.chat_bubble_rounded,
+                label: "Conversations",
+                value: activeTrips.toString(),
+                color: Constant.instance.green2,
+              ),
+            ),
+            Container(
+              width: 1,
+              height: 40,
+              color: const Color(0xFFE2E8F0),
+            ),
+            Expanded(
+              child: _buildStatItem(
+                icon: Icons.people_rounded,
+                label: "Members",
+                value: "${activeTrips * 8}+",
+                color: Constant.instance.orange,
+              ),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildStatItem({
+    required IconData icon,
+    required String label,
+    required String value,
+    required Color color,
+  }) {
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(
+            icon,
+            color: color,
+            size: 20,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          value,
+          style: AppTextStyle.bold.copyWith(
+            fontSize: 18,
+            color: const Color(0xFF1E293B),
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: AppTextStyle.medium.copyWith(
+            fontSize: 12,
+            color: const Color(0xFF64748B),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Constant.instance.primary.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.groups_rounded,
+                size: 64,
+                color: Constant.instance.primary,
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              "No Active Trips",
+              style: AppTextStyle.bold.copyWith(
+                fontSize: 24,
+                color: const Color(0xFF1E293B),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              "Start your journey and connect with fellow travelers in our community chats.",
+              textAlign: TextAlign.center,
+              style: AppTextStyle.medium.copyWith(
+                fontSize: 16,
+                color: const Color(0xFF64748B),
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 32),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24,
+                vertical: 12,
+              ),
+              decoration: BoxDecoration(
+                color: Constant.instance.primary,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Constant.instance.primary.withValues(alpha: 0.3),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Text(
+                "Explore Trips",
+                style: AppTextStyle.semiBold.copyWith(
+                  fontSize: 16,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
