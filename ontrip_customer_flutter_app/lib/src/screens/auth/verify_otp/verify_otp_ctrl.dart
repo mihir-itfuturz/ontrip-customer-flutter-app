@@ -1,17 +1,60 @@
+import 'dart:async';
 import 'dart:developer';
 
 import '../../../../app_export.dart';
 
 class VerifyOTPCtrl extends GetxController {
   final TextEditingController otpController = TextEditingController();
+  final List<TextEditingController> localOTPControllers = List.generate(4, (_) => TextEditingController());
   final isLoading = false.obs;
+  final resendTimer = 30.obs;
+  final canResend = false.obs;
+  Timer? _timer;
   String phone = "";
+
+  void updateOTPValue() {
+    otpController.text = localOTPControllers.map((c) => c.text).join();
+  }
 
   @override
   void onInit() {
     super.onInit();
     if (Get.arguments != null) {
       phone = Get.arguments['phone'] ?? "";
+    }
+    startResendTimer();
+  }
+
+  void startResendTimer() {
+    canResend.value = false;
+    resendTimer.value = 30;
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (resendTimer.value > 0) {
+        resendTimer.value--;
+      } else {
+        canResend.value = true;
+        _timer?.cancel();
+      }
+    });
+  }
+
+  Future<void> resendOTP() async {
+    try {
+      final Map<String, dynamic> sendJson = {"phone": phone};
+      final response = await ApiManager.call(
+        endPoint: BACKEND.sendOtp,
+        body: sendJson,
+      );
+      if ((response.status == 1 || response.status == 200) &&
+          response.success == true) {
+        successToast("OTP Resent successfully");
+        startResendTimer();
+      } else {
+        errorToast(response.message);
+      }
+    } catch (e) {
+      errorToast(e.toString());
     }
   }
 
@@ -74,7 +117,11 @@ class VerifyOTPCtrl extends GetxController {
 
   @override
   void onClose() {
+    _timer?.cancel();
     otpController.dispose();
+    for (var c in localOTPControllers) {
+      c.dispose();
+    }
     super.onClose();
   }
 }

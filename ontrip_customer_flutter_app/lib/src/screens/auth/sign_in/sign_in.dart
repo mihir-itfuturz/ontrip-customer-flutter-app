@@ -1,6 +1,4 @@
-import 'package:ontrip_customer_flutter_app/src/helper/decoration.dart';
 import 'package:ontrip_customer_flutter_app/src/screens/auth/sign_in/sign_in_ctrl.dart';
-
 import '../../../../app_export.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -10,93 +8,41 @@ class SignInScreen extends StatefulWidget {
   State<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen>
-    with TickerProviderStateMixin {
-  late AnimationController _fadeController;
-  late AnimationController _slideController;
-  late Animation<double> _fadeAnimation;
-  late Animation<Offset> _slideAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeAnimations();
-    _startAnimations();
-  }
-
-  void _initializeAnimations() {
-    _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 1200),
-      vsync: this,
-    );
-    _slideController = AnimationController(
-      duration: const Duration(milliseconds: 900),
-      vsync: this,
-    );
-    _fadeAnimation = CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeInOut,
-    );
-    _slideAnimation =
-        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
-          CurvedAnimation(parent: _slideController, curve: Curves.easeOutCubic),
-        );
-  }
-
-  void _startAnimations() {
-    Future.delayed(const Duration(milliseconds: 300), () {
-      _fadeController.forward();
-    });
-    Future.delayed(const Duration(milliseconds: 500), () {
-      _slideController.forward();
-    });
-  }
-
-  @override
-  void dispose() {
-    _fadeController.dispose();
-    _slideController.dispose();
-    super.dispose();
-  }
+class _SignInScreenState extends State<SignInScreen> {
+  // Local colors to match the design perfectly
+  // static const Color kPrimaryOrange = Color(0xFFE8693A);
+  static const Color kPrimaryOrange = Color(0xFFE8693A);
+  static const Color kDarkNavy = Color(0xFF1B213F);
+  static const Color kBgColor = Color(0xFFFFF5ED);
+  static const Color kWhite = Colors.white;
+  static const Color kGreyText = Color(0xFF8E95A2);
+  static const Color kSubwhite = Color(0xB3FFFFFF);
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder<SignInCtrl>(
       builder: (ctrl) {
         return GestureDetector(
-          onTap: () {
-            FocusScope.of(context).unfocus();
-          },
-          child: PopScope(
-            canPop: false,
-            child: Scaffold(
-              backgroundColor: const Color(0xFFF8FAFC),
-              body: Container(
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      const Color(0xFFF8FAFC),
-                      Colors.blue.shade50.withValues(alpha: 0.5),
-                      Colors.blue.shade50.withValues(alpha: 0.2),
+          onTap: () => FocusScope.of(context).unfocus(),
+          child: Scaffold(
+            backgroundColor: kBgColor,
+            body: SafeArea(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 20),
+                      _buildHeader(),
+                      const SizedBox(height: 30),
+                      _buildWelcomeCard(),
+                      const SizedBox(height: 30),
+                      _buildSignInForm(ctrl),
+                      const SizedBox(height: 20),
+                      _buildFooter(),
+                      const SizedBox(height: 20),
                     ],
-                    stops: const [0.0, 0.5, 1.0],
-                  ),
-                ),
-                child: SafeArea(
-                  child: Center(
-                    child: ListView(
-                      shrinkWrap: true,
-                      keyboardDismissBehavior:
-                          ScrollViewKeyboardDismissBehavior.onDrag,
-                      physics: ClampingScrollPhysics(),
-                      children: [
-                        _buildSignInFormCard(ctrl),
-                        _buildFooterSection(),
-                      ],
-                    ),
                   ),
                 ),
               ),
@@ -107,254 +53,297 @@ class _SignInScreenState extends State<SignInScreen>
     );
   }
 
-  Widget _buildSignInFormCard(SignInCtrl ctrl) {
-    return SlideTransition(
-      position: _slideAnimation,
-      child: FadeTransition(
-        opacity: _fadeAnimation,
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 32,
-                offset: const Offset(0, 12),
-              ),
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-            ],
+  Widget _buildHeader() {
+    return Row(
+      children: [
+        Container(
+          width: 8,
+          height: 8,
+          decoration: const BoxDecoration(
+            color: kPrimaryOrange,
+            shape: BoxShape.circle,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
+        ),
+        const SizedBox(width: 8),
+        Text(
+          "OnTrip",
+          style: AppTextStyle.bold.copyWith(
+            fontSize: 20,
+            color: Constant.instance.black,
+            letterSpacing: -0.5,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWelcomeCard() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: kDarkNavy,
+        borderRadius: BorderRadius.circular(32),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _buildWelcomeSection(),
-              const SizedBox(height: 28),
-              _buildCredentialField(ctrl),
-              const SizedBox(height: 28),
-              _buildSignInButton(ctrl),
+              Text(
+                "JOURNEYS MADE EASY",
+                style: AppTextStyle.bold.copyWith(
+                  fontSize: 10,
+                  color: kPrimaryOrange,
+                  letterSpacing: 1.5,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color: kPrimaryOrange,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  "v2",
+                  style: AppTextStyle.bold.copyWith(
+                    fontSize: 10,
+                    color: kWhite,
+                  ),
+                ),
+              ),
             ],
           ),
-        ),
+          const SizedBox(height: 20),
+          Text(
+            "Welcome\nBack.",
+            style: AppTextStyle.bold.copyWith(
+              fontSize: 48,
+              color: kWhite,
+              height: 1.1,
+              letterSpacing: -1,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            "Sign in to see your curated trip, talk to your agents and relive the journey.",
+            style: AppTextStyle.regular.copyWith(
+              fontSize: 14,
+              color: kSubwhite,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 20),
+          // _buildTripInfoCard(),
+        ],
       ),
     );
   }
 
-  Widget _buildWelcomeSection() {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(3),
-          decoration: BoxDecoration(
-            shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              colors: [
-                decoration.colorScheme.primary,
-                decoration.colorScheme.primary.withValues(alpha: 0.7),
-              ],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: decoration.colorScheme.primary.withValues(alpha: 0.2),
-                blurRadius: 25,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(3),
+  Widget _buildTripInfoCard() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: kWhite.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: kWhite.withValues(alpha: 0.1), width: 1),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              shape: BoxShape.rectangle,
-              color: Colors.white,
+              color: kWhite.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(12),
             ),
-            child: Container(
-              height: 75,
-              width: 75,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                shape: BoxShape.rectangle,
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    decoration.colorScheme.primary,
-                    decoration.colorScheme.primary.withValues(alpha: 0.8),
-                  ],
-                ),
-                image: DecorationImage(
-                  image: AssetImage(Graphics.instance.logo),
-                  fit: BoxFit.cover,
-                  opacity: 0.9,
+            child: Icon(Icons.image_outlined, color: kWhite.withValues(alpha: 0.5)),
+          ),
+          const SizedBox(width: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Ladakh Premium",
+                style: AppTextStyle.bold.copyWith(
+                  fontSize: 15,
+                  color: kWhite,
                 ),
               ),
-            ),
-          ),
-        ),
-        Text(
-          "Welcome Back",
-          style: TextStyle(
-            fontSize: 22,
-            color: Colors.grey.shade900,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.2,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          "Sign in to access your professional dashboard",
-          style: TextStyle(
-            fontSize: 13,
-            color: Colors.grey.shade600,
-            fontWeight: FontWeight.w400,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildCredentialField(SignInCtrl ctrl) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Phone Number",
-          style: TextStyle(
-            fontSize: 13,
-            color: Colors.grey.shade800,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
+              const SizedBox(height: 4),
+              Text(
+                "8 days · Confirmed",
+                style: AppTextStyle.regular.copyWith(
+                  fontSize: 12,
+                  color: kSubwhite,
+                ),
               ),
             ],
           ),
-          child: TextFormField(
-            controller: ctrl.txtPhoneNumber,
-            keyboardType: TextInputType.phone,
-            style: TextStyle(
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-              color: Colors.grey.shade800,
-            ),
-            decoration: InputDecoration(
-              hintText: "Enter Phone number",
-              hintStyle: TextStyle(fontSize: 14, color: Colors.grey.shade500),
-              prefixIcon: Container(
-                margin: const EdgeInsets.all(10),
-                child: Icon(
-                  Icons.phone_android_rounded,
-                  size: 20,
-                  color: Colors.grey.shade600,
-                ),
-              ),
-              filled: true,
-              fillColor: Colors.white,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(14),
-                borderSide: BorderSide(
-                  color: decoration.colorScheme.primary,
-                  width: 2,
-                ),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 16,
-              ),
-            ),
-            onChanged: (value) => ctrl.update(),
-            // onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildSignInButton(SignInCtrl ctrl) {
-    return Obx(
-      () => AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        height: 52,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              decoration.colorScheme.primary,
-              decoration.colorScheme.primary.withValues(alpha: 0.9),
-            ],
+  Widget _buildSignInForm(SignInCtrl ctrl) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: kWhite,
+        borderRadius: BorderRadius.circular(32),
+        boxShadow: [
+          BoxShadow(
+            color: kDarkNavy.withValues(alpha: 0.05),
+            blurRadius: 30,
+            offset: const Offset(0, 10),
           ),
-          boxShadow: [
-            BoxShadow(
-              color: decoration.colorScheme.primary.withValues(alpha: 0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "PHONE NUMBER",
+            style: AppTextStyle.bold.copyWith(
+              fontSize: 11,
+              color: kGreyText,
+              letterSpacing: 1,
             ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(14),
-            onTap: ctrl.isLoadingForSignIn.value ? null : ctrl.signIn,
-            child: Container(
-              alignment: Alignment.center,
-              child: ctrl.isLoadingForSignIn.value
-                  ? SizedBox(
-                      width: 26,
-                      height: 26,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 3,
-                        valueColor: AlwaysStoppedAnimation(
-                          Colors.white.withValues(alpha: 0.9),
-                        ),
-                      ),
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.login_rounded,
-                          color: Colors.white,
-                          size: 22,
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          "SIGNn IN",
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 1.0,
-                          ),
-                        ),
-                      ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: kPrimaryOrange.withValues(alpha: 0.5), width: 1.5),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(2),
+                  child: CachedNetworkImage(
+                    imageUrl: "https://flagcdn.com/w40/in.png",
+                    width: 24,
+                    height: 18,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => const Icon(Icons.flag, color: kGreyText, size: 24),
+                    errorWidget: (context, url, error) => const Icon(Icons.flag, color: kGreyText, size: 24),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  "+91",
+                  style: AppTextStyle.bold.copyWith(
+                    fontSize: 16,
+                    color: Constant.instance.black,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  width: 1,
+                  height: 24,
+                  color: kGreyText.withValues(alpha: 0.3),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: TextFormField(
+                    controller: ctrl.txtPhoneNumber,
+                    keyboardType: TextInputType.phone,
+                    maxLength: 10,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    style: AppTextStyle.bold.copyWith(
+                      fontSize: 16,
+                      color: Constant.instance.black,
+                      letterSpacing: 1.5,
                     ),
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      hintText: "Enter Your Phone Number",
+                      hintStyle: TextStyle(color: kGreyText),
+                      counterText: "",
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // const SizedBox(height: 12),
+          // Text(
+          //   "Network error. Please try again.",
+          //   style: AppTextStyle.medium.copyWith(
+          //     fontSize: 12,
+          //     color: kPrimaryOrange.withValues(alpha: 0.8),
+          //   ),
+          // ),
+          const SizedBox(height: 24),
+          _buildContinueButton(ctrl),
+          const SizedBox(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildFeatureTag("Secure"),
+              _buildFeatureTag("Private"),
+              _buildFeatureTag("Instant"),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFeatureTag(String label) {
+    return Text(
+      label,
+      style: AppTextStyle.medium.copyWith(
+        fontSize: 12,
+        color: kGreyText,
+      ),
+    );
+  }
+
+  Widget _buildContinueButton(SignInCtrl ctrl) {
+    return Obx(
+      () => Material(
+        color: kPrimaryOrange,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          onTap: ctrl.isLoadingForSignIn.value ? null : () => ctrl.signIn(),
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            height: 60,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (ctrl.isLoadingForSignIn.value)
+                  const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(color: kWhite, strokeWidth: 2),
+                  )
+                else ...[
+                  // const Spacer(),
+                  Text(
+                    "Continue",
+                    style: AppTextStyle.bold.copyWith(
+                      fontSize: 18,
+                      color: kWhite,
+                    ),
+                  ),
+                  // const Spacer(),
+                  SizedBox(width: 10,),
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: const BoxDecoration(
+                      color: kWhite,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.arrow_forward_rounded, color: kPrimaryOrange, size: 20),
+                  ),
+                ],
+              ],
             ),
           ),
         ),
@@ -362,101 +351,42 @@ class _SignInScreenState extends State<SignInScreen>
     );
   }
 
-  Widget _buildFooterSection() {
-    return FadeTransition(
-      opacity: _fadeAnimation,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "By signing in, you agree to our",
-              style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+  Widget _buildFooter() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+        child: RichText(
+          textAlign: TextAlign.center,
+          text: TextSpan(
+            style: AppTextStyle.medium.copyWith(
+              fontSize: 12,
+              color: kGreyText,
+              height: 1.5,
             ),
-            const SizedBox(height: 4),
-            Wrap(
-              alignment: WrapAlignment.center,
-              spacing: 4,
-              children: [
-                GestureDetector(
-                  onTap: () {
-                    final url = StringConstants.termsCondition;
-                    debugPrint(
-                      "🔗 Trying to launch Terms of Service URL: '$url'",
-                    );
-
-                    if (url.isEmpty) {
-                      debugPrint("❌ URL is empty!");
-                      Fluttertoast.showToast(
-                        msg: "Terms of Service URL not available",
-                      );
-                      return;
-                    }
-
-                    AppUrl.urlLaunch(
-                      url: url,
-                      notLaunchMsg:
-                          "Unable to open Terms of Service. Please visit our website directly.",
-                      errorMsg: "Failed to open Terms of Service",
-                    );
+            children: [
+              const TextSpan(text: "By signing in, you agree to our "),
+              TextSpan(
+                text: "Terms",
+                style: const TextStyle(color: kPrimaryOrange, fontWeight: FontWeight.bold),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () {
+                    AppUrl.urlLaunch(url: StringConstants.termsCondition);
                   },
-                  child: Text(
-                    "Terms of Service",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: decoration.colorScheme.primary,
-                      fontWeight: FontWeight.w600,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                ),
-                Text(
-                  " and ",
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    final url = StringConstants.privacyPolicy;
-                    debugPrint(
-                      "🔗 Trying to launch Privacy Policy URL: '$url'",
-                    );
-
-                    if (url.isEmpty) {
-                      debugPrint("❌ URL is empty!");
-                      Fluttertoast.showToast(
-                        msg: "Privacy Policy URL not available",
-                      );
-                      return;
-                    }
-
-                    AppUrl.urlLaunch(
-                      url: url,
-                      notLaunchMsg:
-                          "Unable to open Privacy Policy. Please visit our website directly.",
-                      errorMsg: "Failed to open Privacy Policy",
-                    );
+              ),
+              const TextSpan(text: " and "),
+              TextSpan(
+                text: "Privacy Policy",
+                style: const TextStyle(color: kPrimaryOrange, fontWeight: FontWeight.bold),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () {
+                    AppUrl.urlLaunch(url: StringConstants.privacyPolicy);
                   },
-                  child: Text(
-                    "Privacy Policy",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: decoration.colorScheme.primary,
-                      fontWeight: FontWeight.w600,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              "© 2024 OnTrip. All rights reserved.",
-              style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
