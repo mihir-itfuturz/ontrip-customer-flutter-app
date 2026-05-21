@@ -12,4 +12,5 @@ class RouteNames {
   static const String communityChat = '/community_chat';
   static const String groupMembers = '/group_members';
   static const String communityMedia = '/community_media';
+  static const String vendorPackageDetails = '/vendor_package_details';
 }

@@ -16,17 +16,8 @@ class CustomBackBtn<T> extends StatelessWidget {
           width: 36,
           height: 36,
           padding: const EdgeInsets.all(0),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Constant.instance.white,
-          ),
-          child: Center(
-            child: SvgPicture.asset(
-              width: 25,
-              height: 25,
-              Graphics.instance.iconBack,
-            ),
-          ),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: Constant.instance.white),
+          child: Center(child: SvgPicture.asset(width: 25, height: 25, color: iconColor, Graphics.instance.iconBack)),
         ),
       ),
     );

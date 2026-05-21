@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import '../../../../app_export.dart';
+import '../../../screens/vendor/home/vendor_home_ctrl.dart';
 
 class VerifyOTPCtrl extends GetxController {
   final TextEditingController otpController = TextEditingController();
@@ -11,6 +12,7 @@ class VerifyOTPCtrl extends GetxController {
   final canResend = false.obs;
   Timer? _timer;
   String phone = "";
+  bool isVendor = false;
 
   void updateOTPValue() {
     otpController.text = localOTPControllers.map((c) => c.text).join();
@@ -21,6 +23,7 @@ class VerifyOTPCtrl extends GetxController {
     super.onInit();
     if (Get.arguments != null) {
       phone = Get.arguments['phone'] ?? "";
+      isVendor = Get.arguments['role'] == 'vendor';
     }
     startResendTimer();
   }
@@ -42,8 +45,9 @@ class VerifyOTPCtrl extends GetxController {
   Future<void> resendOTP() async {
     try {
       final Map<String, dynamic> sendJson = {"phone": phone};
+      final endpoint = isVendor ? BACKEND.vendorSendOtp : BACKEND.sendOtp;
       final response = await ApiManager.call(
-        endPoint: BACKEND.sendOtp,
+        endPoint: endpoint,
         body: sendJson,
       );
       if ((response.status == 1 || response.status == 200) &&
@@ -74,15 +78,23 @@ class VerifyOTPCtrl extends GetxController {
         'fcmToken': fcm,
       };
 
+      final endpoint = isVendor ? BACKEND.vendorSignIn : BACKEND.signIn;
+      log('Role: ${isVendor ? "vendor" : "customer"} → $endpoint');
       final response = await ApiManager.call(
-        endPoint: BACKEND.signIn,
+        endPoint: endpoint,
         body: body,
       );
-      log('----------------------------------------response.data');
-      log('=-=-=-=-=-= ${response.data}');
+      log('verifyOTP status: ${response.status}, success: ${response.success}');
+      log('verifyOTP data: ${response.data}');
+      log('verifyOTP fullResponse: ${response.fullResponse}');
       if ((response.status == 1 || response.status == 200) &&
           response.success == true) {
-        await processAfterSignIn(response.data!);
+        final data = response.data ?? response.fullResponse;
+        if (data == null) {
+          errorToast("Invalid response from server");
+          return;
+        }
+        await processAfterSignIn(data);
       } else {
         errorToast(response.message);
       }
@@ -94,24 +106,52 @@ class VerifyOTPCtrl extends GetxController {
   }
 
   Future<void> processAfterSignIn(dynamic responseData) async {
-    // Handling different token structures based on previous SignInCtrl logic
+    log('processAfterSignIn responseData: $responseData');
+
+    // Extract token — handle multiple possible structures:
+    // 1. { tokens: { token: "..." } }   ← customer
+    // 2. { token: "..." }               ← vendor / flat
+    // 3. { data: { token: "..." } }     ← nested under data
     String? token;
-    if (responseData['tokens'] != null &&
-        responseData['tokens']["token"] != null) {
-      token = responseData['tokens']["token"];
-    } else if (responseData['token'] != null) {
-      token = responseData['token'];
+
+    if (responseData is Map) {
+      if (responseData['tokens'] is Map &&
+          responseData['tokens']['token'] != null) {
+        token = responseData['tokens']['token'].toString();
+      } else if (responseData['token'] != null) {
+        token = responseData['token'].toString();
+      } else if (responseData['data'] is Map) {
+        final inner = responseData['data'] as Map;
+        if (inner['tokens'] is Map && inner['tokens']['token'] != null) {
+          token = inner['tokens']['token'].toString();
+        } else if (inner['token'] != null) {
+          token = inner['token'].toString();
+        }
+      }
     }
 
-    if (token != null) {
+    log('Extracted token: $token');
+
+    if (token != null && token.isNotEmpty) {
       await writeStorage(AppSession.token, token);
+      await writeStorage(AppSession.userRole, isVendor ? 'vendor' : 'customer');
       Get.find<MasterController>().onInit();
-      if (Get.isRegistered<HomeController>()) {
-        Get.find<HomeController>().initialize();
+
+      if (isVendor) {
+        // Vendor: fetch vendor profile + vendor packages
+        await Get.find<AuthenticationController>().fetchProfile();
+        await Get.find<VendorHomeCtrl>().fetchPackages();
+      } else {
+        // Customer: existing flow
+        if (Get.isRegistered<HomeController>()) {
+          Get.find<HomeController>().initialize();
+        }
       }
+
       pushNRemoveUntil(path: RouteNames.dashboard);
     } else {
       errorToast("Token not found in response");
+      log('Full responseData dump: $responseData');
     }
   }
 

@@ -491,7 +491,11 @@ class Experience {
         ? null
         : List<String>.from(json["images"].map((x) => x)),
     videoUrl: json["videoUrl"],
-    vendor: json["vendor"] == null ? null : Vendor.fromJson(json["vendor"]),
+    vendor: json["vendor"] == null
+        ? null
+        : (json["vendor"] is Map
+            ? Vendor.fromJson(json["vendor"])
+            : Vendor(id: json["vendor"].toString())),
     vendorNotes: json["vendorNotes"],
     whatToBring: json["whatToBring"] == null
         ? null

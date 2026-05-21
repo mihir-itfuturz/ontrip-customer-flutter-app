@@ -4,18 +4,13 @@ class CustomBottomNavBar extends StatefulWidget {
   final int currentIndex;
   final ValueChanged<int> onTabChange;
 
-  const CustomBottomNavBar({
-    super.key,
-    required this.currentIndex,
-    required this.onTabChange,
-  });
+  const CustomBottomNavBar({super.key, required this.currentIndex, required this.onTabChange});
 
   @override
   State<CustomBottomNavBar> createState() => _CustomBottomNavBarState();
 }
 
-class _CustomBottomNavBarState extends State<CustomBottomNavBar>
-    with TickerProviderStateMixin {
+class _CustomBottomNavBarState extends State<CustomBottomNavBar> with TickerProviderStateMixin {
   late List<AnimationController> _animationControllers;
 
   final List<NavItem> _navItems = [
@@ -56,13 +51,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
   }
 
   void _initAnimations() {
-    _animationControllers = List.generate(
-      _navItems.length,
-      (index) => AnimationController(
-        duration: const Duration(milliseconds: 300),
-        vsync: this,
-      ),
-    );
+    _animationControllers = List.generate(_navItems.length, (index) => AnimationController(duration: const Duration(milliseconds: 300), vsync: this));
     if (widget.currentIndex < _animationControllers.length) {
       _animationControllers[widget.currentIndex].forward();
     }
@@ -182,20 +171,14 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
     return SafeArea(
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         decoration: BoxDecoration(
           color: Colors.white70, // Dark capsule background
           borderRadius: BorderRadius.circular(100),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, 10))],
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: List.generate(_navItems.length, (index) {
             return _buildNavItem(index);
           }),
@@ -284,10 +267,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
               width: 20,
               height: 20,
               // Icon is black on green background, white on black background
-              colorFilter: ColorFilter.mode(
-                isActive ? Colors.white : Colors.black,
-                BlendMode.srcIn,
-              ),
+              colorFilter: ColorFilter.mode(isActive ? Colors.white : Colors.black, BlendMode.srcIn),
             ),
 
             if (isActive)
@@ -301,11 +281,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
                       item.label,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
                     ),
                   ),
                 ),
@@ -325,10 +301,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar>
         isActive ? item.activeIconAsset! : item.iconAsset!,
         width: iconSize,
         height: iconSize,
-        colorFilter: ColorFilter.mode(
-          isActive ? item.activeColor : Colors.grey.shade400,
-          BlendMode.srcIn,
-        ),
+        colorFilter: ColorFilter.mode(isActive ? item.activeColor : Colors.grey.shade400, BlendMode.srcIn),
       ),
     );
   }
@@ -343,13 +316,7 @@ class NavItem {
   final Color activeColor;
   final NavIconType iconType;
 
-  NavItem({
-    this.iconAsset,
-    this.activeIconAsset,
-    required this.label,
-    required this.activeColor,
-    required this.iconType,
-  });
+  NavItem({this.iconAsset, this.activeIconAsset, required this.label, required this.activeColor, required this.iconType});
 }
 
 // import '../../app_export.dart';

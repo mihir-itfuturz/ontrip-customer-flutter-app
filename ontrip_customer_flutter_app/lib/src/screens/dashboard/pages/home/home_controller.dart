@@ -24,7 +24,12 @@ class HomeController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    initialize();
+    // Only auto-fetch if a token already exists (returning user / app restart).
+    // On fresh login, initialize() is called explicitly from verify_otp_ctrl.
+    final token = getStorage(AppSession.token);
+    if (token != null && token.toString().isNotEmpty) {
+      initialize();
+    }
   }
 
   Future<void> initialize() async {

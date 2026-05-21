@@ -1,4 +1,3 @@
-import 'package:ontrip_customer_flutter_app/src/helper/decoration.dart';
 import '../../../../app_export.dart';
 
 class VerifyOTPScreen extends GetView<VerifyOTPCtrl> {
@@ -46,25 +45,18 @@ class VerifyOTPScreen extends GetView<VerifyOTPCtrl> {
   Widget _buildHeader() {
     return Row(
       children: [
-        const CustomBackBtn(),
+        const CustomBackBtn(iconColor: Colors.black),
         const SizedBox(width: 8),
-        Container(
-          width: 8,
-          height: 8,
-          decoration: const BoxDecoration(
-            color: kPrimaryOrange,
-            shape: BoxShape.circle,
-          ),
-        ),
+        // Container(
+        //   width: 8,
+        //   height: 8,
+        //   decoration: const BoxDecoration(
+        //     color: kPrimaryOrange,
+        //     shape: BoxShape.circle,
+        //   ),
+        // ),
         const SizedBox(width: 8),
-        Text(
-          "OnTrip",
-          style: AppTextStyle.bold.copyWith(
-            fontSize: 20,
-            color: Constant.instance.black,
-            letterSpacing: -0.5,
-          ),
-        ),
+        Text("OnTrip", style: AppTextStyle.bold.copyWith(fontSize: 20, color: Constant.instance.black, letterSpacing: -0.5)),
       ],
     );
   }
@@ -73,39 +65,17 @@ class VerifyOTPScreen extends GetView<VerifyOTPCtrl> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: kDarkNavy,
-        borderRadius: BorderRadius.circular(32),
-      ),
+      decoration: BoxDecoration(color: kDarkNavy, borderRadius: BorderRadius.circular(32)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "VERIFICATION",
-            style: AppTextStyle.bold.copyWith(
-              fontSize: 10,
-              color: kPrimaryOrange,
-              letterSpacing: 1.5,
-            ),
-          ),
+          Text("VERIFICATION", style: AppTextStyle.bold.copyWith(fontSize: 10, color: kPrimaryOrange, letterSpacing: 1.5)),
           const SizedBox(height: 20),
-          Text(
-            "Verify OTP.",
-            style: AppTextStyle.bold.copyWith(
-              fontSize: 38,
-              color: kWhite,
-              height: 1.1,
-              letterSpacing: -1,
-            ),
-          ),
+          Text("Verify OTP.", style: AppTextStyle.bold.copyWith(fontSize: 38, color: kWhite, height: 1.1, letterSpacing: -1)),
           const SizedBox(height: 16),
           RichText(
             text: TextSpan(
-              style: AppTextStyle.regular.copyWith(
-                fontSize: 14,
-                color: kSubwhite,
-                height: 1.5,
-              ),
+              style: AppTextStyle.regular.copyWith(fontSize: 14, color: kSubwhite, height: 1.5),
               children: [
                 const TextSpan(text: "We've sent a 4-digit code to "),
                 TextSpan(
@@ -127,30 +97,14 @@ class VerifyOTPScreen extends GetView<VerifyOTPCtrl> {
       decoration: BoxDecoration(
         color: kWhite,
         borderRadius: BorderRadius.circular(32),
-        boxShadow: [
-          BoxShadow(
-            color: kDarkNavy.withValues(alpha: 0.05),
-            blurRadius: 30,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: kDarkNavy.withValues(alpha: 0.05), blurRadius: 30, offset: const Offset(0, 10))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "ENTER OTP",
-            style: AppTextStyle.bold.copyWith(
-              fontSize: 11,
-              color: kGreyText,
-              letterSpacing: 1,
-            ),
-          ),
+          Text("ENTER OTP", style: AppTextStyle.bold.copyWith(fontSize: 11, color: kGreyText, letterSpacing: 1)),
           const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: List.generate(4, (index) => _buildOTPBox(index)),
-          ),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: List.generate(4, (index) => _buildOTPBox(index))),
           const SizedBox(height: 32),
           _buildVerifyButton(),
           const SizedBox(height: 24),
@@ -167,10 +121,7 @@ class VerifyOTPScreen extends GetView<VerifyOTPCtrl> {
       decoration: BoxDecoration(
         color: kBgColor.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: kPrimaryOrange.withValues(alpha: 0.2),
-          width: 1.5,
-        ),
+        border: Border.all(color: kPrimaryOrange.withValues(alpha: 0.2), width: 1.5),
       ),
       child: Center(
         child: TextFormField(
@@ -187,14 +138,8 @@ class VerifyOTPScreen extends GetView<VerifyOTPCtrl> {
           textAlign: TextAlign.center,
           maxLength: 1,
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-          style: AppTextStyle.bold.copyWith(
-            fontSize: 24,
-            color: kDarkNavy,
-          ),
-          decoration: const InputDecoration(
-            counterText: "",
-            border: InputBorder.none,
-          ),
+          style: AppTextStyle.bold.copyWith(fontSize: 24, color: kDarkNavy),
+          decoration: const InputDecoration(counterText: "", border: InputBorder.none),
         ),
       ),
     );
@@ -215,27 +160,14 @@ class VerifyOTPScreen extends GetView<VerifyOTPCtrl> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (controller.isLoading.value)
-                  const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(color: kWhite, strokeWidth: 2),
-                  )
+                  const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: kWhite, strokeWidth: 2))
                 else ...[
-                  Text(
-                    "Verify & Proceed",
-                    style: AppTextStyle.bold.copyWith(
-                      fontSize: 18,
-                      color: kWhite,
-                    ),
-                  ),
+                  Text("Verify & Proceed", style: AppTextStyle.bold.copyWith(fontSize: 18, color: kWhite)),
                   const SizedBox(width: 10),
                   Container(
                     width: 32,
                     height: 32,
-                    decoration: const BoxDecoration(
-                      color: kWhite,
-                      shape: BoxShape.circle,
-                    ),
+                    decoration: const BoxDecoration(color: kWhite, shape: BoxShape.circle),
                     child: const Icon(Icons.arrow_forward_rounded, color: kPrimaryOrange, size: 20),
                   ),
                 ],
@@ -254,21 +186,12 @@ class VerifyOTPScreen extends GetView<VerifyOTPCtrl> {
           children: [
             Text(
               controller.canResend.value ? "Didn't receive the code?" : "Resend code in ${controller.resendTimer.value}s",
-              style: AppTextStyle.medium.copyWith(
-                fontSize: 14,
-                color: kGreyText,
-              ),
+              style: AppTextStyle.medium.copyWith(fontSize: 14, color: kGreyText),
             ),
             if (controller.canResend.value)
               TextButton(
                 onPressed: () => controller.resendOTP(),
-                child: Text(
-                  "Resend Code",
-                  style: AppTextStyle.bold.copyWith(
-                    fontSize: 14,
-                    color: kPrimaryOrange,
-                  ),
-                ),
+                child: Text("Resend Code", style: AppTextStyle.bold.copyWith(fontSize: 14, color: kPrimaryOrange)),
               ),
           ],
         ),
@@ -277,27 +200,14 @@ class VerifyOTPScreen extends GetView<VerifyOTPCtrl> {
   }
 
   Widget _buildFeatureTag(String label) {
-    return Text(
-      label,
-      style: AppTextStyle.medium.copyWith(
-        fontSize: 12,
-        color: kGreyText,
-      ),
-    );
+    return Text(label, style: AppTextStyle.medium.copyWith(fontSize: 12, color: kGreyText));
   }
 
   Widget _buildFooter() {
     return Column(
       children: [
         const SizedBox(height: 30),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildFeatureTag("Secure"),
-            _buildFeatureTag("Private"),
-            _buildFeatureTag("Instant"),
-          ],
-        ),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [_buildFeatureTag("Secure"), _buildFeatureTag("Private"), _buildFeatureTag("Instant")]),
       ],
     );
   }

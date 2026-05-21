@@ -7,30 +7,20 @@ class CommunityScreen extends StatefulWidget {
   State<CommunityScreen> createState() => _CommunityScreenState();
 }
 
-class _CommunityScreenState extends State<CommunityScreen>
-    with SingleTickerProviderStateMixin {
+class _CommunityScreenState extends State<CommunityScreen> with SingleTickerProviderStateMixin {
   late final AnimationController _fadeController;
   late final Animation<double> _fadeAnimation;
 
   @override
   void initState() {
     super.initState();
-    _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 800),
-      vsync: this,
-    );
-    _fadeAnimation = CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeInOut,
-    );
+    _fadeController = AnimationController(duration: const Duration(milliseconds: 800), vsync: this);
+    _fadeAnimation = CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut);
     _fadeController.forward();
 
-    // Initialize CommunityCtrl
+    // Always re-fetch when screen mounts to ensure correct role-based endpoint is used
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final controller = Get.find<CommunityCtrl>();
-      if (controller.bookings.isEmpty) {
-        controller.fetchBookings();
-      }
+      Get.find<CommunityCtrl>().fetchBookings();
     });
   }
 
@@ -46,6 +36,8 @@ class _CommunityScreenState extends State<CommunityScreen>
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
+        bottom: false,
+        top: false,
         child: FadeTransition(
           opacity: _fadeAnimation,
           child: Column(
@@ -66,20 +58,13 @@ class _CommunityScreenState extends State<CommunityScreen>
                     color: Constant.instance.primary,
                     backgroundColor: Colors.white,
                     child: ListView.builder(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 10,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       itemCount: controller.bookings.length,
                       itemBuilder: (context, index) {
                         return AnimatedContainer(
                           duration: Duration(milliseconds: 300 + (index * 100)),
                           curve: Curves.easeOutBack,
-                          child: _buildBookingTile(
-                            controller.bookings[index],
-                            controller,
-                            index,
-                          ),
+                          child: _buildBookingTile(controller.bookings[index], controller, index),
                         );
                       },
                     ),
@@ -99,25 +84,13 @@ class _CommunityScreenState extends State<CommunityScreen>
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Constant.instance.primary,
-            Constant.instance.primary.withValues(alpha: 0.8),
-          ],
+          colors: [Constant.instance.primary, Constant.instance.primary.withValues(alpha: 0.8)],
         ),
-        borderRadius: const BorderRadius.only(
-          bottomLeft: Radius.circular(32),
-          bottomRight: Radius.circular(32),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Constant.instance.primary.withValues(alpha: 0.2),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(32), bottomRight: Radius.circular(32)),
+        boxShadow: [BoxShadow(color: Constant.instance.primary.withValues(alpha: 0.2), blurRadius: 20, offset: const Offset(0, 8))],
       ),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
+        padding: const EdgeInsets.fromLTRB(24, 50, 24, 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -125,38 +98,19 @@ class _CommunityScreenState extends State<CommunityScreen>
               children: [
                 Container(
                   padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: const Icon(
-                    Icons.groups_rounded,
-                    color: Colors.white,
-                    size: 28,
-                  ),
+                  decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(16)),
+                  child: const Icon(Icons.groups_rounded, color: Colors.white, size: 28),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "Community",
-                        style: AppTextStyle.bold.copyWith(
-                          fontSize: 27,
-                          color: Colors.white,
-                          letterSpacing: -0.8,
-                          height: 1.1,
-                        ),
-                      ),
+                      Text("Community", style: AppTextStyle.bold.copyWith(fontSize: 27, color: Colors.white, letterSpacing: -0.8, height: 1.1)),
                       const SizedBox(height: 4),
                       Text(
                         "Connect with fellow travelers and experts",
-                        style: AppTextStyle.medium.copyWith(
-                          fontSize: 13,
-                          color: Colors.white.withValues(alpha: 0.9),
-                          height: 1.3,
-                        ),
+                        style: AppTextStyle.medium.copyWith(fontSize: 13, color: Colors.white.withValues(alpha: 0.9), height: 1.3),
                       ),
                     ],
                   ),
@@ -171,10 +125,7 @@ class _CommunityScreenState extends State<CommunityScreen>
 
   Widget _buildBookingTile(Booking booking, CommunityCtrl controller, int index) {
     final package = booking.package;
-    final title =
-        booking.whitelabelPackage?.customTitle ??
-        package?.title ??
-        "Trip Details";
+    final title = booking.whitelabelPackage?.customTitle ?? package?.title ?? "Trip Details";
     final destination = package?.destination ?? "Unknown Location";
     final coverImage = package?.coverImage ?? "";
 
@@ -184,22 +135,14 @@ class _CommunityScreenState extends State<CommunityScreen>
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF4338CA).withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
+          BoxShadow(color: const Color(0xFF4338CA).withValues(alpha: 0.08), blurRadius: 20, offset: const Offset(0, 4)),
+          BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2)),
         ],
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: () => controller.navigateToChat(package?.id, coverImage),
+          onTap: () => controller.navigateToChat(package?.id, coverImage, booking: booking),
           borderRadius: BorderRadius.circular(24),
           child: Container(
             padding: const EdgeInsets.all(20),
@@ -210,22 +153,11 @@ class _CommunityScreenState extends State<CommunityScreen>
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Constant.instance.primary.withValues(alpha: 0.2),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+                      boxShadow: [BoxShadow(color: Constant.instance.primary.withValues(alpha: 0.2), blurRadius: 12, offset: const Offset(0, 4))],
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(20),
-                      child: CustomNetworkImage(
-                        imageUrl: "https://ontrip.itfuturz.in/$coverImage",
-                        height: 64,
-                        width: 64,
-                        fit: BoxFit.cover,
-                      ),
+                      child: CustomNetworkImage(imageUrl: "https://ontrip.itfuturz.in/$coverImage", height: 64, width: 64, fit: BoxFit.cover),
                     ),
                   ),
                 ),
@@ -238,29 +170,15 @@ class _CommunityScreenState extends State<CommunityScreen>
                         title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: AppTextStyle.bold.copyWith(
-                          fontSize: 17,
-                          color: const Color(0xFF1E293B),
-                          height: 1.3,
-                        ),
+                        style: AppTextStyle.bold.copyWith(fontSize: 17, color: const Color(0xFF1E293B), height: 1.3),
                       ),
                       const SizedBox(height: 6),
                       Row(
                         children: [
-                          Icon(
-                            Icons.location_on_rounded,
-                            size: 16,
-                            color: Constant.instance.primary.withValues(alpha: 0.7),
-                          ),
+                          Icon(Icons.location_on_rounded, size: 16, color: Constant.instance.primary.withValues(alpha: 0.7)),
                           const SizedBox(width: 4),
                           Expanded(
-                            child: Text(
-                              destination,
-                              style: AppTextStyle.medium.copyWith(
-                                fontSize: 14,
-                                color: const Color(0xFF64748B),
-                              ),
-                            ),
+                            child: Text(destination, style: AppTextStyle.medium.copyWith(fontSize: 14, color: const Color(0xFF64748B))),
                           ),
                         ],
                       ),
@@ -298,15 +216,8 @@ class _CommunityScreenState extends State<CommunityScreen>
                 ),
                 Container(
                   padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    Icons.arrow_forward_ios_rounded,
-                    color: Constant.instance.primary,
-                    size: 16,
-                  ),
+                  decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)),
+                  child: Icon(Icons.arrow_forward_ios_rounded, color: Constant.instance.primary, size: 16),
                 ),
               ],
             ),
@@ -325,49 +236,20 @@ class _CommunityScreenState extends State<CommunityScreen>
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 2))],
         ),
         child: Row(
           children: [
             Expanded(
-              child: _buildStatItem(
-                icon: Icons.groups_rounded,
-                label: "Active Trips",
-                value: activeTrips.toString(),
-                color: Constant.instance.primary,
-              ),
+              child: _buildStatItem(icon: Icons.groups_rounded, label: "Active Trips", value: activeTrips.toString(), color: Constant.instance.primary),
             ),
-            Container(
-              width: 1,
-              height: 40,
-              color: const Color(0xFFE2E8F0),
-            ),
+            Container(width: 1, height: 40, color: const Color(0xFFE2E8F0)),
             Expanded(
-              child: _buildStatItem(
-                icon: Icons.chat_bubble_rounded,
-                label: "Conversations",
-                value: activeTrips.toString(),
-                color: Constant.instance.green2,
-              ),
+              child: _buildStatItem(icon: Icons.chat_bubble_rounded, label: "Conversations", value: activeTrips.toString(), color: Constant.instance.green2),
             ),
-            Container(
-              width: 1,
-              height: 40,
-              color: const Color(0xFFE2E8F0),
-            ),
+            Container(width: 1, height: 40, color: const Color(0xFFE2E8F0)),
             Expanded(
-              child: _buildStatItem(
-                icon: Icons.people_rounded,
-                label: "Members",
-                value: "${activeTrips * 8}+",
-                color: Constant.instance.orange,
-              ),
+              child: _buildStatItem(icon: Icons.people_rounded, label: "Members", value: "${activeTrips * 8}+", color: Constant.instance.orange),
             ),
           ],
         ),
@@ -375,42 +257,18 @@ class _CommunityScreenState extends State<CommunityScreen>
     });
   }
 
-  Widget _buildStatItem({
-    required IconData icon,
-    required String label,
-    required String value,
-    required Color color,
-  }) {
+  Widget _buildStatItem({required IconData icon, required String label, required String value, required Color color}) {
     return Column(
       children: [
         Container(
           padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 20,
-          ),
+          decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12)),
+          child: Icon(icon, color: color, size: 20),
         ),
         const SizedBox(height: 8),
-        Text(
-          value,
-          style: AppTextStyle.bold.copyWith(
-            fontSize: 18,
-            color: const Color(0xFF1E293B),
-          ),
-        ),
+        Text(value, style: AppTextStyle.bold.copyWith(fontSize: 18, color: const Color(0xFF1E293B))),
         const SizedBox(height: 2),
-        Text(
-          label,
-          style: AppTextStyle.medium.copyWith(
-            fontSize: 12,
-            color: const Color(0xFF64748B),
-          ),
-        ),
+        Text(label, style: AppTextStyle.medium.copyWith(fontSize: 12, color: const Color(0xFF64748B))),
       ],
     );
   }
@@ -424,58 +282,26 @@ class _CommunityScreenState extends State<CommunityScreen>
           children: [
             Container(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Constant.instance.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.groups_rounded,
-                size: 64,
-                color: Constant.instance.primary,
-              ),
+              decoration: BoxDecoration(color: Constant.instance.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
+              child: Icon(Icons.groups_rounded, size: 64, color: Constant.instance.primary),
             ),
             const SizedBox(height: 24),
-            Text(
-              "No Active Trips",
-              style: AppTextStyle.bold.copyWith(
-                fontSize: 24,
-                color: const Color(0xFF1E293B),
-              ),
-            ),
+            Text("No Active Trips", style: AppTextStyle.bold.copyWith(fontSize: 24, color: const Color(0xFF1E293B))),
             const SizedBox(height: 12),
             Text(
               "Start your journey and connect with fellow travelers in our community chats.",
               textAlign: TextAlign.center,
-              style: AppTextStyle.medium.copyWith(
-                fontSize: 16,
-                color: const Color(0xFF64748B),
-                height: 1.5,
-              ),
+              style: AppTextStyle.medium.copyWith(fontSize: 16, color: const Color(0xFF64748B), height: 1.5),
             ),
             const SizedBox(height: 32),
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 12,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               decoration: BoxDecoration(
                 color: Constant.instance.primary,
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Constant.instance.primary.withValues(alpha: 0.3),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                boxShadow: [BoxShadow(color: Constant.instance.primary.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 4))],
               ),
-              child: Text(
-                "Explore Trips",
-                style: AppTextStyle.semiBold.copyWith(
-                  fontSize: 16,
-                  color: Colors.white,
-                ),
-              ),
+              child: Text("Explore Trips", style: AppTextStyle.semiBold.copyWith(fontSize: 16, color: Colors.white)),
             ),
           ],
         ),

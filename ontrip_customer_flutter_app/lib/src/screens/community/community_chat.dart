@@ -18,16 +18,11 @@ class CommunityChatScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: Obx(() {
-                  if (controller.isLoading.value &&
-                      controller.messages.isEmpty) {
+                  if (controller.isLoading.value && controller.messages.isEmpty) {
                     return const Center(child: CustomLoadingIndicator());
                   }
                   if (controller.community.value == null) {
-                    return const Center(
-                      child: NoDataComponent(
-                        text: "No community found for your current trip",
-                      ),
-                    );
+                    return const Center(child: NoDataComponent(text: "No community found for your current trip"));
                   }
                   if (controller.messages.isEmpty) {
                     return const Center(child: Text("Start the conversation!"));
@@ -35,10 +30,7 @@ class CommunityChatScreen extends StatelessWidget {
                   return ListView.builder(
                     controller: controller.scrollController,
                     reverse: true,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 20,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                     itemCount: controller.messages.length,
                     itemBuilder: (context, index) {
                       final message = controller.messages[index];
@@ -70,15 +62,8 @@ class CommunityChatScreen extends StatelessWidget {
             onPressed: () => Get.back(),
             icon: Container(
               padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF1F5F9),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.arrow_back_ios_new,
-                size: 16,
-                color: Color(0xFF1E293B),
-              ),
+              decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(12)),
+              child: const Icon(Icons.arrow_back_ios_new, size: 16, color: Color(0xFF1E293B)),
             ),
           ),
           Container(
@@ -88,36 +73,18 @@ class CommunityChatScreen extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  Constant.instance.primary,
-                  Constant.instance.primary.withValues(alpha: 0.8),
-                ],
+                colors: [Constant.instance.primary, Constant.instance.primary.withValues(alpha: 0.8)],
               ),
               borderRadius: BorderRadius.circular(14),
-              boxShadow: [
-                BoxShadow(
-                  color: Constant.instance.primary.withValues(alpha: 0.3),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              boxShadow: [BoxShadow(color: Constant.instance.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 2))],
             ),
             child: Obx(() {
               final img = controller.coverImage.value;
               return ClipRRect(
                 borderRadius: BorderRadius.circular(14),
                 child: img != null && img.isNotEmpty
-                    ? CustomNetworkImage(
-                        imageUrl: "${AppNetworkConstants.baseURL}$img",
-                        height: 44,
-                        width: 44,
-                        fit: BoxFit.cover,
-                      )
-                    : const Icon(
-                        Icons.forum_rounded,
-                        color: Colors.white,
-                        size: 20,
-                      ),
+                    ? CustomNetworkImage(imageUrl: "${AppNetworkConstants.baseURL}$img", height: 44, width: 44, fit: BoxFit.cover)
+                    : const Icon(Icons.forum_rounded, color: Colors.white, size: 20),
               );
             }),
           ),
@@ -125,42 +92,24 @@ class CommunityChatScreen extends StatelessWidget {
       ),
       title: Obx(() {
         final title = controller.community.value?.package?.title ?? "Community";
-        final participants =
-            (controller.community.value?.agentMembers?.length ?? 0) +
-            (controller.community.value?.customerMembers?.length ?? 0);
+        final participants = (controller.community.value?.agentMembers?.length ?? 0) + (controller.community.value?.customerMembers?.length ?? 0);
         return Row(
           children: [
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: AppTextStyle.bold.copyWith(
-                      fontSize: 17,
-                      color: const Color(0xFF1E293B),
-                      height: 1.2,
-                    ),
-                  ),
+                  Text(title, style: AppTextStyle.bold.copyWith(fontSize: 17, color: const Color(0xFF1E293B), height: 1.2)),
                   const SizedBox(height: 2),
                   Row(
                     children: [
                       Container(
                         width: 8,
                         height: 8,
-                        decoration: BoxDecoration(
-                          color: Constant.instance.green2,
-                          shape: BoxShape.circle,
-                        ),
+                        decoration: BoxDecoration(color: Constant.instance.green2, shape: BoxShape.circle),
                       ),
                       const SizedBox(width: 6),
-                      Text(
-                        "$participants participants",
-                        style: AppTextStyle.medium.copyWith(
-                          fontSize: 13,
-                          color: const Color(0xFF64748B),
-                        ),
-                      ),
+                      Text("$participants participants", style: AppTextStyle.medium.copyWith(fontSize: 13, color: const Color(0xFF64748B))),
                     ],
                   ),
                 ],
@@ -183,23 +132,13 @@ class CommunityChatScreen extends StatelessWidget {
               padding: const EdgeInsets.all(8),
               margin: const EdgeInsets.only(right: 4),
               decoration: BoxDecoration(
-                color: controller.notificationEnabled.value
-                    ? Constant.instance.primary.withValues(alpha: 0.15)
-                    : const Color(0xFFF1F5F9),
+                color: controller.notificationEnabled.value ? Constant.instance.primary.withValues(alpha: 0.15) : const Color(0xFFF1F5F9),
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: controller.notificationEnabled.value
-                      ? Constant.instance.primary.withValues(alpha: 0.2)
-                      : const Color(0xFFE2E8F0),
-                ),
+                border: Border.all(color: controller.notificationEnabled.value ? Constant.instance.primary.withValues(alpha: 0.2) : const Color(0xFFE2E8F0)),
               ),
               child: Icon(
-                controller.notificationEnabled.value
-                    ? Icons.notifications_active_rounded
-                    : Icons.notifications_off_rounded,
-                color: controller.notificationEnabled.value
-                    ? Constant.instance.primary
-                    : const Color(0xFF64748B),
+                controller.notificationEnabled.value ? Icons.notifications_active_rounded : Icons.notifications_off_rounded,
+                color: controller.notificationEnabled.value ? Constant.instance.primary : const Color(0xFF64748B),
                 size: 18,
               ),
             ),
@@ -220,15 +159,9 @@ class CommunityChatScreen extends StatelessWidget {
             decoration: BoxDecoration(
               color: Constant.instance.orange.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Constant.instance.orange.withValues(alpha: 0.2),
-              ),
+              border: Border.all(color: Constant.instance.orange.withValues(alpha: 0.2)),
             ),
-            child: Icon(
-              Icons.group_rounded,
-              color: Constant.instance.orange,
-              size: 18,
-            ),
+            child: Icon(Icons.group_rounded, color: Constant.instance.orange, size: 18),
           ),
         ),
         GestureDetector(
@@ -246,15 +179,9 @@ class CommunityChatScreen extends StatelessWidget {
             decoration: BoxDecoration(
               color: Constant.instance.apple.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Constant.instance.apple.withValues(alpha: 0.2),
-              ),
+              border: Border.all(color: Constant.instance.apple.withValues(alpha: 0.2)),
             ),
-            child: Icon(
-              Icons.image_rounded,
-              color: Constant.instance.apple,
-              size: 18,
-            ),
+            child: Icon(Icons.image_rounded, color: Constant.instance.apple, size: 18),
           ),
         ),
       ],
@@ -263,56 +190,33 @@ class CommunityChatScreen extends StatelessWidget {
 
   Widget _buildMessageBubble(CommunityMessage message) {
     final authCtrl = Get.find<AuthenticationController>();
-    final isMe =
-        message.sender is Map &&
-        message.sender["_id"] == authCtrl.userAuthData["_id"];
-    final time = message.createdAt != null
-        ? AppDateFormat.hhmma(message.createdAt!)
-        : "";
+    final isMe = message.sender is Map && message.sender["_id"] == authCtrl.userAuthData["_id"];
+    final time = message.createdAt != null ? AppDateFormat.hhmma(message.createdAt!) : "";
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Column(
-        crossAxisAlignment: isMe
-            ? CrossAxisAlignment.end
-            : CrossAxisAlignment.start,
+        crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
           if (!isMe)
             Padding(
               padding: const EdgeInsets.only(left: 52, bottom: 6),
-              child: Text(
-                message.senderName,
-                style: AppTextStyle.semiBold.copyWith(
-                  fontSize: 12,
-                  color: Constant.instance.primary,
-                ),
-              ),
+              child: Text(message.senderName, style: AppTextStyle.semiBold.copyWith(fontSize: 12, color: Constant.instance.primary)),
             ),
           Row(
-            mainAxisAlignment: isMe
-                ? MainAxisAlignment.end
-                : MainAxisAlignment.start,
+            mainAxisAlignment: isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              if (!isMe) ...[
-                _buildAvatar(message.senderName, isMe: false),
-                const SizedBox(width: 12),
-              ],
+              if (!isMe) ...[_buildAvatar(message.senderName, isMe: false), const SizedBox(width: 12)],
               Flexible(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     gradient: isMe
                         ? LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
-                            colors: [
-                              Constant.instance.primary,
-                              Constant.instance.primary.withValues(alpha: 0.8),
-                            ],
+                            colors: [Constant.instance.primary, Constant.instance.primary.withValues(alpha: 0.8)],
                           )
                         : null,
                     color: isMe ? null : Colors.white,
@@ -324,9 +228,7 @@ class CommunityChatScreen extends StatelessWidget {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: isMe
-                            ? Constant.instance.primary.withValues(alpha: 0.2)
-                            : Colors.black.withValues(alpha: 0.08),
+                        color: isMe ? Constant.instance.primary.withValues(alpha: 0.2) : Colors.black.withValues(alpha: 0.08),
                         blurRadius: isMe ? 12 : 8,
                         offset: Offset(0, isMe ? 4 : 2),
                       ),
@@ -342,31 +244,17 @@ class CommunityChatScreen extends StatelessWidget {
                         children: [
                           Text(
                             time,
-                            style: AppTextStyle.medium.copyWith(
-                              fontSize: 11,
-                              color: isMe
-                                  ? Colors.white.withValues(alpha: 0.8)
-                                  : const Color(0xFF94A3B8),
-                            ),
+                            style: AppTextStyle.medium.copyWith(fontSize: 11, color: isMe ? Colors.white.withValues(alpha: 0.8) : const Color(0xFF94A3B8)),
                           ),
-                          if (isMe) ...[
-                            const SizedBox(width: 6),
-                            Icon(
-                              Icons.done_all_rounded,
-                              size: 14,
-                              color: Colors.white.withValues(alpha: 0.8),
-                            ),
-                          ],
+                          if (isMe) ...[const SizedBox(width: 6), Icon(Icons.done_all_rounded, size: 14, color: Colors.white.withValues(alpha: 0.8))],
                         ],
                       ),
                     ],
                   ),
                 ),
               ),
-              if (isMe)
-                const SizedBox(width: 40),
-              if (!isMe)
-                const SizedBox(width: 40),
+              if (isMe) const SizedBox(width: 40),
+              if (!isMe) const SizedBox(width: 40),
             ],
           ),
         ],
@@ -383,33 +271,16 @@ class CommunityChatScreen extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: isMe
-              ? [
-                  Constant.instance.primary,
-                  Constant.instance.primary.withValues(alpha: 0.8),
-                ]
-              : [
-                  Constant.instance.orange,
-                  Constant.instance.orange.withValues(alpha: 0.8),
-                ],
+              ? [Constant.instance.primary, Constant.instance.primary.withValues(alpha: 0.8)]
+              : [Constant.instance.orange, Constant.instance.orange.withValues(alpha: 0.8)],
         ),
         shape: BoxShape.circle,
         boxShadow: [
-          BoxShadow(
-            color: (isMe ? Constant.instance.primary : Constant.instance.orange)
-                .withValues(alpha: 0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
+          BoxShadow(color: (isMe ? Constant.instance.primary : Constant.instance.orange).withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 2)),
         ],
       ),
       child: Center(
-        child: Text(
-          name.isNotEmpty ? name[0].toUpperCase() : "?",
-          style: AppTextStyle.bold.copyWith(
-            fontSize: 14,
-            color: Colors.white,
-          ),
-        ),
+        child: Text(name.isNotEmpty ? name[0].toUpperCase() : "?", style: AppTextStyle.bold.copyWith(fontSize: 14, color: Colors.white)),
       ),
     );
   }
@@ -436,31 +307,19 @@ class CommunityChatScreen extends StatelessWidget {
   Widget _buildMessageContent(CommunityMessage message, bool isMe) {
     final mediaUrl = message.imageUrl ?? message.imageUrl ?? message.imageUrl;
 
-    if (message.type == "image" ||
-        (mediaUrl != null && !_isVideoFile(mediaUrl))) {
+    if (message.type == "image" || (mediaUrl != null && !_isVideoFile(mediaUrl))) {
       return _buildImageContent(message, isMe);
     } else if (message.type == "video" || _isVideoFile(mediaUrl ?? "")) {
       return _buildVideoContent(message, isMe);
     }
 
     // Default: Text message
-    return Text(
-      message.content ?? "",
-      style: AppTextStyle.medium.copyWith(
-        fontSize: 15,
-        color: isMe ? Colors.white : const Color(0xFF1E293B),
-        height: 1.4,
-      ),
-    );
+    return Text(message.content ?? "", style: AppTextStyle.medium.copyWith(fontSize: 15, color: isMe ? Colors.white : const Color(0xFF1E293B), height: 1.4));
   }
 
   bool _isVideoFile(String url) {
     final lower = url.toLowerCase();
-    return lower.endsWith('.mp4') ||
-        lower.endsWith('.mov') ||
-        lower.endsWith('.avi') ||
-        lower.endsWith('.mkv') ||
-        lower.endsWith('.webm');
+    return lower.endsWith('.mp4') || lower.endsWith('.mov') || lower.endsWith('.avi') || lower.endsWith('.mkv') || lower.endsWith('.webm');
   }
 
   Widget _buildImageContent(CommunityMessage message, bool isMe) {
@@ -473,44 +332,21 @@ class CommunityChatScreen extends StatelessWidget {
             if (imageUrl == null) return;
             Get.to(() => MediaDisplayScreen(url: imageUrl, isVideo: false));
           },
-          onLongPress: () => _showMediaActions(
-            message: message,
-            mediaUrl: imageUrl,
-            isVideo: false,
-            isMe: isMe,
-          ),
+          onLongPress: () => _showMediaActions(message: message, mediaUrl: imageUrl, isVideo: false, isMe: isMe),
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 8, offset: const Offset(0, 2))],
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(16),
-              child: CustomNetworkImage(
-                imageUrl: imageUrl,
-                width: 240,
-                height: 240,
-                fit: BoxFit.cover,
-              ),
+              child: CustomNetworkImage(imageUrl: imageUrl, width: 240, height: 240, fit: BoxFit.cover),
             ),
           ),
         ),
         if (message.content?.isNotEmpty == true) ...[
           const SizedBox(height: 12),
-          Text(
-            message.content!,
-            style: AppTextStyle.medium.copyWith(
-              fontSize: 15,
-              color: isMe ? Colors.white : const Color(0xFF1E293B),
-              height: 1.4,
-            ),
-          ),
+          Text(message.content!, style: AppTextStyle.medium.copyWith(fontSize: 15, color: isMe ? Colors.white : const Color(0xFF1E293B), height: 1.4)),
         ],
       ],
     );
@@ -525,13 +361,7 @@ class CommunityChatScreen extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 8, offset: const Offset(0, 2))],
           ),
           child: Stack(
             alignment: Alignment.center,
@@ -545,26 +375,12 @@ class CommunityChatScreen extends StatelessWidget {
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [
-                        Colors.black.withValues(alpha: 0.3),
-                        Colors.black.withValues(alpha: 0.6),
-                      ],
+                      colors: [Colors.black.withValues(alpha: 0.3), Colors.black.withValues(alpha: 0.6)],
                     ),
                   ),
                   child: message.videoUrl != null
-                      ? CustomNetworkImage(
-                          imageUrl: videoUrl,
-                          width: 240,
-                          height: 240,
-                          fit: BoxFit.cover,
-                        )
-                      : const Center(
-                          child: Icon(
-                            Icons.video_library_rounded,
-                            size: 60,
-                            color: Colors.white70,
-                          ),
-                        ),
+                      ? CustomNetworkImage(imageUrl: videoUrl, width: 240, height: 240, fit: BoxFit.cover)
+                      : const Center(child: Icon(Icons.video_library_rounded, size: 60, color: Colors.white70)),
                 ),
               ),
               if (isMe)
@@ -572,14 +388,8 @@ class CommunityChatScreen extends StatelessWidget {
                   bottom: 12,
                   left: 12,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.7),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(20)),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -587,11 +397,7 @@ class CommunityChatScreen extends StatelessWidget {
                         SizedBox(width: 4),
                         Text(
                           "My Video",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600),
                         ),
                       ],
                     ),
@@ -602,30 +408,15 @@ class CommunityChatScreen extends StatelessWidget {
                   if (videoUrl == null) return;
                   Get.to(() => MediaDisplayScreen(url: videoUrl, isVideo: true));
                 },
-                onLongPress: () => _showMediaActions(
-                  message: message,
-                  mediaUrl: videoUrl,
-                  isVideo: true,
-                  isMe: isMe,
-                ),
+                onLongPress: () => _showMediaActions(message: message, mediaUrl: videoUrl, isVideo: true, isMe: isMe),
                 child: Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.9),
                     shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 12, offset: const Offset(0, 4))],
                   ),
-                  child: Icon(
-                    Icons.play_arrow_rounded,
-                    color: Constant.instance.primary,
-                    size: 32,
-                  ),
+                  child: Icon(Icons.play_arrow_rounded, color: Constant.instance.primary, size: 32),
                 ),
               ),
             ],
@@ -633,14 +424,7 @@ class CommunityChatScreen extends StatelessWidget {
         ),
         if (message.content?.isNotEmpty == true) ...[
           const SizedBox(height: 12),
-          Text(
-            message.content!,
-            style: AppTextStyle.medium.copyWith(
-              fontSize: 15,
-              color: isMe ? Colors.white : const Color(0xFF1E293B),
-              height: 1.4,
-            ),
-          ),
+          Text(message.content!, style: AppTextStyle.medium.copyWith(fontSize: 15, color: isMe ? Colors.white : const Color(0xFF1E293B), height: 1.4)),
         ],
       ],
     );
@@ -649,19 +433,11 @@ class CommunityChatScreen extends StatelessWidget {
   Widget _buildInputArea(CommunityChatCtrl controller) {
     return Obx(() {
       final hasImages = controller.selectedImages.isNotEmpty;
-      final hasMedia =
-          controller.selectedImages.isNotEmpty ||
-          controller.selectedVideos.isNotEmpty;
+      final hasMedia = controller.selectedImages.isNotEmpty || controller.selectedVideos.isNotEmpty;
       return Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 24,
-              offset: const Offset(0, -8),
-            ),
-          ],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 24, offset: const Offset(0, -8))],
         ),
         child: SafeArea(
           child: Column(
@@ -674,16 +450,10 @@ class CommunityChatScreen extends StatelessWidget {
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 20),
-                    itemCount:
-                        controller.selectedImages.length +
-                        controller.selectedVideos.length,
+                    itemCount: controller.selectedImages.length + controller.selectedVideos.length,
                     itemBuilder: (context, index) {
-                      final bool isImage =
-                          index < controller.selectedImages.length;
-                      final file = isImage
-                          ? controller.selectedImages[index]
-                          : controller.selectedVideos[index -
-                                controller.selectedImages.length];
+                      final bool isImage = index < controller.selectedImages.length;
+                      final file = isImage ? controller.selectedImages[index] : controller.selectedVideos[index - controller.selectedImages.length];
 
                       final bool isVideo = !isImage;
                       return Container(
@@ -693,13 +463,7 @@ class CommunityChatScreen extends StatelessWidget {
                             Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.1),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
+                                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 8, offset: const Offset(0, 2))],
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(16),
@@ -711,48 +475,24 @@ class CommunityChatScreen extends StatelessWidget {
                                           gradient: LinearGradient(
                                             begin: Alignment.topLeft,
                                             end: Alignment.bottomRight,
-                                            colors: [
-                                              Constant.instance.primary.withValues(alpha: 0.8),
-                                              Constant.instance.primary,
-                                            ],
+                                            colors: [Constant.instance.primary.withValues(alpha: 0.8), Constant.instance.primary],
                                           ),
                                         ),
-                                        child: const Icon(
-                                          Icons.play_circle_filled_rounded,
-                                          color: Colors.white,
-                                          size: 32,
-                                        ),
+                                        child: const Icon(Icons.play_circle_filled_rounded, color: Colors.white, size: 32),
                                       )
-                                    : Image.file(
-                                        File(file.path),
-                                        height: 80,
-                                        width: 80,
-                                        fit: BoxFit.cover,
-                                      ),
+                                    : Image.file(File(file.path), height: 80, width: 80, fit: BoxFit.cover),
                               ),
                             ),
                             Positioned(
                               top: 6,
                               right: 6,
                               child: GestureDetector(
-                                onTap: () => isVideo
-                                    ? controller.removeVideo(
-                                        index -
-                                            controller.selectedImages.length,
-                                      )
-                                    : controller.removeImage(index),
+                                onTap: () => isVideo ? controller.removeVideo(index - controller.selectedImages.length) : controller.removeImage(index),
                                 child: Container(
                                   height: 24,
                                   width: 24,
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withValues(alpha: 0.7),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const Icon(
-                                    Icons.close_rounded,
-                                    color: Colors.white,
-                                    size: 14,
-                                  ),
+                                  decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.7), shape: BoxShape.circle),
+                                  child: const Icon(Icons.close_rounded, color: Colors.white, size: 14),
                                 ),
                               ),
                             ),
@@ -775,36 +515,17 @@ class CommunityChatScreen extends StatelessWidget {
                               ? LinearGradient(
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
-                                  colors: [
-                                    Constant.instance.primary,
-                                    Constant.instance.primary.withValues(alpha: 0.8),
-                                  ],
+                                  colors: [Constant.instance.primary, Constant.instance.primary.withValues(alpha: 0.8)],
                                 )
                               : null,
                           color: hasImages ? null : const Color(0xFFF8FAFC),
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(
-                            color: hasImages
-                                ? Colors.transparent
-                                : const Color(0xFFE2E8F0),
-                          ),
+                          border: Border.all(color: hasImages ? Colors.transparent : const Color(0xFFE2E8F0)),
                           boxShadow: hasImages
-                              ? [
-                                  BoxShadow(
-                                    color: Constant.instance.primary.withValues(alpha: 0.3),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ]
+                              ? [BoxShadow(color: Constant.instance.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 2))]
                               : null,
                         ),
-                        child: Icon(
-                          Icons.camera_alt_rounded,
-                          color: hasImages
-                              ? Colors.white
-                              : const Color(0xFF64748B),
-                          size: 22,
-                        ),
+                        child: Icon(Icons.camera_alt_rounded, color: hasImages ? Colors.white : const Color(0xFF64748B), size: 22),
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -818,22 +539,12 @@ class CommunityChatScreen extends StatelessWidget {
                         ),
                         child: TextField(
                           controller: controller.messageController,
-                          style: AppTextStyle.medium.copyWith(
-                            fontSize: 15,
-                            color: const Color(0xFF1E293B),
-                          ),
+                          style: AppTextStyle.medium.copyWith(fontSize: 15, color: const Color(0xFF1E293B)),
                           decoration: InputDecoration(
-                            hintText: hasImages
-                                ? "Add a caption..."
-                                : "Type your message...",
-                            hintStyle: AppTextStyle.medium.copyWith(
-                              color: const Color(0xFF94A3B8),
-                              fontSize: 15,
-                            ),
+                            hintText: hasImages ? "Add a captionsss..." : "Type your message...",
+                            hintStyle: AppTextStyle.medium.copyWith(color: const Color(0xFF94A3B8), fontSize: 15),
                             border: InputBorder.none,
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: 14,
-                            ),
+                            contentPadding: const EdgeInsets.symmetric(vertical: 14),
                           ),
                         ),
                       ),
@@ -843,8 +554,7 @@ class CommunityChatScreen extends StatelessWidget {
                       onTap: controller.isSending.value
                           ? null
                           : () {
-                              if (controller.selectedImages.isNotEmpty ||
-                                  controller.selectedVideos.isNotEmpty) {
+                              if (controller.selectedImages.isNotEmpty || controller.selectedVideos.isNotEmpty) {
                                 controller.sendMedia();
                               } else {
                                 controller.sendMessage();
@@ -856,34 +566,14 @@ class CommunityChatScreen extends StatelessWidget {
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
-                            colors: [
-                              Constant.instance.primary,
-                              Constant.instance.primary.withValues(alpha: 0.8),
-                            ],
+                            colors: [Constant.instance.primary, Constant.instance.primary.withValues(alpha: 0.8)],
                           ),
                           shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Constant.instance.primary.withValues(alpha: 0.4),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
+                          boxShadow: [BoxShadow(color: Constant.instance.primary.withValues(alpha: 0.4), blurRadius: 12, offset: const Offset(0, 4))],
                         ),
                         child: controller.isSending.value
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2.5,
-                                ),
-                              )
-                            : const Icon(
-                                Icons.send_rounded,
-                                color: Colors.white,
-                                size: 20,
-                              ),
+                            ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5))
+                            : const Icon(Icons.send_rounded, color: Colors.white, size: 20),
                       ),
                     ),
                   ],
@@ -902,12 +592,7 @@ class CommunityChatScreen extends StatelessWidget {
     return "${AppNetworkConstants.baseURL}$url";
   }
 
-  void _showMediaActions({
-    required CommunityMessage message,
-    required String? mediaUrl,
-    required bool isVideo,
-    required bool isMe,
-  }) {
+  void _showMediaActions({required CommunityMessage message, required String? mediaUrl, required bool isVideo, required bool isMe}) {
     if (mediaUrl == null || mediaUrl.isEmpty) return;
     final ctrl = Get.find<CommunityChatCtrl>();
     Get.bottomSheet(
@@ -929,14 +614,8 @@ class CommunityChatScreen extends StatelessWidget {
                 },
               ),
               ListTile(
-                leading: const Icon(
-                  Icons.delete_outline_rounded,
-                  color: Colors.redAccent,
-                ),
-                title: const Text(
-                  "Delete",
-                  style: TextStyle(color: Colors.redAccent),
-                ),
+                leading: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent),
+                title: const Text("Delete", style: TextStyle(color: Colors.redAccent)),
                 onTap: () {
                   Get.back();
                   if (!isMe) {

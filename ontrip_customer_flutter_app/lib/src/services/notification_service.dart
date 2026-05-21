@@ -121,10 +121,11 @@ class NotificationService {
       payload: nPayload,
     );
   }
+
   Future<String?> getToken() async {
     try {
       String? fcmToken;
-      
+
       if (GetPlatform.isIOS) {
         int retryCount = 0;
         while (retryCount < 3) {
@@ -132,7 +133,7 @@ class NotificationService {
             String? apnsToken = await FirebaseMessaging.instance.getAPNSToken();
             if (apnsToken != null) {
               debugPrint("APNs Token received: $apnsToken");
-              break; 
+              break;
             }
           } catch (e) {
             debugPrint("Waiting for APNs token (Attempt ${retryCount + 1})...");
@@ -141,7 +142,7 @@ class NotificationService {
           retryCount++;
         }
       }
-      
+
       fcmToken = await FirebaseMessaging.instance.getToken();
       debugPrint("FCM Token: $fcmToken");
       return fcmToken;
@@ -150,7 +151,6 @@ class NotificationService {
       return null;
     }
   }
-
 }
 
 NotificationService notificationService = NotificationService();

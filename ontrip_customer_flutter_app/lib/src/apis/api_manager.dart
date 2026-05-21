@@ -185,9 +185,6 @@ import 'dart:developer';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:get/get.dart' hide Response, FormData;
 
 import '../../app_export.dart' hide FormData, Response;
 

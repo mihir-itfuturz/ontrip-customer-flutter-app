@@ -1,15 +1,22 @@
 import 'dart:developer';
 import '../../../../app_export.dart';
 
+enum UserRole { customer, vendor }
+
 class SignInCtrl extends GetxController {
   final TextEditingController txtPhoneNumber = TextEditingController();
   final isLoadingForSignIn = false.obs;
-  List<TextEditingController> otpControllers = List.generate(
-    4,
-    (_) => TextEditingController(),
-  );
+  final selectedRole = UserRole.customer.obs;
+  List<TextEditingController> otpControllers = List.generate(4, (_) => TextEditingController());
   List<FocusNode> otpFocusNodes = List.generate(4, (_) => FocusNode());
   bool isLoadingForLogout = false;
+
+  void selectRole(UserRole role) {
+    selectedRole.value = role;
+    update();
+  }
+
+  bool get isVendor => selectedRole.value == UserRole.vendor;
 
   void navigateToCreateAccount() => Get.toNamed(RouteNames.createAccount);
 
@@ -34,19 +41,16 @@ class SignInCtrl extends GetxController {
       log(fcm);
       final Map<String, dynamic> sendJson = {"phone": phone};
 
-      final endpoint = BACKEND.sendOtp;
-      log(endpoint);
-      final response = await ApiManager.call(
-        endPoint: endpoint,
-        body: sendJson,
-      );
-      log(
-        'response.status == 1 || response.status == 200: ${response.message}',
-      );
-      if ((response.status == 1 || response.status == 200) &&
-          response.success == true) {
+      final endpoint = isVendor ? BACKEND.vendorSendOtp : BACKEND.sendOtp;
+      log('Role: ${selectedRole.value.name} → $endpoint');
+      final response = await ApiManager.call(endPoint: endpoint, body: sendJson);
+
+      if ((response.status == 1 || response.status == 200) && response.success == true) {
         successToast(response.message);
-        Get.toNamed(RouteNames.verifyOTP, arguments: {"phone": phone});
+        Get.toNamed(
+          RouteNames.verifyOTP,
+          arguments: {"phone": phone, "role": selectedRole.value.name},
+        );
       } else {
         errorToast(response.message);
       }

@@ -28,21 +28,39 @@ class CommunityCtrl extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchBookings();
+    // Fetch is triggered by CommunityScreen.initState via postFrameCallback
+    // so the correct role is always read at fetch time, not at controller init time.
   }
 
   Future<void> fetchBookings() async {
     try {
       isLoading.value = true;
-      final response = await ApiManager.call(
-        endPoint: BACKEND.bookings,
-        type: ApiType.get,
-      );
+      final isVendor = getStorage(AppSession.userRole) == 'vendor';
+      final endpoint = isVendor ? BACKEND.vendorPackages : BACKEND.bookings;
+      final response = await ApiManager.call(endPoint: endpoint, type: ApiType.get);
 
-      if ((response.status == 1 || response.status == 200) &&
-          response.success == true) {
-        final bookingData = BookingResponseData.fromJson(response.data);
-        bookings.assignAll(bookingData.bookings ?? []);
+      if ((response.status == 1 || response.status == 200) && response.success == true) {
+        if (isVendor) {
+          final rawData = response.data;
+          Map<String, dynamic>? dataMap;
+          if (rawData is Map<String, dynamic>) {
+            dataMap = rawData;
+          } else if (rawData is Map) {
+            dataMap = Map<String, dynamic>.from(rawData);
+          } else {
+            debugPrint('Vendor packages: unexpected data type ${rawData.runtimeType}: $rawData');
+            return;
+          }
+          final list = (dataMap['packages'] as List<dynamic>? ?? []);
+          final fakeBookings = list.map((p) {
+            final pMap = p is Map<String, dynamic> ? p : Map<String, dynamic>.from(p as Map);
+            return Booking(bookingId: pMap['_id'], package: Package.fromJson(pMap));
+          }).toList();
+          bookings.assignAll(fakeBookings);
+        } else {
+          final bookingData = BookingResponseData.fromJson(response.data);
+          bookings.assignAll(bookingData.bookings ?? []);
+        }
       }
     } catch (e) {
       debugPrint("Error fetching bookings: $e");
@@ -51,12 +69,36 @@ class CommunityCtrl extends GetxController {
     }
   }
 
-  void navigateToChat(String? packageId, String? coverImage) {
-    if (packageId == null || packageId.isEmpty) return;
-    Get.toNamed(
-      RouteNames.communityChat,
-      arguments: {"packageId": packageId, "coverImage": coverImage},
-    );
+  void navigateToChat(String? packageId, String? coverImage, {Booking? booking}) {
+    final isVendor = getStorage(AppSession.userRole) == 'vendor';
+
+    if (isVendor) {
+      final bookingId = booking?.bookingId;
+      if (bookingId == null || bookingId.isEmpty) return;
+
+      // Use booking's customer id if available, otherwise fall back to the
+      // logged-in vendor's own _id from their profile.
+      final customerId = (booking?.customer?.id?.isNotEmpty == true)
+          ? booking!.customer!.id!
+          : (Get.find<AuthenticationController>().userAuthData['_id'] ?? '').toString();
+
+      Get.toNamed(
+        RouteNames.communityChat,
+        arguments: {
+          "isVendor": true,
+          "packageId": packageId,
+          "bookingId": bookingId,
+          "customerId": customerId,
+          "coverImage": coverImage,
+        },
+      );
+    } else {
+      if (packageId == null || packageId.isEmpty) return;
+      Get.toNamed(
+        RouteNames.communityChat,
+        arguments: {"packageId": packageId, "coverImage": coverImage},
+      );
+    }
   }
 
   @override
@@ -187,13 +229,9 @@ class CommunityCtrl extends GetxController {
 
   Future<void> fetchCommunityInfo(String packageId) async {
     try {
-      final response = await ApiManager.call(
-        endPoint: "${BACKEND.communityInfo}$packageId",
-        type: ApiType.get,
-      );
+      final response = await ApiManager.call(endPoint: "${BACKEND.communityInfo}$packageId", type: ApiType.get);
 
-      if ((response.status == 1 || response.status == 200) &&
-          response.success == true) {
+      if ((response.status == 1 || response.status == 200) && response.success == true) {
         final communityData = CommunityResponse.fromJson(response.data);
         community.value = communityData.community;
       }
@@ -208,14 +246,9 @@ class CommunityCtrl extends GetxController {
     try {
       if (showLoading) isLoading.value = true;
       communityId = community.value!.id;
-      final response = await ApiManager.call(
-        endPoint:
-            "${BACKEND.communityMessages}${community.value!.id}/messages?limit=50&page=1",
-        type: ApiType.get,
-      );
+      final response = await ApiManager.call(endPoint: "${BACKEND.communityMessages}${community.value!.id}/messages?limit=50&page=1", type: ApiType.get);
 
-      if ((response.status == 1 || response.status == 200) &&
-          response.success == true) {
+      if ((response.status == 1 || response.status == 200) && response.success == true) {
         final messagesData = MessagesResponse.fromJson(response.data);
         var newMsgs = messagesData.messages ?? [];
 
@@ -224,9 +257,7 @@ class CommunityCtrl extends GetxController {
         if (newMsgs.isNotEmpty && newMsgs.length > 1) {
           final firstTime = newMsgs.first.createdAt;
           final lastTime = newMsgs.last.createdAt;
-          if (firstTime != null &&
-              lastTime != null &&
-              firstTime.isBefore(lastTime)) {
+          if (firstTime != null && lastTime != null && firstTime.isBefore(lastTime)) {
             newMsgs = newMsgs.reversed.toList();
           }
         }
@@ -246,15 +277,10 @@ class CommunityCtrl extends GetxController {
   Future<void> fetchNotificationPreference() async {
     if (community.value == null) return;
     try {
-      final response = await ApiManager.call(
-        endPoint: BACKEND.communityNotificationPreference(community.value!.id!),
-        type: ApiType.get,
-      );
+      final response = await ApiManager.call(endPoint: BACKEND.communityNotificationPreference(community.value!.id!), type: ApiType.get);
 
-      if ((response.status == 1 || response.status == 200) &&
-          response.success == true) {
-        notificationEnabled.value =
-            response.data["notificationsEnabled"] ?? true;
+      if ((response.status == 1 || response.status == 200) && response.success == true) {
+        notificationEnabled.value = response.data["notificationsEnabled"] ?? true;
       }
     } catch (e) {
       debugPrint("Error fetching notification preference: $e");
@@ -271,8 +297,7 @@ class CommunityCtrl extends GetxController {
         body: {"enabled": newValue},
       );
 
-      if ((response.status == 1 || response.status == 200) &&
-          response.success == true) {
+      if ((response.status == 1 || response.status == 200) && response.success == true) {
         notificationEnabled.value = newValue;
         successToast("Notifications ${newValue ? 'enabled' : 'disabled'}");
       } else {
@@ -299,8 +324,7 @@ class CommunityCtrl extends GetxController {
         body: {"content": content},
       );
 
-      if ((response.status == 1 || response.status == 200) &&
-          response.success == true) {
+      if ((response.status == 1 || response.status == 200) && response.success == true) {
         await fetchMessages(showLoading: false);
       } else {
         errorToast(response.message);
@@ -314,22 +338,14 @@ class CommunityCtrl extends GetxController {
   }
 
   Future<void> pickImages() async {
-    final List<XFile> picked = await _picker.pickMultipleMedia(
-      maxHeight: 80,
-      maxWidth: 80,
-      imageQuality: 80,
-    );
+    final List<XFile> picked = await _picker.pickMultipleMedia(maxHeight: 80, maxWidth: 80, imageQuality: 80);
     if (picked.isEmpty) return;
     selectedImages.addAll(picked);
   }
 
   Future<void> pickMedia() async {
     try {
-      final result = await FilePicker.pickFiles(
-        type: FileType.media,
-        allowMultiple: true,
-        withData: true,
-      );
+      final result = await FilePicker.pickFiles(type: FileType.media, allowMultiple: true, withData: true);
 
       if (result == null) return;
 
@@ -406,8 +422,7 @@ class CommunityCtrl extends GetxController {
   //   }
   // }
   Future<void> sendMedia() async {
-    if ((selectedImages.isEmpty && selectedVideos.isEmpty) ||
-        community.value == null) {
+    if ((selectedImages.isEmpty && selectedVideos.isEmpty) || community.value == null) {
       return;
     }
 
@@ -421,16 +436,12 @@ class CommunityCtrl extends GetxController {
 
       for (final xfile in List<XFile>.from(selectedImages)) {
         final formData = dio.FormData.fromMap({
-          'media': await dio.MultipartFile.fromFile(
-            xfile.path,
-            filename: xfile.name,
-          ),
+          'media': await dio.MultipartFile.fromFile(xfile.path, filename: xfile.name),
           if (caption.isNotEmpty) 'caption': caption,
         });
 
         final response = await ApiManager.call(
-          endPoint:
-              "${BACKEND.communityMessages}${community.value!.id}/messages/image",
+          endPoint: "${BACKEND.communityMessages}${community.value!.id}/messages/image",
           type: ApiType.post,
           body: formData,
         );
@@ -444,16 +455,12 @@ class CommunityCtrl extends GetxController {
 
       for (final xfile in List<XFile>.from(selectedVideos)) {
         final formData = dio.FormData.fromMap({
-          'media': await dio.MultipartFile.fromFile(
-            xfile.path,
-            filename: xfile.name,
-          ),
+          'media': await dio.MultipartFile.fromFile(xfile.path, filename: xfile.name),
           if (caption.isNotEmpty) 'caption': caption,
         });
 
         final response = await ApiManager.call(
-          endPoint:
-              "${BACKEND.communityMessages}${community.value!.id}/messages/image",
+          endPoint: "${BACKEND.communityMessages}${community.value!.id}/messages/image",
           type: ApiType.post,
           body: formData,
         );
@@ -492,15 +499,11 @@ class CommunityCtrl extends GetxController {
   String? _resolveMediaUrl(String? rawUrl) {
     if (rawUrl == null || rawUrl.trim().isEmpty) return null;
     final trimmed = rawUrl.trim();
-    if (trimmed.startsWith('http://') || trimmed.startsWith('https://'))
-      return trimmed;
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) return trimmed;
     return "${AppNetworkConstants.baseURL}$trimmed";
   }
 
-  Future<void> downloadMediaFromUrl({
-    required String? url,
-    required bool isVideo,
-  }) async {
+  Future<void> downloadMediaFromUrl({required String? url, required bool isVideo}) async {
     final resolved = _resolveMediaUrl(url);
     if (resolved == null) {
       warningToast("Media URL not available");
@@ -517,17 +520,12 @@ class CommunityCtrl extends GetxController {
     try {
       if (isVideo) {
         final ext = _videoExtension(resolved);
-        final tempFile = File(
-          "${Directory.systemTemp.path}/ontrip_${DateTime.now().microsecondsSinceEpoch}.$ext",
-        );
+        final tempFile = File("${Directory.systemTemp.path}/ontrip_${DateTime.now().microsecondsSinceEpoch}.$ext");
         await downloader.download(resolved, tempFile.path);
         await Gal.putVideo(tempFile.path, album: "OnTrip");
         if (await tempFile.exists()) await tempFile.delete();
       } else {
-        final response = await downloader.get<List<int>>(
-          resolved,
-          options: dio.Options(responseType: dio.ResponseType.bytes),
-        );
+        final response = await downloader.get<List<int>>(resolved, options: dio.Options(responseType: dio.ResponseType.bytes));
         final bytes = response.data;
         if (bytes == null || bytes.isEmpty) {
           errorToast("Failed to download image");
@@ -550,14 +548,9 @@ class CommunityCtrl extends GetxController {
     if (ids.isEmpty) return;
 
     try {
-      final response = await ApiManager.call(
-        endPoint: BACKEND.communityBulkDeleteImages(communityIdValue),
-        type: ApiType.delete,
-        body: {"imageIds": ids},
-      );
+      final response = await ApiManager.call(endPoint: BACKEND.communityBulkDeleteImages(communityIdValue), type: ApiType.delete, body: {"imageIds": ids});
 
-      if ((response.status == 1 || response.status == 200) &&
-          response.success == true) {
+      if ((response.status == 1 || response.status == 200) && response.success == true) {
         messages.removeWhere((m) => ids.contains(m.id));
         successToast("Deleted successfully");
       } else {

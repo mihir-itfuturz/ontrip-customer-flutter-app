@@ -12,7 +12,10 @@ class HistoryCtrl extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    fetchHistory();
+    final token = getStorage(AppSession.token);
+    if (token != null && token.toString().isNotEmpty) {
+      fetchHistory();
+    }
   }
 
   @override

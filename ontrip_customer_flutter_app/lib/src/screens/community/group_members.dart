@@ -14,7 +14,7 @@ class GroupMembersScreen extends StatelessWidget {
   static const Color _travelerBg = Color(0xFFF4EDE3);
   static const Color _greyText = Color(0xFF6B7280);
   // static const Color _borderColor = Color(0xFFE5E7EB);
-  static const Color _borderColor = Color(0xFFEF6C33);       // show border lines 
+  static const Color _borderColor = Color(0xFFEF6C33); // show border lines
   static const Color kBgColor = Color(0xFFFFF5ED);
 
   @override
@@ -28,25 +28,25 @@ class GroupMembersScreen extends StatelessWidget {
           // backgroundColor: Color(0xFFFDF7F0),
           backgroundColor: kBgColor,
           appBar: _buildAppBar(controller),
-          body: Column(
-            children: [
-              _buildSearchBar(controller),
-              _buildInfoBanner(),
-              Expanded(
-                child: Obx(() {
-                  // ignore: unused_local_variable
-                  final _ = controller.searchQuery.value;
-                  return ListView(
-                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 40),
-                    children: [
-                      _buildAgentsSection(controller),
-                      const SizedBox(height: 24),
-                      _buildTravelersSection(controller),
-                    ],
-                  );
-                }),
-              ),
-            ],
+          body: SafeArea(
+            bottom: true,
+
+            child: Column(
+              children: [
+                _buildSearchBar(controller),
+                _buildInfoBanner(),
+                Expanded(
+                  child: Obx(() {
+                    // ignore: unused_local_variable
+                    final _ = controller.searchQuery.value;
+                    return ListView(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 30),
+                      children: [_buildAgentsSection(controller), const SizedBox(height: 24), _buildTravelersSection(controller)],
+                    );
+                  }),
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -80,16 +80,10 @@ class GroupMembersScreen extends StatelessWidget {
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Group Members",
-            style: AppTextStyle.bold.copyWith(fontSize: 18, color: Colors.black),
-          ),
+          Text("Group Members", style: AppTextStyle.bold.copyWith(fontSize: 18, color: Colors.black)),
           Obx(() {
             final totalMembers = controller.filteredAgents.length + controller.filteredCustomers.length;
-            return Text(
-              "$totalMembers people on this journey",
-              style: AppTextStyle.medium.copyWith(fontSize: 12, color: _greyText),
-            );
+            return Text("$totalMembers people on this journey", style: AppTextStyle.medium.copyWith(fontSize: 12, color: _greyText));
           }),
         ],
       ),
@@ -137,10 +131,7 @@ class GroupMembersScreen extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: _lightTeal,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: BoxDecoration(color: _lightTeal, borderRadius: BorderRadius.circular(12)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -154,12 +145,7 @@ class GroupMembersScreen extends StatelessWidget {
           const Expanded(
             child: Text(
               "Your agents manage who can send messages in this group.",
-              style: TextStyle(
-                fontSize: 13,
-                color: _teal,
-                fontWeight: FontWeight.w600,
-                height: 1.3,
-              ),
+              style: TextStyle(fontSize: 13, color: _teal, fontWeight: FontWeight.w600, height: 1.3),
             ),
           ),
         ],
@@ -187,8 +173,7 @@ class GroupMembersScreen extends StatelessWidget {
               return Column(
                 children: [
                   _buildAgentTile(agent),
-                  if (index != controller.filteredAgents.length - 1)
-                    Divider(height: 1, color: _borderColor.withValues(alpha: 0.3), indent: 70),
+                  if (index != controller.filteredAgents.length - 1) Divider(height: 1, color: _borderColor.withValues(alpha: 0.3), indent: 70),
                 ],
               );
             }),
@@ -218,8 +203,7 @@ class GroupMembersScreen extends StatelessWidget {
               return Column(
                 children: [
                   _buildTravelerTile(member),
-                  if (index != controller.filteredCustomers.length - 1)
-                    Divider(height: 1, color: _borderColor.withValues(alpha: 0.3), indent: 70),
+                  if (index != controller.filteredCustomers.length - 1) Divider(height: 1, color: _borderColor.withValues(alpha: 0.3), indent: 70),
                 ],
               );
             }),
@@ -232,21 +216,12 @@ class GroupMembersScreen extends StatelessWidget {
   Widget _buildSectionHeader(String title, int count) {
     return Row(
       children: [
-        Text(
-          title,
-          style: AppTextStyle.bold.copyWith(fontSize: 20, color: Colors.black),
-        ),
+        Text(title, style: AppTextStyle.bold.copyWith(fontSize: 20, color: Colors.black)),
         const SizedBox(width: 12),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-          decoration: BoxDecoration(
-            color: _orangeBg,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Text(
-            "$count",
-            style: AppTextStyle.bold.copyWith(fontSize: 14, color: _orangeText),
-          ),
+          decoration: BoxDecoration(color: _orangeBg, borderRadius: BorderRadius.circular(10)),
+          child: Text("$count", style: AppTextStyle.bold.copyWith(fontSize: 14, color: _orangeText)),
         ),
       ],
     );
@@ -266,15 +241,8 @@ class GroupMembersScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  agent.name ?? "Unknown",
-                  style: AppTextStyle.bold.copyWith(fontSize: 16, color: Colors.black),
-                ),
-                Text(
-                  agent.email ?? "",
-                  maxLines: 1,
-                  style: AppTextStyle.medium.copyWith(fontSize: 13, color: _greyText),
-                ),
+                Text(agent.name ?? "Unknown", style: AppTextStyle.bold.copyWith(fontSize: 16, color: Colors.black)),
+                Text(agent.email ?? "", maxLines: 1, style: AppTextStyle.medium.copyWith(fontSize: 13, color: _greyText)),
               ],
             ),
           ),
@@ -297,14 +265,8 @@ class GroupMembersScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  member.name ?? "Unknown",
-                  style: AppTextStyle.bold.copyWith(fontSize: 16, color: Colors.black),
-                ),
-                Text(
-                  member.email ?? "",
-                  style: AppTextStyle.medium.copyWith(fontSize: 13, color: _greyText),
-                ),
+                Text(member.name ?? "Unknown", style: AppTextStyle.bold.copyWith(fontSize: 16, color: Colors.black)),
+                Text(member.email ?? "", style: AppTextStyle.medium.copyWith(fontSize: 13, color: _greyText)),
               ],
             ),
           ),
@@ -319,15 +281,9 @@ class GroupMembersScreen extends StatelessWidget {
     return Container(
       height: 44,
       width: 44,
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
-        shape: BoxShape.circle,
-      ),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.15), shape: BoxShape.circle),
       child: Center(
-        child: Text(
-          initial,
-          style: AppTextStyle.bold.copyWith(fontSize: 18, color: color),
-        ),
+        child: Text(initial, style: AppTextStyle.bold.copyWith(fontSize: 18, color: color)),
       ),
     );
   }
@@ -335,14 +291,8 @@ class GroupMembersScreen extends StatelessWidget {
   Widget _buildRoleLabel(String label, Color bg, Color text) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        label,
-        style: AppTextStyle.bold.copyWith(fontSize: 11, color: text),
-      ),
+      decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
+      child: Text(label, style: AppTextStyle.bold.copyWith(fontSize: 11, color: text)),
     );
   }
 
@@ -373,4 +323,3 @@ class GroupMembersScreen extends StatelessWidget {
     return colors[index];
   }
 }
-

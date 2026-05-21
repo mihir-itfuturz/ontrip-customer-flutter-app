@@ -59,20 +59,10 @@ class _SignInScreenState extends State<SignInScreen> {
         Container(
           width: 8,
           height: 8,
-          decoration: const BoxDecoration(
-            color: kPrimaryOrange,
-            shape: BoxShape.circle,
-          ),
+          decoration: const BoxDecoration(color: kPrimaryOrange, shape: BoxShape.circle),
         ),
         const SizedBox(width: 8),
-        Text(
-          "OnTrip",
-          style: AppTextStyle.bold.copyWith(
-            fontSize: 20,
-            color: Constant.instance.black,
-            letterSpacing: -0.5,
-          ),
-        ),
+        Text("OnTrip", style: AppTextStyle.bold.copyWith(fontSize: 20, color: Constant.instance.black, letterSpacing: -0.5)),
       ],
     );
   }
@@ -81,58 +71,27 @@ class _SignInScreenState extends State<SignInScreen> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: kDarkNavy,
-        borderRadius: BorderRadius.circular(32),
-      ),
+      decoration: BoxDecoration(color: kDarkNavy, borderRadius: BorderRadius.circular(32)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                "JOURNEYS MADE EASY",
-                style: AppTextStyle.bold.copyWith(
-                  fontSize: 10,
-                  color: kPrimaryOrange,
-                  letterSpacing: 1.5,
-                ),
-              ),
+              Text("JOURNEYS MADE EASY", style: AppTextStyle.bold.copyWith(fontSize: 10, color: kPrimaryOrange, letterSpacing: 1.5)),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  color: kPrimaryOrange,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  "v2",
-                  style: AppTextStyle.bold.copyWith(
-                    fontSize: 10,
-                    color: kWhite,
-                  ),
-                ),
+                decoration: BoxDecoration(color: kPrimaryOrange, borderRadius: BorderRadius.circular(20)),
+                child: Text("v2", style: AppTextStyle.bold.copyWith(fontSize: 10, color: kWhite)),
               ),
             ],
           ),
           const SizedBox(height: 20),
-          Text(
-            "Welcome\nBack.",
-            style: AppTextStyle.bold.copyWith(
-              fontSize: 48,
-              color: kWhite,
-              height: 1.1,
-              letterSpacing: -1,
-            ),
-          ),
+          Text("Welcome\nBack.", style: AppTextStyle.bold.copyWith(fontSize: 48, color: kWhite, height: 1.1, letterSpacing: -1)),
           const SizedBox(height: 16),
           Text(
             "Sign in to see your curated trip, talk to your agents and relive the journey.",
-            style: AppTextStyle.regular.copyWith(
-              fontSize: 14,
-              color: kSubwhite,
-              height: 1.5,
-            ),
+            style: AppTextStyle.regular.copyWith(fontSize: 14, color: kSubwhite, height: 1.5),
           ),
           const SizedBox(height: 20),
           // _buildTripInfoCard(),
@@ -154,36 +113,50 @@ class _SignInScreenState extends State<SignInScreen> {
           Container(
             width: 48,
             height: 48,
-            decoration: BoxDecoration(
-              color: kWhite.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
+            decoration: BoxDecoration(color: kWhite.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(12)),
             child: Icon(Icons.image_outlined, color: kWhite.withValues(alpha: 0.5)),
           ),
           const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                "Ladakh Premium",
-                style: AppTextStyle.bold.copyWith(
-                  fontSize: 15,
-                  color: kWhite,
-                ),
-              ),
+              Text("Ladakh Premium", style: AppTextStyle.bold.copyWith(fontSize: 15, color: kWhite)),
               const SizedBox(height: 4),
-              Text(
-                "8 days · Confirmed",
-                style: AppTextStyle.regular.copyWith(
-                  fontSize: 12,
-                  color: kSubwhite,
-                ),
-              ),
+              Text("8 days · Confirmed", style: AppTextStyle.regular.copyWith(fontSize: 12, color: kSubwhite)),
             ],
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildRoleChip(SignInCtrl ctrl, UserRole role, String label) {
+    return Obx(() {
+      final isSelected = ctrl.selectedRole.value == role;
+
+      return Expanded(
+        child: GestureDetector(
+          onTap: () => ctrl.selectRole(role),
+          child: Column(
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                // margin: const EdgeInsets.all(2),
+                // decoration: BoxDecoration(borderRadius: BorderRadius.circular(0), color: isSelected ? kPrimaryOrange : kWhite),
+                child: Text(label, style: AppTextStyle.bold.copyWith(fontSize: 13, color: isSelected ? kPrimaryOrange : kGreyText)),
+              ),
+              Container(
+                // width: 1,
+                height: 5,
+                color: isSelected ? kPrimaryOrange : kWhite,
+              ),
+            ],
+          ),
+        ),
+      );
+    });
   }
 
   Widget _buildSignInForm(SignInCtrl ctrl) {
@@ -192,25 +165,34 @@ class _SignInScreenState extends State<SignInScreen> {
       decoration: BoxDecoration(
         color: kWhite,
         borderRadius: BorderRadius.circular(32),
-        boxShadow: [
-          BoxShadow(
-            color: kDarkNavy.withValues(alpha: 0.05),
-            blurRadius: 30,
-            offset: const Offset(0, 10),
-          ),
-        ],
+        boxShadow: [BoxShadow(color: kDarkNavy.withValues(alpha: 0.05), blurRadius: 30, offset: const Offset(0, 10))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "PHONE NUMBER",
-            style: AppTextStyle.bold.copyWith(
-              fontSize: 11,
-              color: kGreyText,
-              letterSpacing: 1,
+          // ── Role selector ──────────────────────────────────────
+          Text("SIGN IN AS", style: AppTextStyle.bold.copyWith(fontSize: 11, color: kGreyText, letterSpacing: 1)),
+          const SizedBox(height: 10),
+          Container(
+            clipBehavior: Clip.hardEdge,
+
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(6),
+              color: kWhite,
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 10, offset: const Offset(2, 4))],
+              // border: Border.all(color: kGreyText.withValues(alpha: 0.4), width: 1.5),
+            ),
+            child: Row(
+              children: [
+                _buildRoleChip(ctrl, UserRole.customer, "Customer"),
+                Container(width: 1, height: 45, color: kGreyText.withValues(alpha: 0.2)),
+                _buildRoleChip(ctrl, UserRole.vendor, "Vendor"),
+              ],
             ),
           ),
+          const SizedBox(height: 20),
+          // ── Phone number ───────────────────────────────────────
+          Text("PHONE NUMBER", style: AppTextStyle.bold.copyWith(fontSize: 11, color: kGreyText, letterSpacing: 1)),
           const SizedBox(height: 12),
           Container(
             decoration: BoxDecoration(
@@ -232,19 +214,9 @@ class _SignInScreenState extends State<SignInScreen> {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  "+91",
-                  style: AppTextStyle.bold.copyWith(
-                    fontSize: 16,
-                    color: Constant.instance.black,
-                  ),
-                ),
+                Text("+91", style: AppTextStyle.bold.copyWith(fontSize: 16, color: Constant.instance.black)),
                 const SizedBox(width: 8),
-                Container(
-                  width: 1,
-                  height: 24,
-                  color: kGreyText.withValues(alpha: 0.3),
-                ),
+                Container(width: 1, height: 24, color: kGreyText.withValues(alpha: 0.3)),
                 const SizedBox(width: 12),
                 Expanded(
                   child: TextFormField(
@@ -252,11 +224,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     keyboardType: TextInputType.phone,
                     maxLength: 10,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    style: AppTextStyle.bold.copyWith(
-                      fontSize: 16,
-                      color: Constant.instance.black,
-                      letterSpacing: 1.5,
-                    ),
+                    style: AppTextStyle.bold.copyWith(fontSize: 16, color: Constant.instance.black, letterSpacing: 1.5),
                     decoration: const InputDecoration(
                       border: InputBorder.none,
                       hintText: "Enter Your Phone Number",
@@ -281,11 +249,7 @@ class _SignInScreenState extends State<SignInScreen> {
           const SizedBox(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildFeatureTag("Secure"),
-              _buildFeatureTag("Private"),
-              _buildFeatureTag("Instant"),
-            ],
+            children: [_buildFeatureTag("Secure"), _buildFeatureTag("Private"), _buildFeatureTag("Instant")],
           ),
         ],
       ),
@@ -293,13 +257,7 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   Widget _buildFeatureTag(String label) {
-    return Text(
-      label,
-      style: AppTextStyle.medium.copyWith(
-        fontSize: 12,
-        color: kGreyText,
-      ),
-    );
+    return Text(label, style: AppTextStyle.medium.copyWith(fontSize: 12, color: kGreyText));
   }
 
   Widget _buildContinueButton(SignInCtrl ctrl) {
@@ -317,29 +275,16 @@ class _SignInScreenState extends State<SignInScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 if (ctrl.isLoadingForSignIn.value)
-                  const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(color: kWhite, strokeWidth: 2),
-                  )
+                  const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: kWhite, strokeWidth: 2))
                 else ...[
                   // const Spacer(),
-                  Text(
-                    "Continue",
-                    style: AppTextStyle.bold.copyWith(
-                      fontSize: 18,
-                      color: kWhite,
-                    ),
-                  ),
+                  Text("Continue", style: AppTextStyle.bold.copyWith(fontSize: 18, color: kWhite)),
                   // const Spacer(),
-                  SizedBox(width: 10,),
+                  SizedBox(width: 10),
                   Container(
                     width: 32,
                     height: 32,
-                    decoration: const BoxDecoration(
-                      color: kWhite,
-                      shape: BoxShape.circle,
-                    ),
+                    decoration: const BoxDecoration(color: kWhite, shape: BoxShape.circle),
                     child: const Icon(Icons.arrow_forward_rounded, color: kPrimaryOrange, size: 20),
                   ),
                 ],
@@ -358,11 +303,7 @@ class _SignInScreenState extends State<SignInScreen> {
         child: RichText(
           textAlign: TextAlign.center,
           text: TextSpan(
-            style: AppTextStyle.medium.copyWith(
-              fontSize: 12,
-              color: kGreyText,
-              height: 1.5,
-            ),
+            style: AppTextStyle.medium.copyWith(fontSize: 12, color: kGreyText, height: 1.5),
             children: [
               const TextSpan(text: "By signing in, you agree to our "),
               TextSpan(
@@ -389,4 +330,3 @@ class _SignInScreenState extends State<SignInScreen> {
     );
   }
 }
-

@@ -1,0 +1,283 @@
+import '../../../../app_export.dart';
+import '../home/vendor_home_ctrl.dart';
+
+/// Vendor "Packages" tab — same data as home but in a searchable list layout,
+/// mirroring the customer History screen pattern.
+class VendorPackagesScreen extends StatefulWidget {
+  const VendorPackagesScreen({super.key});
+
+  @override
+  State<VendorPackagesScreen> createState() => _VendorPackagesScreenState();
+}
+
+class _VendorPackagesScreenState extends State<VendorPackagesScreen> with SingleTickerProviderStateMixin {
+  late final AnimationController _fadeController;
+  late final Animation<double> _fadeAnimation;
+  final TextEditingController _searchCtrl = TextEditingController();
+  final RxString _query = ''.obs;
+
+  @override
+  void initState() {
+    super.initState();
+    _fadeController = AnimationController(duration: const Duration(milliseconds: 800), vsync: this);
+    _fadeAnimation = CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut);
+    _fadeController.forward();
+    _searchCtrl.addListener(() => _query.value = _searchCtrl.text.toLowerCase());
+  }
+
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ctrl = Get.find<VendorHomeCtrl>();
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
+      body: FadeTransition(
+        opacity: _fadeAnimation,
+        child: Column(
+          children: [
+            // ── Header ──────────────────────────────────────────
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Constant.instance.primary, Constant.instance.primary.withValues(alpha: 0.8)],
+                ),
+                borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(32), bottomRight: Radius.circular(32)),
+                boxShadow: [BoxShadow(color: Constant.instance.primary.withValues(alpha: 0.2), blurRadius: 20, offset: const Offset(0, 8))],
+              ),
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(color: Colors.white.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(16)),
+                        child: const Icon(Icons.inventory_2_rounded, color: Colors.white, size: 28),
+                      ),
+                      const SizedBox(width: 16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('My Packages', style: AppTextStyle.bold.copyWith(fontSize: 22, color: Colors.white, letterSpacing: -0.5)),
+                          Obx(
+                            () => Text(
+                              '${ctrl.packages.length} packages',
+                              style: AppTextStyle.medium.copyWith(fontSize: 13, color: Colors.white.withValues(alpha: 0.85)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // ── Search ───────────────────────────────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.04), blurRadius: 8, offset: const Offset(0, 2))],
+                ),
+                child: TextField(
+                  controller: _searchCtrl,
+                  style: AppTextStyle.medium.copyWith(fontSize: 15, color: const Color(0xFF1E293B)),
+                  decoration: InputDecoration(
+                    hintText: 'Search by title or destination...',
+                    hintStyle: AppTextStyle.medium.copyWith(color: const Color(0xFF94A3B8), fontSize: 15),
+                    prefixIcon: Icon(Icons.search_rounded, color: Constant.instance.primary.withValues(alpha: 0.7), size: 20),
+                    border: InputBorder.none,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 16),
+
+            // ── List ─────────────────────────────────────────────
+            Expanded(
+              child: Obx(() {
+                if (ctrl.isLoading.value && ctrl.packages.isEmpty) {
+                  return const Center(child: CustomLoadingIndicator());
+                }
+
+                final filtered = ctrl.packages.where((p) {
+                  final q = _query.value;
+                  if (q.isEmpty) return true;
+                  return p.title.toLowerCase().contains(q) || p.destination.toLowerCase().contains(q);
+                }).toList();
+
+                if (filtered.isEmpty) {
+                  return _buildEmptyState();
+                }
+
+                return RefreshIndicator(
+                  onRefresh: ctrl.fetchPackages,
+                  color: Constant.instance.primary,
+                  backgroundColor: Colors.white,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 100),
+                    itemCount: filtered.length,
+                    itemBuilder: (context, index) => _buildCard(filtered[index]),
+                  ),
+                );
+              }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCard(VendorPackage pkg) {
+    final imageUrl = pkg.coverImage.isNotEmpty ? 'https://ontrip.itfuturz.in/${pkg.coverImage}' : '';
+
+    return GestureDetector(
+      onTap: () {
+        Get.toNamed(RouteNames.vendorPackageDetails, arguments: pkg);
+      },
+      child: Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.08), blurRadius: 20, offset: const Offset(0, 8))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Image
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            child: Stack(
+              children: [
+                CustomNetworkImage(imageUrl: imageUrl, height: 180, width: double.infinity),
+                Positioned(
+                  top: 14,
+                  left: 14,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(color: _statusColor(pkg.status), borderRadius: BorderRadius.circular(8)),
+                    child: Text(pkg.status.toUpperCase(), style: AppTextStyle.bold.copyWith(fontSize: 10, color: Colors.white, letterSpacing: 0.5)),
+                  ),
+                ),
+                Positioned(
+                  top: 14,
+                  right: 14,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.55), borderRadius: BorderRadius.circular(8)),
+                    child: Text('${pkg.totalDays}D', style: AppTextStyle.bold.copyWith(fontSize: 11, color: Colors.white)),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Info
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(pkg.title, style: AppTextStyle.bold.copyWith(fontSize: 18, color: const Color(0xFF1E293B))),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(child: _buildInfoItem(Icons.location_on_rounded, pkg.destination, Constant.instance.orange)),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _buildInfoItem(Icons.currency_rupee_rounded, '${pkg.currency} ${pkg.basePrice.toStringAsFixed(0)}', Constant.instance.primary),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    ),
+    );
+  }
+
+  Widget _buildInfoItem(IconData icon, String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              label,
+              style: AppTextStyle.medium.copyWith(fontSize: 12, color: const Color(0xFF64748B)),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(40),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(color: Constant.instance.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
+              child: Icon(Icons.inventory_2_outlined, size: 56, color: Constant.instance.primary),
+            ),
+            const SizedBox(height: 24),
+            Text('No Packages Found', style: AppTextStyle.bold.copyWith(fontSize: 22, color: const Color(0xFF1E293B))),
+            const SizedBox(height: 10),
+            Text(
+              'No packages match your search.',
+              textAlign: TextAlign.center,
+              style: AppTextStyle.medium.copyWith(fontSize: 15, color: const Color(0xFF64748B), height: 1.5),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Color _statusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'approved':
+        return const Color(0xFF10B981);
+      case 'pending':
+        return const Color(0xFFF59E0B);
+      case 'rejected':
+        return const Color(0xFFEF4444);
+      default:
+        return Colors.grey;
+    }
+  }
+}

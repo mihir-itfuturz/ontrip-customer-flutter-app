@@ -150,6 +150,9 @@ export 'src/screens/edit_profile/edit_profile_controller.dart';
 export 'src/screens/booking_details/booking_details.dart';
 export 'src/screens/booking_details/booking_details_ctrl.dart';
 
+export 'src/screens/vendor/packages/vendor_package_details.dart';
+export 'src/screens/vendor/packages/vendor_package_details_ctrl.dart';
+
 //! ROUTE
 export 'src/routes/route_methods.dart';
 export 'src/routes/route_names.dart';

@@ -15,5 +15,6 @@ class RouteMethods {
     GetPage(name: RouteNames.editProfile, page: () => const EditProfileScreen(), binding: BindingsBuilder(() => Get.lazyPut(() => EditProfileCtrl()))),
     GetPage(name: RouteNames.communityMedia, page: () => const CommunityMediaScreen(), binding: BindingsBuilder(() => Get.lazyPut(() => CommunityMediaCtrl()))),
     GetPage(name: RouteNames.bookingDetails, page: () => const BookingDetailsScreen(), binding: BindingsBuilder(() => Get.lazyPut(() => BookingDetailsCtrl()))),
+    GetPage(name: RouteNames.vendorPackageDetails, page: () => const VendorPackageDetailsScreen(), binding: BindingsBuilder(() => Get.lazyPut(() => VendorPackageDetailsCtrl()))),
   ];
 }

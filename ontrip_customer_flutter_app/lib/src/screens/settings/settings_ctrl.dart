@@ -7,7 +7,10 @@ class SettingsCtrl extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    authService.fetchProfile();
+    final token = getStorage(AppSession.token);
+    if (token != null && token.toString().isNotEmpty) {
+      authService.fetchProfile();
+    }
     isNotificationEnabled.value =
         GetStorage().read(StringConstants.notificationEnabled) ?? true;
   }

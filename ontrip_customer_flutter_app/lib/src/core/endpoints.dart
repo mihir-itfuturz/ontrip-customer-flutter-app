@@ -1,7 +1,16 @@
 class BACKEND {
-  /// Auth
+  /// Auth — Customer
   static const sendOtp = 'auth/otp/customer';
   static const signIn = 'auth/login/customer';
+
+  /// Auth — Vendor
+  static const vendorSendOtp = 'vendors/mobile/send-otp';
+  static const vendorSignIn = 'vendors/mobile/verify-otp';
+  static const vendorProfile = 'vendors/mobile/profile';
+  static const vendorPackages = 'vendors/mobile/packages';
+  static String vendorChat(String bookingId, String customerId) =>
+      'vendors/chat/$bookingId?customerId=$customerId';
+
   static const deleteAccount = 'mobile/delete-account';
 
   static const banners = 'mobile/banners';
