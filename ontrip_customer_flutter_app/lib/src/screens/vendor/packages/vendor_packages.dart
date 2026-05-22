@@ -147,13 +147,9 @@ class _VendorPackagesScreenState extends State<VendorPackagesScreen> with Single
   }
 
   Widget _buildCard(VendorPackage pkg) {
-    final imageUrl = pkg.coverImage.isNotEmpty ? 'https://ontrip.itfuturz.in/${pkg.coverImage}' : '';
+    final imageUrl = pkg.coverImage.isNotEmpty ? '${AppNetworkConstants.baseURL}${pkg.coverImage}' : '';
 
-    return GestureDetector(
-      onTap: () {
-        Get.toNamed(RouteNames.vendorPackageDetails, arguments: pkg);
-      },
-      child: Container(
+    return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -193,10 +189,11 @@ class _VendorPackagesScreenState extends State<VendorPackagesScreen> with Single
 
           // Info
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const SizedBox(height: 8),
                 Text(pkg.title, style: AppTextStyle.bold.copyWith(fontSize: 18, color: const Color(0xFF1E293B))),
                 const SizedBox(height: 8),
                 Row(
@@ -211,9 +208,36 @@ class _VendorPackagesScreenState extends State<VendorPackagesScreen> with Single
               ],
             ),
           ),
+          // const SizedBox(height: 24),
+          GestureDetector(
+            onTap: () {
+              Get.toNamed(RouteNames.vendorPackageDetails, arguments: pkg);
+            },
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              margin: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Constant.instance.primary, Constant.instance.primary.withValues(alpha: 0.8)],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [BoxShadow(color: Constant.instance.primary.withValues(alpha: 0.3), blurRadius: 12, offset: const Offset(0, 4))],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("View Trip Details", style: AppTextStyle.bold.copyWith(fontSize: 16, color: Colors.white)),
+                  const SizedBox(width: 8),
+                  const Icon(Icons.arrow_forward_rounded, size: 18, color: Colors.white),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
-    ),
     );
   }
 

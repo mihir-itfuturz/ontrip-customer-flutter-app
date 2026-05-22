@@ -135,7 +135,7 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> with SingleTickerPr
   }
 
   Widget _buildPackageCard(VendorPackage pkg) {
-    final imageUrl = pkg.coverImage.isNotEmpty ? 'https://ontrip.itfuturz.in/${pkg.coverImage}' : '';
+    final imageUrl = pkg.coverImage.isNotEmpty ? '${AppNetworkConstants.baseURL}${pkg.coverImage}' : '';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 20),

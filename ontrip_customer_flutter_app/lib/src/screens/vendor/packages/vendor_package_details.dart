@@ -1,4 +1,5 @@
 import '../../../../app_export.dart';
+import 'package:ontrip_customer_flutter_app/src/models/booking_model.dart';
 import '../home/vendor_home_ctrl.dart';
 
 class VendorPackageDetailsScreen extends GetView<VendorPackageDetailsCtrl> {
@@ -25,15 +26,39 @@ class VendorPackageDetailsScreen extends GetView<VendorPackageDetailsCtrl> {
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
+        child: DefaultTabController(
+          length: 2,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildModernHeader(controller.package),
-              _buildItinerarySection(controller.package),
-              _buildInclusions(controller.package),
-              _buildExclusions(controller.package),
-              const SizedBox(height: 20),
+              TabBar(
+                labelColor: Constant.instance.primary,
+                unselectedLabelColor: Colors.grey,
+                indicatorColor: Constant.instance.primary,
+                tabs: const [
+                  Tab(text: 'Details'),
+                  Tab(text: 'Customers'),
+                ],
+              ),
+              Expanded(
+                child: TabBarView(
+                  children: [
+                    SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildModernHeader(controller.package),
+                          _buildItinerarySection(controller.package),
+                          _buildInclusions(controller.package),
+                          _buildExclusions(controller.package),
+                          _buildSupportCard(controller.package),
+                          const SizedBox(height: 20),
+                        ],
+                      ),
+                    ),
+                    _buildCustomersTab(controller.package),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -72,7 +97,7 @@ class VendorPackageDetailsScreen extends GetView<VendorPackageDetailsCtrl> {
           Positioned.fill(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(24),
-              child: CustomNetworkImage(imageUrl: coverImage.startsWith("http") ? coverImage : "https://ontrip.itfuturz.in/$coverImage", fit: BoxFit.cover),
+              child: CustomNetworkImage(imageUrl: coverImage.startsWith("http") ? coverImage : "${AppNetworkConstants.baseURL}$coverImage", fit: BoxFit.cover),
             ),
           ),
           Positioned.fill(
@@ -96,24 +121,12 @@ class VendorPackageDetailsScreen extends GetView<VendorPackageDetailsCtrl> {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
-                    _getStatusColor(package.status.toUpperCase()),
-                    _getStatusColor(package.status.toUpperCase()).withValues(alpha: 0.8),
-                  ],
+                  colors: [_getStatusColor(package.status.toUpperCase()), _getStatusColor(package.status.toUpperCase()).withValues(alpha: 0.8)],
                 ),
                 borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: _getStatusColor(package.status.toUpperCase()).withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+                boxShadow: [BoxShadow(color: _getStatusColor(package.status.toUpperCase()).withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 2))],
               ),
-              child: Text(
-                package.status.toUpperCase(),
-                style: AppTextStyle.bold.copyWith(color: Colors.white, fontSize: 12, letterSpacing: 0.5),
-              ),
+              child: Text(package.status.toUpperCase(), style: AppTextStyle.bold.copyWith(color: Colors.white, fontSize: 12, letterSpacing: 0.5)),
             ),
           ),
           Positioned(
@@ -278,6 +291,128 @@ class VendorPackageDetailsScreen extends GetView<VendorPackageDetailsCtrl> {
     );
   }
 
+  Widget _buildSupportCard(VendorPackage package) {
+    // Placeholder support details
+    const supportName = "Vendor Support";
+    const supportPhone = "+91 1234567890";
+    const supportEmail = "support@vendor.com";
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 0, 20, 32),
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 2))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(color: Constant.instance.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+                child: Icon(Icons.headset_mic_rounded, color: Constant.instance.primary, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Text("SUPPORT & ASSISTANCE", style: AppTextStyle.bold.copyWith(fontSize: 14, color: Constant.instance.primary, letterSpacing: 0.5)),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              Container(
+                height: 56,
+                width: 56,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Constant.instance.primary, Constant.instance.primary.withValues(alpha: 0.8)],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [BoxShadow(color: Constant.instance.primary.withValues(alpha: 0.3), blurRadius: 8, offset: const Offset(0, 2))],
+                ),
+                child: Center(
+                  child: Text(supportName[0], style: AppTextStyle.bold.copyWith(color: Colors.white, fontSize: 20)),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(supportName, style: AppTextStyle.bold.copyWith(fontSize: 16, color: const Color(0xFF1E293B))),
+                    const SizedBox(height: 4),
+                    Text("Contact your vendor support", style: AppTextStyle.medium.copyWith(fontSize: 13, color: const Color(0xFF64748B))),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          const Divider(color: Color(0xFFF1F5F9), height: 1),
+          const SizedBox(height: 20),
+          // Phone Row
+          GestureDetector(
+            onTap: () => AppUrl.call("tel:$supportPhone", mobile: supportPhone),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Constant.instance.green2.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Constant.instance.green2.withValues(alpha: 0.1)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    height: 40,
+                    width: 40,
+                    decoration: BoxDecoration(color: Constant.instance.green2.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+                    child: Icon(Icons.call_rounded, color: Constant.instance.green2, size: 20),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Text(supportPhone, style: AppTextStyle.medium.copyWith(fontSize: 15, color: const Color(0xFF1E293B))),
+                  ),
+                  Icon(Icons.arrow_forward_ios_rounded, color: Constant.instance.green2, size: 16),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          // Email Row
+          GestureDetector(
+            onTap: () => AppUrl.mail(email: supportEmail, subject: "Vendor Support"),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Constant.instance.primary.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Constant.instance.primary.withValues(alpha: 0.1)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    height: 40,
+                    width: 40,
+                    decoration: BoxDecoration(color: Constant.instance.primary.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+                    child: Icon(Icons.mail_rounded, color: Constant.instance.primary, size: 20),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Text(supportEmail, style: AppTextStyle.medium.copyWith(fontSize: 15, color: const Color(0xFF1E293B))),
+                  ),
+                  Icon(Icons.arrow_forward_ios_rounded, color: Constant.instance.primary, size: 16),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildItinerarySection(VendorPackage package) {
     final itinerary = package.itinerary ?? [];
     if (itinerary.isEmpty) return _buildEmptyState(Icons.map_outlined, "No itinerary available for this trip");
@@ -367,6 +502,7 @@ class VendorPackageDetailsScreen extends GetView<VendorPackageDetailsCtrl> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
+                  width: Get.width,
                   padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -389,7 +525,7 @@ class VendorPackageDetailsScreen extends GetView<VendorPackageDetailsCtrl> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 16),
                 ...(dayData.experiences ?? []).map((exp) => _buildExperienceCard(exp)),
               ],
             ),
@@ -418,7 +554,7 @@ class VendorPackageDetailsScreen extends GetView<VendorPackageDetailsCtrl> {
               borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
               child: Stack(
                 children: [
-                  CustomNetworkImage(imageUrl: image.startsWith("http") ? image : "https://ontrip.itfuturz.in/$image", height: 180, width: double.infinity),
+                  CustomNetworkImage(imageUrl: image.startsWith("http") ? image : "${AppNetworkConstants.baseURL}$image", height: 180, width: double.infinity),
                   Positioned(
                     top: 16,
                     right: 16,
@@ -480,6 +616,47 @@ class VendorPackageDetailsScreen extends GetView<VendorPackageDetailsCtrl> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildCustomersTab(VendorPackage package) {
+    final bookings = package.bookings ?? [];
+    if (bookings.isEmpty) {
+      return _buildEmptyState(Icons.group, "No customers have booked this package yet");
+    }
+    return ListView.separated(
+      padding: const EdgeInsets.all(20),
+      itemCount: bookings.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final booking = bookings[index] as Booking;
+        final customer = booking.customer;
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10, offset: const Offset(0, 2))],
+          ),
+          child: Row(
+            children: [
+              CircleAvatar(radius: 24, child: Text(customer?.name?.isNotEmpty == true ? customer!.name![0] : "?")),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(customer?.name ?? "Unknown", style: AppTextStyle.bold.copyWith(fontSize: 16, color: const Color(0xFF1E293B))),
+                    const SizedBox(height: 4),
+                    Text(customer?.phone ?? "", style: AppTextStyle.medium.copyWith(fontSize: 14, color: const Color(0xFF64748B))),
+                  ],
+                ),
+              ),
+              Text(booking.bookingStatus ?? "", style: AppTextStyle.medium.copyWith(color: Colors.grey)),
+            ],
+          ),
+        );
+      },
     );
   }
 }

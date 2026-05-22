@@ -157,7 +157,7 @@ class _CommunityScreenState extends State<CommunityScreen> with SingleTickerProv
                     ),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(20),
-                      child: CustomNetworkImage(imageUrl: "https://ontrip.itfuturz.in/$coverImage", height: 64, width: 64, fit: BoxFit.cover),
+                      child: CustomNetworkImage(imageUrl: "${AppNetworkConstants.baseURL}$coverImage", height: 64, width: 64, fit: BoxFit.cover),
                     ),
                   ),
                 ),

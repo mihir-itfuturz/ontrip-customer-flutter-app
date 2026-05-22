@@ -151,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         borderRadius: BorderRadius.circular(32),
         child: Stack(
           children: [
-            Positioned.fill(child: CustomNetworkImage(imageUrl: "https://ontrip.itfuturz.in/$coverImage")),
+            Positioned.fill(child: CustomNetworkImage(imageUrl: "${AppNetworkConstants.baseURL}$coverImage")),
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
@@ -418,7 +418,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
               borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
               child: Stack(
                 children: [
-                  CustomNetworkImage(imageUrl: image.startsWith("http") ? image : "https://ontrip.itfuturz.in/$image", height: 180, width: double.infinity),
+                  CustomNetworkImage(imageUrl: image.startsWith("http") ? image : "${AppNetworkConstants.baseURL}$image", height: 180, width: double.infinity),
                   Positioned(
                     top: 16,
                     left: 16,
@@ -1030,7 +1030,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           child: Stack(
             children: [
               // Background Image
-              Positioned.fill(child: CustomNetworkImage(imageUrl: "${'https://ontrip.itfuturz.in/'}$coverImage")),
+              Positioned.fill(child: CustomNetworkImage(imageUrl: "${AppNetworkConstants.baseURL}$coverImage")),
               // Gradient Overlay
               Positioned.fill(
                 child: Container(

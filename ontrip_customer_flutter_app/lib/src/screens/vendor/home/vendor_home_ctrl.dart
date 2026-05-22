@@ -18,6 +18,7 @@ class VendorPackage {
   final List<Itinerary>? itinerary;
   final List<String>? inclusions;
   final List<dynamic>? exclusions;
+  final List<Booking>? bookings;
 
   VendorPackage({
     required this.id,
@@ -36,6 +37,8 @@ class VendorPackage {
     this.itinerary,
     this.inclusions,
     this.exclusions,
+    this.bookings,
+    // this.vendorId,
   });
 
   factory VendorPackage.fromJson(Map<String, dynamic> json) {
@@ -53,9 +56,12 @@ class VendorPackage {
       endDate: json['endDate'],
       status: json['status'] ?? '',
       isActive: json['isActive'] ?? false,
-      itinerary: json['itinerary'] != null ? List<Itinerary>.from(json['itinerary'].map((x) => Itinerary.fromJson(x))) : null,
+      itinerary: json['itinerary'] != null
+          ? List<Itinerary>.from((json['itinerary'] as List).map((x) => Itinerary.fromJson(Map<String, dynamic>.from(x as Map))))
+          : null,
       inclusions: json['inclusions'] != null ? List<String>.from(json['inclusions']) : null,
-      exclusions: json['exclusions'] as List<dynamic>?,
+      exclusions: json['exclusions'] != null ? List<dynamic>.from(json['exclusions']) : null,
+      bookings: (json['bookings'] as List<dynamic>?)?.map((x) => x is Map<String, dynamic> ? Booking.fromJson(x) : Booking(id: x?.toString() ?? '')).toList(),
     );
   }
 }
@@ -77,14 +83,10 @@ class VendorHomeCtrl extends GetxController {
   Future<void> fetchPackages() async {
     try {
       isLoading.value = true;
-      final response = await ApiManager.call(
-        endPoint: BACKEND.vendorPackages,
-        type: ApiType.get,
-      );
+      final response = await ApiManager.call(endPoint: BACKEND.vendorPackages, type: ApiType.get);
       log('Vendor packages status: ${response.status}, success: ${response.success}');
       log('Vendor packages data: ${response.data}');
-      if ((response.status == 1 || response.status == 200) &&
-          response.success == true) {
+      if ((response.status == 1 || response.status == 200) && response.success == true) {
         final data = response.data;
         if (data == null) {
           debugPrint('Vendor packages: data is null');

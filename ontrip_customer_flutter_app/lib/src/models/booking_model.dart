@@ -4,22 +4,13 @@ class BookingResponseData {
 
   BookingResponseData({this.bookings, this.pagination});
 
-  factory BookingResponseData.fromJson(Map<String, dynamic> json) =>
-      BookingResponseData(
-        bookings: json["bookings"] == null
-            ? null
-            : List<Booking>.from(
-                json["bookings"].map((x) => Booking.fromJson(x)),
-              ),
-        pagination: json["pagination"] == null
-            ? null
-            : Pagination.fromJson(json["pagination"]),
-      );
+  factory BookingResponseData.fromJson(Map<String, dynamic> json) => BookingResponseData(
+    bookings: json["bookings"] == null ? null : List<Booking>.from(json["bookings"].map((x) => Booking.fromJson(x))),
+    pagination: json["pagination"] == null ? null : Pagination.fromJson(json["pagination"]),
+  );
 
   Map<String, dynamic> toJson() => {
-    "bookings": bookings == null
-        ? null
-        : List<dynamic>.from(bookings!.map((x) => x.toJson())),
+    "bookings": bookings == null ? null : List<dynamic>.from(bookings!.map((x) => x.toJson())),
     "pagination": pagination?.toJson(),
   };
 }
@@ -66,45 +57,29 @@ class Booking {
   factory Booking.fromJson(Map<String, dynamic> json) => Booking(
     id: json["_id"],
     bookingId: json["bookingId"],
-    package: json["package"] == null ? null : Package.fromJson(json["package"]),
+    package: json["package"] == null
+        ? null
+        : json["package"] is Map
+            ? Package.fromJson(Map<String, dynamic>.from(json["package"]))
+            : Package(id: json["package"].toString()),
     whitelabelPackage: json["whitelabelPackage"] == null
         ? null
-        : WhitelabelPackage.fromJson(json["whitelabelPackage"]),
+        : json["whitelabelPackage"] is Map
+            ? WhitelabelPackage.fromJson(Map<String, dynamic>.from(json["whitelabelPackage"]))
+            : WhitelabelPackage(id: json["whitelabelPackage"].toString()),
     bookedBy: json["bookedBy"],
-    customer: json["customer"] == null
-        ? null
-        : Customer.fromJson(json["customer"]),
-    agencyCustomer: json["agencyCustomer"] == null
-        ? null
-        : AgencyCustomer.fromJson(json["agencyCustomer"]),
-    travelers: json["travelers"] == null
-        ? null
-        : List<Traveler>.from(
-            json["travelers"].map((x) => Traveler.fromJson(x)),
-          ),
-    travelerCount: json["travelerCount"] is int
-        ? json["travelerCount"]
-        : (json["travelerCount"] as double?)?.toInt(),
-    travelDate: json["travelDate"] == null
-        ? null
-        : DateTime.parse(json["travelDate"]),
-    totalAmount: json["totalAmount"] is int
-        ? json["totalAmount"]
-        : (json["totalAmount"] as double?)?.toInt(),
+    customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
+    agencyCustomer: json["agencyCustomer"] == null ? null : AgencyCustomer.fromJson(json["agencyCustomer"]),
+    travelers: json["travelers"] == null ? null : List<Traveler>.from(json["travelers"].map((x) => Traveler.fromJson(x))),
+    travelerCount: json["travelerCount"] is int ? json["travelerCount"] : (json["travelerCount"] as double?)?.toInt(),
+    travelDate: json["travelDate"] == null ? null : DateTime.parse(json["travelDate"]),
+    totalAmount: json["totalAmount"] is int ? json["totalAmount"] : (json["totalAmount"] as double?)?.toInt(),
     paymentStatus: json["paymentStatus"],
     bookingStatus: json["bookingStatus"],
-    currentDay: json["currentDay"] is int
-        ? json["currentDay"]
-        : (json["currentDay"] as double?)?.toInt(),
-    tickets: json["tickets"] == null
-        ? null
-        : List<Ticket>.from(json["tickets"].map((x) => Ticket.fromJson(x))),
-    createdAt: json["createdAt"] == null
-        ? null
-        : DateTime.parse(json["createdAt"]),
-    updatedAt: json["updatedAt"] == null
-        ? null
-        : DateTime.parse(json["updatedAt"]),
+    currentDay: json["currentDay"] is int ? json["currentDay"] : (json["currentDay"] as double?)?.toInt(),
+    tickets: json["tickets"] == null ? null : List<Ticket>.from(json["tickets"].map((x) => Ticket.fromJson(x))),
+    createdAt: json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
+    updatedAt: json["updatedAt"] == null ? null : DateTime.parse(json["updatedAt"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -115,18 +90,14 @@ class Booking {
     "bookedBy": bookedBy,
     "customer": customer?.toJson(),
     "agencyCustomer": agencyCustomer?.toJson(),
-    "travelers": travelers == null
-        ? null
-        : List<dynamic>.from(travelers!.map((x) => x.toJson())),
+    "travelers": travelers == null ? null : List<dynamic>.from(travelers!.map((x) => x.toJson())),
     "travelerCount": travelerCount,
     "travelDate": travelDate?.toIso8601String(),
     "totalAmount": totalAmount,
     "paymentStatus": paymentStatus,
     "bookingStatus": bookingStatus,
     "currentDay": currentDay,
-    "tickets": tickets == null
-        ? null
-        : List<dynamic>.from(tickets!.map((x) => x.toJson())),
+    "tickets": tickets == null ? null : List<dynamic>.from(tickets!.map((x) => x.toJson())),
     "createdAt": createdAt?.toIso8601String(),
     "updatedAt": updatedAt?.toIso8601String(),
   };
@@ -144,23 +115,10 @@ class AgencyCustomer {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
-  AgencyCustomer({
-    this.docs,
-    this.id,
-    this.customer,
-    this.managedBy,
-    this.name,
-    this.email,
-    this.phone,
-    this.isActive,
-    this.createdAt,
-    this.updatedAt,
-  });
+  AgencyCustomer({this.docs, this.id, this.customer, this.managedBy, this.name, this.email, this.phone, this.isActive, this.createdAt, this.updatedAt});
 
   factory AgencyCustomer.fromJson(Map<String, dynamic> json) => AgencyCustomer(
-    docs: json["docs"] == null
-        ? null
-        : AgencyCustomerDocs.fromJson(json["docs"]),
+    docs: json["docs"] == null ? null : AgencyCustomerDocs.fromJson(json["docs"]),
     id: json["_id"],
     customer: json["customer"],
     managedBy: json["managedBy"],
@@ -168,12 +126,8 @@ class AgencyCustomer {
     email: json["email"],
     phone: json["phone"],
     isActive: json["isActive"],
-    createdAt: json["createdAt"] == null
-        ? null
-        : DateTime.parse(json["createdAt"]),
-    updatedAt: json["updatedAt"] == null
-        ? null
-        : DateTime.parse(json["updatedAt"]),
+    createdAt: json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
+    updatedAt: json["updatedAt"] == null ? null : DateTime.parse(json["updatedAt"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -198,26 +152,16 @@ class AgencyCustomerDocs {
   final String? passport;
   final String? visaDoc;
 
-  AgencyCustomerDocs({
-    this.otherDocs,
-    this.aadharFront,
-    this.aadharBack,
-    this.panCard,
-    this.passport,
-    this.visaDoc,
-  });
+  AgencyCustomerDocs({this.otherDocs, this.aadharFront, this.aadharBack, this.panCard, this.passport, this.visaDoc});
 
-  factory AgencyCustomerDocs.fromJson(Map<String, dynamic> json) =>
-      AgencyCustomerDocs(
-        otherDocs: json["otherDocs"] == null
-            ? null
-            : List<String>.from(json["otherDocs"].map((x) => x)),
-        aadharFront: json["aadharFront"],
-        aadharBack: json["aadharBack"],
-        panCard: json["panCard"],
-        passport: json["passport"],
-        visaDoc: json["visaDoc"],
-      );
+  factory AgencyCustomerDocs.fromJson(Map<String, dynamic> json) => AgencyCustomerDocs(
+    otherDocs: json["otherDocs"] == null ? null : List<String>.from(json["otherDocs"].map((x) => x)),
+    aadharFront: json["aadharFront"],
+    aadharBack: json["aadharBack"],
+    panCard: json["panCard"],
+    passport: json["passport"],
+    visaDoc: json["visaDoc"],
+  );
 
   Map<String, dynamic> toJson() => {
     "otherDocs": otherDocs,
@@ -237,26 +181,15 @@ class Customer {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
-  Customer({
-    this.id,
-    this.phone,
-    this.name,
-    this.email,
-    this.createdAt,
-    this.updatedAt,
-  });
+  Customer({this.id, this.phone, this.name, this.email, this.createdAt, this.updatedAt});
 
   factory Customer.fromJson(Map<String, dynamic> json) => Customer(
     id: json["_id"],
     phone: json["phone"],
     name: json["name"],
     email: json["email"],
-    createdAt: json["createdAt"] == null
-        ? null
-        : DateTime.parse(json["createdAt"]),
-    updatedAt: json["updatedAt"] == null
-        ? null
-        : DateTime.parse(json["updatedAt"]),
+    createdAt: json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
+    updatedAt: json["updatedAt"] == null ? null : DateTime.parse(json["updatedAt"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -318,41 +251,19 @@ class Package {
     title: json["title"],
     description: json["description"],
     destination: json["destination"],
-    images: json["images"] == null
-        ? null
-        : List<String>.from(json["images"].map((x) => x)),
-    totalDays: json["totalDays"] is int
-        ? json["totalDays"]
-        : (json["totalDays"] as double?)?.toInt(),
-    basePrice: json["basePrice"] is int
-        ? json["basePrice"]
-        : (json["basePrice"] as double?)?.toInt(),
+    images: json["images"] == null ? null : List<String>.from(json["images"].map((x) => x)),
+    totalDays: json["totalDays"] is int ? json["totalDays"] : (json["totalDays"] as double?)?.toInt(),
+    basePrice: json["basePrice"] is int ? json["basePrice"] : (json["basePrice"] as double?)?.toInt(),
     currency: json["currency"],
-    maxCapacity: json["maxCapacity"] is int
-        ? json["maxCapacity"]
-        : (json["maxCapacity"] as double?)?.toInt(),
-    itinerary: json["itinerary"] == null
-        ? null
-        : List<Itinerary>.from(
-            json["itinerary"].map((x) => Itinerary.fromJson(x)),
-          ),
-    inclusions: json["inclusions"] == null
-        ? null
-        : List<String>.from(json["inclusions"].map((x) => x)),
-    exclusions: json["exclusions"] == null
-        ? null
-        : List<dynamic>.from(json["exclusions"].map((x) => x)),
-    importantNotes: json["importantNotes"] == null
-        ? null
-        : List<dynamic>.from(json["importantNotes"].map((x) => x)),
+    maxCapacity: json["maxCapacity"] is int ? json["maxCapacity"] : (json["maxCapacity"] as double?)?.toInt(),
+    itinerary: json["itinerary"] == null ? null : List<Itinerary>.from(json["itinerary"].map((x) => Itinerary.fromJson(x))),
+    inclusions: json["inclusions"] == null ? null : List<String>.from(json["inclusions"].map((x) => x)),
+    exclusions: json["exclusions"] == null ? null : List<dynamic>.from(json["exclusions"].map((x) => x)),
+    importantNotes: json["importantNotes"] == null ? null : List<dynamic>.from(json["importantNotes"].map((x) => x)),
     status: json["status"],
     isActive: json["isActive"],
-    createdAt: json["createdAt"] == null
-        ? null
-        : DateTime.parse(json["createdAt"]),
-    updatedAt: json["updatedAt"] == null
-        ? null
-        : DateTime.parse(json["updatedAt"]),
+    createdAt: json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
+    updatedAt: json["updatedAt"] == null ? null : DateTime.parse(json["updatedAt"]),
     coverImage: json["coverImage"],
   );
 
@@ -367,9 +278,7 @@ class Package {
     "basePrice": basePrice,
     "currency": currency,
     "maxCapacity": maxCapacity,
-    "itinerary": itinerary == null
-        ? null
-        : List<dynamic>.from(itinerary!.map((x) => x.toJson())),
+    "itinerary": itinerary == null ? null : List<dynamic>.from(itinerary!.map((x) => x.toJson())),
     "inclusions": inclusions,
     "exclusions": exclusions,
     "importantNotes": importantNotes,
@@ -391,16 +300,7 @@ class Itinerary {
   final String? notes;
   final String? id;
 
-  Itinerary({
-    this.meals,
-    this.day,
-    this.date,
-    this.title,
-    this.description,
-    this.experiences,
-    this.notes,
-    this.id,
-  });
+  Itinerary({this.meals, this.day, this.date, this.title, this.description, this.experiences, this.notes, this.id});
 
   factory Itinerary.fromJson(Map<String, dynamic> json) => Itinerary(
     meals: json["meals"] == null ? null : Meals.fromJson(json["meals"]),
@@ -408,11 +308,7 @@ class Itinerary {
     date: json["date"] == null ? null : DateTime.parse(json["date"]),
     title: json["title"],
     description: json["description"],
-    experiences: json["experiences"] == null
-        ? null
-        : List<Experience>.from(
-            json["experiences"].map((x) => Experience.fromJson(x)),
-          ),
+    experiences: json["experiences"] == null ? null : List<Experience>.from(json["experiences"].map((x) => Experience.fromJson(x))),
     notes: json["notes"],
     id: json["_id"],
   );
@@ -423,9 +319,7 @@ class Itinerary {
     "date": date?.toIso8601String(),
     "title": title,
     "description": description,
-    "experiences": experiences == null
-        ? null
-        : List<dynamic>.from(experiences!.map((x) => x.toJson())),
+    "experiences": experiences == null ? null : List<dynamic>.from(experiences!.map((x) => x.toJson())),
     "notes": notes,
     "_id": id,
   };
@@ -482,29 +376,17 @@ class Experience {
     mapsLink: json["mapsLink"],
     startTime: json["startTime"],
     endTime: json["endTime"],
-    durationMinutes: json["durationMinutes"] is int
-        ? json["durationMinutes"]
-        : (json["durationMinutes"] as double?)?.toInt(),
+    durationMinutes: json["durationMinutes"] is int ? json["durationMinutes"] : (json["durationMinutes"] as double?)?.toInt(),
     isOptional: json["isOptional"],
     isHighlight: json["isHighlight"],
-    images: json["images"] == null
-        ? null
-        : List<String>.from(json["images"].map((x) => x)),
+    images: json["images"] == null ? null : List<String>.from(json["images"].map((x) => x)),
     videoUrl: json["videoUrl"],
-    vendor: json["vendor"] == null
-        ? null
-        : (json["vendor"] is Map
-            ? Vendor.fromJson(json["vendor"])
-            : Vendor(id: json["vendor"].toString())),
+    vendor: json["vendor"] == null ? null : (json["vendor"] is Map ? Vendor.fromJson(json["vendor"]) : Vendor(id: json["vendor"].toString())),
     vendorNotes: json["vendorNotes"],
-    whatToBring: json["whatToBring"] == null
-        ? null
-        : List<dynamic>.from(json["whatToBring"].map((x) => x)),
+    whatToBring: json["whatToBring"] == null ? null : List<dynamic>.from(json["whatToBring"].map((x) => x)),
     difficulty: json["difficulty"],
     includedInPrice: json["includedInPrice"],
-    extraCost: json["extraCost"] is int
-        ? json["extraCost"]
-        : (json["extraCost"] as double?)?.toInt(),
+    extraCost: json["extraCost"] is int ? json["extraCost"] : (json["extraCost"] as double?)?.toInt(),
     id: json["_id"],
   );
 
@@ -575,16 +457,10 @@ class Vendor {
     type: json["type"],
     city: json["city"],
     country: json["country"],
-    docs: json["docs"] == null
-        ? null
-        : List<dynamic>.from(json["docs"].map((x) => x)),
+    docs: json["docs"] == null ? null : List<dynamic>.from(json["docs"].map((x) => x)),
     isActive: json["isActive"],
-    createdAt: json["createdAt"] == null
-        ? null
-        : DateTime.parse(json["createdAt"]),
-    updatedAt: json["updatedAt"] == null
-        ? null
-        : DateTime.parse(json["updatedAt"]),
+    createdAt: json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
+    updatedAt: json["updatedAt"] == null ? null : DateTime.parse(json["updatedAt"]),
   );
 
   Map<String, dynamic> toJson() => {
@@ -613,14 +489,7 @@ class Meals {
   final dynamic lunchVendor;
   final dynamic dinnerVendor;
 
-  Meals({
-    this.breakfast,
-    this.lunch,
-    this.dinner,
-    this.breakfastVendor,
-    this.lunchVendor,
-    this.dinnerVendor,
-  });
+  Meals({this.breakfast, this.lunch, this.dinner, this.breakfastVendor, this.lunchVendor, this.dinnerVendor});
 
   factory Meals.fromJson(Map<String, dynamic> json) => Meals(
     breakfast: json["breakfast"],
@@ -653,20 +522,12 @@ class Ticket {
   factory Ticket.fromJson(Map<String, dynamic> json) => Ticket(
     name: json["name"],
     fileUrl: json["fileUrl"],
-    uploadedAt: json["uploadedAt"] == null
-        ? null
-        : DateTime.parse(json["uploadedAt"]),
+    uploadedAt: json["uploadedAt"] == null ? null : DateTime.parse(json["uploadedAt"]),
     uploadedBy: json["uploadedBy"],
     id: json["_id"],
   );
 
-  Map<String, dynamic> toJson() => {
-    "name": name,
-    "fileUrl": fileUrl,
-    "uploadedAt": uploadedAt?.toIso8601String(),
-    "uploadedBy": uploadedBy,
-    "_id": id,
-  };
+  Map<String, dynamic> toJson() => {"name": name, "fileUrl": fileUrl, "uploadedAt": uploadedAt?.toIso8601String(), "uploadedBy": uploadedBy, "_id": id};
 }
 
 class Traveler {
@@ -684,12 +545,7 @@ class Traveler {
     id: json["_id"],
   );
 
-  Map<String, dynamic> toJson() => {
-    "docs": docs?.toJson(),
-    "name": name,
-    "age": age,
-    "_id": id,
-  };
+  Map<String, dynamic> toJson() => {"docs": docs?.toJson(), "name": name, "age": age, "_id": id};
 }
 
 class TravelerDocs {
@@ -702,16 +558,10 @@ class TravelerDocs {
   factory TravelerDocs.fromJson(Map<String, dynamic> json) => TravelerDocs(
     aadharFront: json["aadharFront"],
     aadharBack: json["aadharBack"],
-    otherDocs: json["otherDocs"] == null
-        ? null
-        : List<dynamic>.from(json["otherDocs"].map((x) => x)),
+    otherDocs: json["otherDocs"] == null ? null : List<dynamic>.from(json["otherDocs"].map((x) => x)),
   );
 
-  Map<String, dynamic> toJson() => {
-    "aadharFront": aadharFront,
-    "aadharBack": aadharBack,
-    "otherDocs": otherDocs,
-  };
+  Map<String, dynamic> toJson() => {"aadharFront": aadharFront, "aadharBack": aadharBack, "otherDocs": otherDocs};
 }
 
 class WhitelabelPackage {
@@ -751,35 +601,24 @@ class WhitelabelPackage {
     this.updatedAt,
   });
 
-  factory WhitelabelPackage.fromJson(Map<String, dynamic> json) =>
-      WhitelabelPackage(
-        id: json["_id"],
-        originalPackage: json["originalPackage"],
-        createdBy: json["createdBy"],
-        ownedByParent: json["ownedByParent"],
-        customTitle: json["customTitle"],
-        customDescription: json["customDescription"],
-        customImages: json["customImages"] == null
-            ? null
-            : List<dynamic>.from(json["customImages"].map((x) => x)),
-        commissionType: json["commissionType"],
-        commissionValue: json["commissionValue"] is int
-            ? json["commissionValue"]
-            : (json["commissionValue"] as double?)?.toInt(),
-        finalPrice: json["finalPrice"] is int
-            ? json["finalPrice"]
-            : (json["finalPrice"] as double?)?.toInt(),
-        isActive: json["isActive"],
-        autoDisabledByParent: json["autoDisabledByParent"],
-        manuallyDisabledByOwner: json["manuallyDisabledByOwner"],
-        visibleToSubChildren: json["visibleToSubChildren"],
-        createdAt: json["createdAt"] == null
-            ? null
-            : DateTime.parse(json["createdAt"]),
-        updatedAt: json["updatedAt"] == null
-            ? null
-            : DateTime.parse(json["updatedAt"]),
-      );
+  factory WhitelabelPackage.fromJson(Map<String, dynamic> json) => WhitelabelPackage(
+    id: json["_id"],
+    originalPackage: json["originalPackage"],
+    createdBy: json["createdBy"],
+    ownedByParent: json["ownedByParent"],
+    customTitle: json["customTitle"],
+    customDescription: json["customDescription"],
+    customImages: json["customImages"] == null ? null : List<dynamic>.from(json["customImages"].map((x) => x)),
+    commissionType: json["commissionType"],
+    commissionValue: json["commissionValue"] is int ? json["commissionValue"] : (json["commissionValue"] as double?)?.toInt(),
+    finalPrice: json["finalPrice"] is int ? json["finalPrice"] : (json["finalPrice"] as double?)?.toInt(),
+    isActive: json["isActive"],
+    autoDisabledByParent: json["autoDisabledByParent"],
+    manuallyDisabledByOwner: json["manuallyDisabledByOwner"],
+    visibleToSubChildren: json["visibleToSubChildren"],
+    createdAt: json["createdAt"] == null ? null : DateTime.parse(json["createdAt"]),
+    updatedAt: json["updatedAt"] == null ? null : DateTime.parse(json["updatedAt"]),
+  );
 
   Map<String, dynamic> toJson() => {
     "_id": id,
@@ -810,24 +649,11 @@ class Pagination {
   Pagination({this.total, this.page, this.limit, this.totalPages});
 
   factory Pagination.fromJson(Map<String, dynamic> json) => Pagination(
-    total: json["total"] is int
-        ? json["total"]
-        : (json["total"] as double?)?.toInt(),
-    page: json["page"] is int
-        ? json["page"]
-        : (json["page"] as double?)?.toInt(),
-    limit: json["limit"] is int
-        ? json["limit"]
-        : (json["limit"] as double?)?.toInt(),
-    totalPages: json["totalPages"] is int
-        ? json["totalPages"]
-        : (json["totalPages"] as double?)?.toInt(),
+    total: json["total"] is int ? json["total"] : (json["total"] as double?)?.toInt(),
+    page: json["page"] is int ? json["page"] : (json["page"] as double?)?.toInt(),
+    limit: json["limit"] is int ? json["limit"] : (json["limit"] as double?)?.toInt(),
+    totalPages: json["totalPages"] is int ? json["totalPages"] : (json["totalPages"] as double?)?.toInt(),
   );
 
-  Map<String, dynamic> toJson() => {
-    "total": total,
-    "page": page,
-    "limit": limit,
-    "totalPages": totalPages,
-  };
+  Map<String, dynamic> toJson() => {"total": total, "page": page, "limit": limit, "totalPages": totalPages};
 }

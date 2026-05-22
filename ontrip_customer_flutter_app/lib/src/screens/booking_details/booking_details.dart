@@ -155,7 +155,7 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
           Positioned.fill(
             child: ClipRRect(
               borderRadius: BorderRadius.circular(24),
-              child: CustomNetworkImage(imageUrl: coverImage.startsWith("http") ? coverImage : "https://ontrip.itfuturz.in/$coverImage", fit: BoxFit.cover),
+              child: CustomNetworkImage(imageUrl: coverImage.startsWith("http") ? coverImage : "${AppNetworkConstants.baseURL}$coverImage", fit: BoxFit.cover),
             ),
           ),
           Positioned.fill(
@@ -307,7 +307,7 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
         borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(32), bottomRight: Radius.circular(32)),
         child: Stack(
           children: [
-            Positioned.fill(child: CustomNetworkImage(imageUrl: "https://ontrip.itfuturz.in/$coverImage")),
+            Positioned.fill(child: CustomNetworkImage(imageUrl: "${AppNetworkConstants.baseURL}$coverImage")),
             Positioned.fill(
               child: Container(
                 decoration: BoxDecoration(
@@ -752,7 +752,7 @@ class BookingDetailsScreen extends GetView<BookingDetailsCtrl> {
               borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
               child: Stack(
                 children: [
-                  CustomNetworkImage(imageUrl: image.startsWith("http") ? image : "https://ontrip.itfuturz.in/$image", height: 180, width: double.infinity),
+                  CustomNetworkImage(imageUrl: image.startsWith("http") ? image : "${AppNetworkConstants.baseURL}$image", height: 180, width: double.infinity),
                   Positioned(
                     top: 16,
                     right: 16,

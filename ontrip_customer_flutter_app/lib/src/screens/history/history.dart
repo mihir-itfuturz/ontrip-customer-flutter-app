@@ -216,7 +216,7 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
                         colors: [Colors.transparent, Colors.black.withValues(alpha: 0.1)],
                       ),
                     ),
-                    child: CustomNetworkImage(imageUrl: "${'https://ontrip.itfuturz.in/'}$coverImage", fit: BoxFit.cover),
+                    child: CustomNetworkImage(imageUrl: "${AppNetworkConstants.baseURL}$coverImage", fit: BoxFit.cover),
                   ),
                 ),
               ),
